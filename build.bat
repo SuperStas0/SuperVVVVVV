@@ -3,7 +3,7 @@ setlocal
 cd /d "%~dp0"
 
 rem Usage: build.bat [path to SDL2 x86_64-w64-mingw32 folder]
-rem Default SDL2 folder: SDL32\x86_64-w64-mingw32 next to this file.
+rem Default SDL2 folder: SDL32\x86_64-w64-mingw32 or SDL32 next to this file.
 
 rem windres (icon embedding) breaks on paths with spaces.
 echo %~dp0| findstr /C:" " >nul
@@ -26,7 +26,10 @@ where ninja >nul 2>&1
 if errorlevel 1 goto :nocmake
 
 set "SDL=%~1"
-if "%SDL%"=="" set "SDL=%~dp0SDL32\x86_64-w64-mingw32"
+if not "%SDL%"=="" goto :sdlset
+set "SDL=%~dp0SDL32\x86_64-w64-mingw32"
+if not exist "%SDL%\include\SDL2\SDL.h" set "SDL=%~dp0SDL32"
+:sdlset
 for %%I in ("%SDL%") do set "SDL=%%~fI"
 if not exist "%SDL%\include\SDL2\SDL.h" goto :nosdl
 if not exist "%SDL%\lib\libSDL2.dll.a" goto :nosdl

@@ -47,7 +47,7 @@ It uses the same save and settings folder as the original game.
 ### Steps
 
 1. Put the repo in a path **without spaces** (e.g. `C:\vsrc`). Paths with spaces break icon embedding.
-2. Extract the SDL2 MinGW package so the folder `SDL32\x86_64-w64-mingw32` exists in the repo root (or pass its location to the script).
+2. Extract the SDL2 MinGW package into `SDL32` in the repo root, either as `SDL32\x86_64-w64-mingw32\...` or with `bin`, `include` and `lib` directly inside `SDL32` (or pass its location to the script).
 3. Run in `cmd`:
 
    ```
