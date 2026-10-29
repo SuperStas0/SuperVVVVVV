@@ -70,9 +70,6 @@ After building, run `release.bat`. It creates `release\SuperVVVVVV.zip` containi
 
 - `SuperVVVVVV.exe` and `SDL2.dll`
 - `SuperVVVVVV-README.md`
-- `SuperVVVVVV-licenses\` with `LICENSE.md` and `THIRD_PARTY_LICENSES.txt`
-
-The license files must stay in the archive: the VVVVVV license requires its notice to be kept in binary distributions, and two statically linked libraries (SheenBidi, c-hashmap) require theirs.
 
 ## What changed from upstream
 
@@ -90,6 +87,4 @@ Based on the VVVVVV 2.4.4 tag (`ea811e1`). Useful when rebasing onto a newer ver
 
 SuperVVVVVV is an **altered version** of VVVVVV, based on the VVVVVV source code, copyright Terry Cavanagh. It is not the original game and is not affiliated with or endorsed by its author.
 
-Provided free of charge for non-commercial use under the terms of the [VVVVVV Source Code License](https://github.com/TerryCavanagh/VVVVVV/blob/master/LICENSE.md) (copy in `SuperVVVVVV-licenses\`). It contains none of the game's assets, which must come from your own copy of the game. VVVVVV is a commercial game; if you enjoy it, please buy it at [thelettervsixtim.es](https://thelettervsixtim.es).
-
-Third-party licenses: `SuperVVVVVV-licenses\THIRD_PARTY_LICENSES.txt`.
+Provided free of charge for non-commercial use under the terms of the [VVVVVV Source Code License](https://github.com/TerryCavanagh/VVVVVV/blob/master/LICENSE.md)
