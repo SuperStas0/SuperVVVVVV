@@ -10,6 +10,7 @@ if not exist README.md goto :nofile
 
 set "OUT=release\SuperVVVVVV"
 if exist release rmdir /s /q release
+mkdir "%OUT%"
 
 copy /y build\VVVVVV.exe "%OUT%\SuperVVVVVV.exe" >nul
 copy /y build\SDL2.dll "%OUT%\SDL2.dll" >nul
