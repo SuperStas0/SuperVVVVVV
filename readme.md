@@ -40,7 +40,7 @@ It uses the same save and settings folder as the original game.
 | Tool | Notes |
 |---|---|
 | Windows 10/11 x64 | |
-| [w64devkit](https://github.com/skeeto/w64devkit) | GCC/G++ (built with 15.2); its `bin` folder must be in `PATH` |
+| [w64devkit](https://github.com/skeeto/w64devkit) | GCC/G++ (built with 15.2). Found automatically in `Program Files`, `Program Files (x86)` or `C:\w64devkit`; otherwise set `W64DEVKIT` to its folder or add its `bin` to `PATH` |
 | CMake + Ninja | `pip install cmake ninja`; Python's `Scripts` folder must be in `PATH` |
 | SDL2 2.24.0+ MinGW dev package | `SDL2-devel-<version>-mingw.zip` from the [SDL releases](https://github.com/libsdl-org/SDL/releases) (built with 2.32.8) |
 
@@ -90,4 +90,6 @@ Based on the VVVVVV 2.4.4 tag (`ea811e1`). Useful when rebasing onto a newer ver
 
 SuperVVVVVV is an **altered version** of VVVVVV, based on the VVVVVV source code, copyright Terry Cavanagh. It is not the original game and is not affiliated with or endorsed by its author.
 
-Provided free of charge for non-commercial use under the terms of the [VVVVVV Source Code License](https://github.com/TerryCavanagh/VVVVVV/blob/master/LICENSE.md) (copy in `SuperVVVVVV-licenses\`). It contains none of the game's assets, which must come from your own copy of the game. VVVVVV is a commercial game
+Provided free of charge for non-commercial use under the terms of the [VVVVVV Source Code License](https://github.com/TerryCavanagh/VVVVVV/blob/master/LICENSE.md) (copy in `SuperVVVVVV-licenses\`). It contains none of the game's assets, which must come from your own copy of the game. VVVVVV is a commercial game; if you enjoy it, please buy it at [thelettervsixtim.es](https://thelettervsixtim.es).
+
+Third-party licenses: `SuperVVVVVV-licenses\THIRD_PARTY_LICENSES.txt`.

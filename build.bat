@@ -10,6 +10,13 @@ echo %~dp0| findstr /C:" " >nul
 if not errorlevel 1 goto :spaces
 
 where gcc >nul 2>&1
+if not errorlevel 1 goto :havegcc
+if defined W64DEVKIT if exist "%W64DEVKIT%\bin\gcc.exe" set "PATH=%PATH%;%W64DEVKIT%\bin"
+if exist "%ProgramFiles(x86)%\w64devkit\bin\gcc.exe" set "PATH=%PATH%;%ProgramFiles(x86)%\w64devkit\bin"
+if exist "%ProgramFiles%\w64devkit\bin\gcc.exe" set "PATH=%PATH%;%ProgramFiles%\w64devkit\bin"
+if exist "C:\w64devkit\bin\gcc.exe" set "PATH=%PATH%;C:\w64devkit\bin"
+:havegcc
+where gcc >nul 2>&1
 if errorlevel 1 goto :nogcc
 where g++ >nul 2>&1
 if errorlevel 1 goto :nogcc
@@ -47,7 +54,7 @@ echo ERROR: this folder's path contains spaces. Move the repo to a path without 
 exit /b 1
 
 :nogcc
-echo ERROR: gcc/g++ not found in PATH. Add the w64devkit bin folder to PATH.
+echo ERROR: gcc/g++ not found. Add the w64devkit bin folder to PATH, or set the W64DEVKIT environment variable to the w64devkit folder.
 exit /b 1
 
 :nocmake
