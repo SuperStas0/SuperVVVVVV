@@ -104,6 +104,7 @@ set(VVV_CXX_SRC
     src/Script.cpp
     src/Scripts.cpp
     src/Spacestation2.cpp
+    src/SplitData.cpp
     src/TerminalScripts.cpp
     src/Textbox.cpp
     src/Tower.cpp

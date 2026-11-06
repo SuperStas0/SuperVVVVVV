@@ -71,6 +71,17 @@ After building, run `release.bat`. It creates `release\SuperVVVVVV.zip` containi
 - `SuperVVVVVV.exe` and `SDL2.dll`
 - `SuperVVVVVV-README.md`
 
+## Autosplitter
+
+`LiveSplit.VVVVVV.asl` is the [tzann autosplitter](https://github.com/tzann/Autosplitters) patched to also work with this build. Its start/split/reset/game time logic and settings are unchanged.
+
+- **SuperVVVVVV:** the game keeps a fixed-layout copy of every variable the autosplitter reads (`SplitData.cpp`). The script finds it by scanning for the `SUPERVVVVVV_SPLIT` marker, so it keeps working however the game is modified, as long as the struct is updated.
+- **Vanilla VVVVVV:** falls back to the original module-size version detection and offsets.
+
+Use it as the LiveSplit layout's Scriptable Auto Splitter script.
+
+When adding a field, append it to the end of the struct in `SplitData.cpp` and add its offset to the `.asl`.
+
 ## What changed from upstream
 
 Based on the VVVVVV 2.4.4 tag (`ea811e1`). Useful when rebasing onto a newer version:
@@ -78,13 +89,9 @@ Based on the VVVVVV 2.4.4 tag (`ea811e1`). Useful when rebasing onto a newer ver
 | File | Change |
 |---|---|
 | `desktop_version/src/Savestate.h`, `Savestate.cpp` | New: savestate logic |
-| `desktop_version/src/Input.cpp` | `gameinput()` calls `savestate::input()` |
+| `desktop_version/src/SplitData.h`, `SplitData.cpp` | New: autosplitter data struct |
+| `desktop_version/src/Input.cpp` | `gameinput()` calls `savestate::input()`; `fadetomode` and `gotomode` made non-static |
 | `desktop_version/src/Script.cpp` | `startgamemode()` calls `savestate::note_mode()` |
+| `desktop_version/src/main.cpp` | `loop_end()` calls `splitdata::update()` |
 | `desktop_version/src/Game.cpp` | Time trial result recording skipped when `savestate::used()` |
-| `desktop_version/CMakeLists.txt` | Adds `Savestate.cpp` to the sources |
-
-## Credits and license
-
-SuperVVVVVV is an **altered version** of VVVVVV, based on the VVVVVV source code, copyright Terry Cavanagh. It is not the original game and is not affiliated with or endorsed by its author.
-
-Provided free of charge for non-commercial use under the terms of the [VVVVVV Source Code License](https://github.com/TerryCavanagh/VVVVVV/blob/master/LICENSE.md)
+| `desktop_version/CMakeLists.txt` | Adds `Savestate.cpp` and `SplitData.cpp` to the sources |

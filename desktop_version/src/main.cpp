@@ -33,6 +33,7 @@
 #include "RenderFixed.h"
 #include "Screen.h"
 #include "Script.h"
+#include "SplitData.h"
 #include "UtilityClass.h"
 #include "Vlogging.h"
 
@@ -1067,6 +1068,8 @@ static enum LoopCode loop_end(void)
         key.resetWindow = false;
         gameScreen.ResizeScreen(-1, -1);
     }
+
+    splitdata::update();
 
     return Loop_continue;
 }

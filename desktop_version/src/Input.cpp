@@ -340,9 +340,9 @@ static void toggleflipmode(void)
     graphics.flipmode = temp;
 }
 
-static bool fadetomode = false;
+bool fadetomode = false;
 static int fadetomodedelay = 0;
-static enum StartMode gotomode = Start_MAINGAME;
+enum StartMode gotomode = Start_MAINGAME;
 
 static void startmode(const enum StartMode mode)
 {
