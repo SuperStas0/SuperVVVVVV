@@ -20,18 +20,22 @@ The key is the one left of `1`.
 
 ## Install
 
-Requires your own copy of VVVVVV. The game's `data.zip` is not included.
+Requires your own copy of VVVVVV on Steam. The game's `data.zip` is not included.
 
-1. Extract the archive into the game folder (`...\steamapps\common\VVVVVV`), next to the original `VVVVVV.exe` and `data.zip`. The original game is not overwritten.
-2. Run `SuperVVVVVV.exe`.
+1. In the game folder (`...\steamapps\common\VVVVVV`), copy the original `VVVVVV.exe` to a backup, e.g. `VVVVVV-vanilla.exe`.
+2. Extract the release archive into the game folder, overwriting `VVVVVV.exe`.
+3. Launch the game from Steam.
 
-It uses the same save and settings folder as the original game.
+To go back to vanilla, put the backup back as `VVVVVV.exe`, or use Steam > Properties > Installed Files > Verify integrity of game files. A Steam update also restores it.
 
-### Steam
+The build is 64-bit and statically linked, so it needs no `SDL2.dll`. It uses the same save and settings folder as the original game.
 
-- **Separate entry:** Steam > Games > Add a Non-Steam Game to My Library > Browse > select `SuperVVVVVV.exe`. Counts hours, and the overlay should work.
-- **Hours on the real game:** rename the original `VVVVVV.exe` (backup), then rename `SuperVVVVVV.exe` to `VVVVVV.exe`. A Steam update or "Verify integrity" restores the original.
-- Steam achievements and cloud saves do not work, because this build has Steam API support off.
+### Steam achievements
+
+- Needs the 64-bit `steam_api64.dll` next to `VVVVVV.exe`. It is not included: copy it from any 64-bit Steam game's folder or from the Steamworks SDK (`redistributable_bin\win64`). If it is in the repo root, `build.bat` copies it to `build\` and `release.bat` adds it to the archive.
+- Steam must be running and the game must be launched from the Steam library with `VVVVVV.exe` replaced as above. A Non-Steam Game shortcut has another app ID and gets no achievements.
+- Without the DLL or Steam the game runs normally, without achievements.
+- A time trial run that loaded a state never unlocks achievements, same as its record. At startup the game re-sends the achievements your save data already implies, as the original does.
 
 ## Building
 
@@ -42,7 +46,7 @@ It uses the same save and settings folder as the original game.
 | Windows 10/11 x64 | |
 | [w64devkit](https://github.com/skeeto/w64devkit) | GCC/G++ (built with 15.2). Found automatically in `Program Files`, `Program Files (x86)` or `C:\w64devkit`; otherwise set `W64DEVKIT` to its folder or add its `bin` to `PATH` |
 | CMake + Ninja | `pip install cmake ninja`; Python's `Scripts` folder must be in `PATH` |
-| SDL2 2.24.0+ MinGW dev package | `SDL2-devel-<version>-mingw.zip` from the [SDL releases](https://github.com/libsdl-org/SDL/releases) (built with 2.32.8) |
+| SDL2 2.24.0+ MinGW dev package (x86_64) | `SDL2-devel-<version>-mingw.zip` from the [SDL releases](https://github.com/libsdl-org/SDL/releases) (built with 2.32.8). Linked statically (`lib\libSDL2.a`) |
 
 ### Steps
 
@@ -60,7 +64,7 @@ It uses the same save and settings folder as the original game.
    build.bat C:\path\to\SDL2\x86_64-w64-mingw32
    ```
 
-4. Output: `build\VVVVVV.exe`, `build\SDL2.dll` and `build\LiveSplit.VVVVVV.asl`. Compiler warnings are expected.
+4. Output: `build\VVVVVV.exe` and `build\LiveSplit.VVVVVV.asl`, plus `steam_api64.dll` if it is in the repo root. Compiler warnings are expected.
 
 From a w64devkit shell, `sh build.sh <absolute path to x86_64-w64-mingw32>` does the same.
 
@@ -68,7 +72,8 @@ From a w64devkit shell, `sh build.sh <absolute path to x86_64-w64-mingw32>` does
 
 After building, run `release.bat`. It creates `release\SuperVVVVVV.zip` containing:
 
-- `SuperVVVVVV.exe` and `SDL2.dll`
+- `VVVVVV.exe`
+- `steam_api64.dll` (only if it is in the repo root)
 - `LiveSplit.VVVVVV.asl`
 - `SuperVVVVVV-README.md`
 
@@ -86,8 +91,8 @@ After building, run `release.bat`. It creates `release\SuperVVVVVV.zip` containi
 
 | Game | How it is detected |
 |---|---|
-| SuperVVVVVV or any modded build (process `SuperVVVVVV.exe` or `VVVVVV.exe`) | Scans the exe for the `SUPERVVVVVV_SPLIT` marker and reads the `SplitData` struct. Works for any exe size. |
 | Vanilla VVVVVV 2.0-2.4.4 | Original module size detection and offsets |
+| Modded build (any other `VVVVVV.exe`) | Scans the exe for the `SUPERVVVVVV_SPLIT` marker and reads the `SplitData` struct. Works for any exe size. |
 | Anything else | Inactive |
 
 ### Changing the game
@@ -95,7 +100,7 @@ After building, run `release.bat`. It creates `release\SuperVVVVVV.zip` containi
 - `SplitData.cpp` mirrors the game variables each frame in `loop_end()`. The struct is append-only: never move, resize or remove fields.
 - New field: add it at the end of the struct, then read it in the `update` block of the `.asl`.
 - Incompatible layout: change the marker in `SplitData.cpp` and in the `.asl` `init` block, so older scripts stay inactive instead of reading wrong data.
-- Other exe name: add `state("<name>", "split") {}` and `state("<name>", "unknown") {}` to the `.asl`.
+- Other exe name: duplicate the `VVVVVV` `split` and `unknown` states in the `.asl` with that process name.
 
 ## What changed from upstream
 
@@ -110,4 +115,5 @@ Based on the VVVVVV 2.4.4 tag (`ea811e1`). Useful when rebasing onto a newer ver
 | `desktop_version/src/main.cpp` | `loop_end()` calls `splitdata::update()` |
 | `desktop_version/src/Game.cpp` | Time trial result recording skipped when `savestate::used()` |
 | `autosplitter/LiveSplit.VVVVVV.asl` | Autosplitter with `SplitData` support, signature scan added to `init` and a `split` mode in `update` |
-| `desktop_version/CMakeLists.txt` | Adds `Savestate.cpp` and `SplitData.cpp` to the sources |
+| `desktop_version/src/SteamNetwork.c` | Loads `steam_api64.dll` on 64-bit Windows |
+| `desktop_version/CMakeLists.txt` | Adds `Savestate.cpp` and `SplitData.cpp` to the sources; embeds `icon.rc` on Windows |

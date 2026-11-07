@@ -16,7 +16,9 @@
 
 /* Shared object file name */
 
-#if defined(_WIN32)
+#if defined(_WIN64)
+#define STEAM_LIBRARY "steam_api64.dll"
+#elif defined(_WIN32)
 #define STEAM_LIBRARY "steam_api.dll"
 #elif defined(__APPLE__)
 #define STEAM_LIBRARY "libsteam_api.dylib"

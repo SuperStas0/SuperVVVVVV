@@ -32,25 +32,26 @@ if not exist "%SDL%\include\SDL2\SDL.h" set "SDL=%~dp0SDL32"
 :sdlset
 for %%I in ("%SDL%") do set "SDL=%%~fI"
 if not exist "%SDL%\include\SDL2\SDL.h" goto :nosdl
-if not exist "%SDL%\lib\libSDL2.dll.a" goto :nosdl
-if not exist "%SDL%\bin\SDL2.dll" goto :nosdl
+if not exist "%SDL%\lib\libSDL2.a" goto :nosdl
+if not exist "%SDL%\lib\libSDL2main.a" goto :nosdl
 set "SDLC=%SDL:\=/%"
 
 cmake -S desktop_version -B build -G Ninja -DCMAKE_BUILD_TYPE=Release ^
-    -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ ^
+    -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DSTEAM=ON ^
     "-DSDL2_INCLUDE_DIRS=%SDLC%/include/SDL2" ^
-    "-DSDL2_LIBRARIES=mingw32;%SDLC%/lib/libSDL2main.a;%SDLC%/lib/libSDL2.dll.a" ^
+    "-DSDL2_LIBRARIES=mingw32;%SDLC%/lib/libSDL2main.a;%SDLC%/lib/libSDL2.a;m;dinput8;dxguid;dxerr8;user32;gdi32;winmm;imm32;ole32;oleaut32;shell32;setupapi;version;uuid" ^
     "-DCMAKE_EXE_LINKER_FLAGS=-static -static-libgcc -static-libstdc++"
 if errorlevel 1 goto :failed
 
 cmake --build build
 if errorlevel 1 goto :failed
 
-copy /y "%SDL%\bin\SDL2.dll" build\ >nul
+if exist steam_api64.dll copy /y steam_api64.dll build\ >nul
 copy /y autosplitter\LiveSplit.VVVVVV.asl build\ >nul
 if errorlevel 1 goto :failed
 echo.
-echo Done: build\VVVVVV.exe, build\SDL2.dll and build\LiveSplit.VVVVVV.asl
+echo Done: build\VVVVVV.exe and build\LiveSplit.VVVVVV.asl
+if not exist steam_api64.dll echo Note: steam_api64.dll not found in the repo root, Steam achievements need it next to VVVVVV.exe.
 echo Run release.bat to create the archive.
 exit /b 0
 
@@ -69,7 +70,7 @@ exit /b 1
 
 :nosdl
 echo ERROR: SDL2 MinGW package not found at: %SDL%
-echo Expected include\SDL2\SDL.h, lib\libSDL2.dll.a and bin\SDL2.dll inside it.
+echo Expected include\SDL2\SDL.h, lib\libSDL2.a and lib\libSDL2main.a inside it.
 echo Pass the x86_64-w64-mingw32 folder as the first argument.
 exit /b 1
 

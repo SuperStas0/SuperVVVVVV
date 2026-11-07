@@ -42,6 +42,10 @@ endif()
 
 project(VVVVVV)
 
+if(WIN32)
+    enable_language(RC)
+endif()
+
 if(APPLE)
     message(STATUS "Using macOS SDK at ${CMAKE_OSX_SYSROOT}")
 endif()
@@ -136,7 +140,11 @@ set(VVV_SRC ${VVV_CXX_SRC} ${VVV_C_SRC})
 
 # Executable information
 if(WIN32)
-    add_executable(VVVVVV WIN32 ${VVV_SRC})
+    # windres looks the icon up relative to the build folder, so give it an absolute path
+    file(READ icon.rc ICON_RC_TEXT)
+    string(REPLACE "\"icon.ico\"" "\"${CMAKE_CURRENT_SOURCE_DIR}/icon.ico\"" ICON_RC_TEXT "${ICON_RC_TEXT}")
+    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/icon.rc "${ICON_RC_TEXT}")
+    add_executable(VVVVVV WIN32 ${VVV_SRC} ${CMAKE_CURRENT_BINARY_DIR}/icon.rc)
 elseif(ANDROID)
     add_library(VVVVVV SHARED ${VVV_SRC})
 else()

@@ -6,14 +6,6 @@ state("VVVVVV", "split") {
 	// Modded build: values are read from its SplitData struct in update
 }
 
-state("SuperVVVVVV", "unknown") {
-	// Default state
-}
-
-state("SuperVVVVVV", "split") {
-	// Modded build: values are read from its SplitData struct in update
-}
-
 state("VVVVVV", "v2.4.4") {
 	// Game time variables
 	int gametimeFrames : "VVVVVV.exe", 0x410BA0; // game.frames
@@ -354,19 +346,7 @@ init {
 	vars.cur = null;
 	vars.old = null;
 
-	// Modded builds contain a SplitData struct, located by its marker. Vanilla builds don't, so the scan finds nothing.
-	IntPtr splitAddr = IntPtr.Zero;
-	try {
-		var splitScanner = new SignatureScanner(game, modules.First().BaseAddress, modules.First().ModuleMemorySize);
-		splitAddr = splitScanner.Scan(new SigScanTarget(0, "53 55 50 45 52 56 56 56 56 56 56 5F 53 50 4C 49 54")); // SUPERVVVVVV_SPLIT
-	} catch (Exception) {
-		// Scan failed, fall back to version detection
-	}
-
-	if (splitAddr != IntPtr.Zero) {
-		vars.splitAddr = splitAddr;
-		version = "split";
-	} else if (modules.First().ModuleMemorySize == 0x6D9000) {
+	if (modules.First().ModuleMemorySize == 0x6D9000) {
 		version = "v2.0";
 	} else if (modules.First().ModuleMemorySize == 0x456000) {
 		version = "v2.2";
@@ -388,6 +368,20 @@ init {
 		version = "v2.4.4";
 	} else {
 		version = "unknown";
+	}
+
+	// Not a known vanilla version: look for the SplitData struct of a modded build, located by its marker
+	if (version == "unknown") {
+		try {
+			var splitScanner = new SignatureScanner(game, modules.First().BaseAddress, modules.First().ModuleMemorySize);
+			IntPtr splitAddr = splitScanner.Scan(new SigScanTarget(0, "53 55 50 45 52 56 56 56 56 56 56 5F 53 50 4C 49 54")); // SUPERVVVVVV_SPLIT
+			if (splitAddr != IntPtr.Zero) {
+				vars.splitAddr = splitAddr;
+				version = "split";
+			}
+		} catch (Exception) {
+			// Scan failed, stays unknown
+		}
 	}
 
 	if (version == "v2.3.4" || version == "v2.3.6" || version == "v2.4" || version == "v2.4.1" || version == "v2.4.2" || version == "v2.4.3" || version == "v2.4.4" || version == "split") {
