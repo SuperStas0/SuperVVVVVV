@@ -35,6 +35,7 @@ The build is 64-bit and statically linked, so it needs no `SDL2.dll`. It uses th
 - Needs the 64-bit `steam_api64.dll` next to `VVVVVV.exe`. It is not included: copy it from any 64-bit Steam game's folder or from the Steamworks SDK (`redistributable_bin\win64`). If it is in the repo root, `build.bat` copies it to `build\` and `release.bat` adds it to the archive.
 - Steam must be running and the game must be launched from the Steam library with `VVVVVV.exe` replaced as above. A Non-Steam Game shortcut has another app ID and gets no achievements.
 - Without the DLL or Steam the game runs normally, without achievements.
+- Check: each launch writes `steam_status.txt` to the game folder. It says `Steam API on`, or `Steam API off: <reason>`. If the file is missing, the exe is an older build or its folder is not writable.
 - A time trial run that loaded a state never unlocks achievements, same as its record. At startup the game re-sends the achievements your save data already implies, as the original does.
 
 ## Building

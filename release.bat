@@ -22,6 +22,7 @@ if errorlevel 1 goto :failed
 
 echo.
 echo Done: release\SuperVVVVVV.zip
+echo After installing, run the game once and read steam_status.txt in the game folder to check the Steam API.
 if not exist steam_api64.dll echo Note: steam_api64.dll not found in the repo root, it is not in the zip. Steam achievements need it next to VVVVVV.exe.
 exit /b 0
 

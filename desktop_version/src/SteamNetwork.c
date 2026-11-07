@@ -153,6 +153,20 @@ static void run_screenshot()
 
 static int32_t steamPipe = 0;
 
+/* Writes the result of STEAM_init to steam_status.txt in the working directory,
+ * so it can be checked without a console. */
+static void write_status(const char* text)
+{
+    SDL_RWops* file = SDL_RWFromFile("steam_status.txt", "wb");
+    if (file == NULL)
+    {
+        return;
+    }
+    SDL_RWwrite(file, text, 1, SDL_strlen(text));
+    SDL_RWwrite(file, "\n", 1, 1);
+    SDL_RWclose(file);
+}
+
 int32_t STEAM_init(void)
 {
 #if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__HAIKU__) || defined(__DragonFly__)
@@ -165,6 +179,7 @@ int32_t STEAM_init(void)
     if (!libHandle)
     {
         vlog_info(STEAM_LIBRARY " not found!");
+        write_status("Steam API off: " STEAM_LIBRARY " not found");
         return 0;
     }
 
@@ -173,6 +188,7 @@ int32_t STEAM_init(void)
     if (!name) \
     { \
         vlog_error(STEAM_LIBRARY " symbol " #name " not found!"); \
+        write_status("Steam API off: " STEAM_LIBRARY " symbol " #name " not found"); \
         ClearPointers(); \
         return 0; \
     }
@@ -182,6 +198,7 @@ int32_t STEAM_init(void)
     if (!SteamAPI_Init())
     {
         vlog_error("Steamworks not initialized!");
+        write_status("Steam API off: Steamworks not initialized (Steam not running, or game not launched through Steam)");
         ClearPointers();
         return 0;
     }
@@ -193,6 +210,7 @@ int32_t STEAM_init(void)
     {
         SteamAPI_Shutdown();
         vlog_error(VVVVVV_STEAMCLIENT " not created!");
+        write_status("Steam API off: " VVVVVV_STEAMCLIENT " not created");
         ClearPointers();
         return 0;
     }
@@ -206,6 +224,7 @@ int32_t STEAM_init(void)
     {
         SteamAPI_Shutdown();
         vlog_error(VVVVVV_STEAMUSERSTATS " not created!");
+        write_status("Steam API off: " VVVVVV_STEAMUSERSTATS " not created");
         ClearPointers();
         return 0;
     }
@@ -220,10 +239,12 @@ int32_t STEAM_init(void)
     {
         SteamAPI_Shutdown();
         vlog_error(VVVVVV_STEAMSCREENSHOTS " not created!");
+        write_status("Steam API off: " VVVVVV_STEAMSCREENSHOTS " not created");
         ClearPointers();
         return 0;
     }
     SteamAPI_ISteamScreenshots_HookScreenshots(steamScreenshots, 1);
+    write_status("Steam API on");
     return 1;
 }
 
