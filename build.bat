@@ -2,10 +2,35 @@
 setlocal
 cd /d "%~dp0"
 
-rem Usage: build.bat [path to SDL2 x86_64-w64-mingw32 folder]
-rem Default SDL2 folder: SDL32\x86_64-w64-mingw32 or SDL32 next to this file.
+set "CLEAN="
+set "REL="
+set "HELP="
+set "BAD="
 
-rem windres (icon embedding) breaks on paths with spaces.
+:nextarg
+if "%~1"=="" goto :parsed
+set "ARG=%~1"
+shift
+if not "%ARG:~0,1%"=="-" goto :badarg
+if "%ARG%"=="-" goto :badarg
+set "ARG=%ARG:~1%"
+:nextchar
+if "%ARG%"=="" goto :nextarg
+set "CH=%ARG:~0,1%"
+set "ARG=%ARG:~1%"
+if "%CH%"=="c" set "CLEAN=1" & goto :nextchar
+if "%CH%"=="r" set "REL=1" & goto :nextchar
+if "%CH%"=="h" set "HELP=1" & goto :nextchar
+if not defined BAD set "BAD=-%CH%"
+goto :nextchar
+:badarg
+if not defined BAD set "BAD=%ARG%"
+goto :nextarg
+
+:parsed
+if defined HELP goto :help
+if defined BAD goto :unknown
+
 echo %~dp0| findstr /C:" " >nul
 if not errorlevel 1 goto :spaces
 
@@ -25,16 +50,15 @@ if errorlevel 1 goto :nocmake
 where ninja >nul 2>&1
 if errorlevel 1 goto :nocmake
 
-set "SDL=%~1"
-if not "%SDL%"=="" goto :sdlset
-set "SDL=%~dp0SDL32\x86_64-w64-mingw32"
-if not exist "%SDL%\include\SDL2\SDL.h" set "SDL=%~dp0SDL32"
-:sdlset
-for %%I in ("%SDL%") do set "SDL=%%~fI"
+set "SDL=%CD%\SDL32\x86_64-w64-mingw32"
+if not exist "%SDL%\include\SDL2\SDL.h" set "SDL=%CD%\SDL32"
 if not exist "%SDL%\include\SDL2\SDL.h" goto :nosdl
 if not exist "%SDL%\lib\libSDL2.a" goto :nosdl
 if not exist "%SDL%\lib\libSDL2main.a" goto :nosdl
 set "SDLC=%SDL:\=/%"
+
+if defined CLEAN if exist build rmdir /s /q build
+if defined CLEAN if exist build goto :cleanfailed
 
 cmake -S desktop_version -B build -G Ninja -DCMAKE_BUILD_TYPE=Release ^
     -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DSTEAM=ON ^
@@ -47,34 +71,61 @@ cmake --build build
 if errorlevel 1 goto :failed
 
 if exist steam_api64.dll copy /y steam_api64.dll build\ >nul
-copy /y autosplitter\LiveSplit.VVVVVV.asl build\ >nul
+copy /y autosplitter\LiveSplit.VVVVVV.asl build\ >nul || goto :failed
+
+if not defined REL goto :done
+if exist release rmdir /s /q release
+mkdir release
+if exist build\package rmdir /s /q build\package
+mkdir build\package
+copy /y build\VVVVVV.exe build\package\VVVVVV.exe >nul || goto :failed
+if exist steam_api64.dll copy /y steam_api64.dll build\package\steam_api64.dll >nul
+copy /y autosplitter\LiveSplit.VVVVVV.asl build\package\LiveSplit.VVVVVV.asl >nul || goto :failed
+copy /y readme.md build\package\SuperVVVVVV-README.md >nul || goto :failed
+powershell -NoProfile -Command "Compress-Archive -Path 'build\package\*' -DestinationPath 'release\SuperVVVVVV.zip' -Force"
 if errorlevel 1 goto :failed
+
+:done
 echo.
 echo Done: build\VVVVVV.exe and build\LiveSplit.VVVVVV.asl
+if defined REL echo Release: release\SuperVVVVVV.zip
 if not exist steam_api64.dll echo Note: steam_api64.dll not found in the repo root, Steam achievements need it next to VVVVVV.exe.
-echo Run release.bat to create the archive.
 exit /b 0
 
+:help
+echo Usage: build.bat [-c] [-r] [-h]
+echo   -c  clean: delete previous build output first
+echo   -r  release: package the build into release\
+echo   -h  show this help
+echo Build output: %CD%\build
+echo Release:      %CD%\release
+exit /b 0
+
+:unknown
+echo ERROR: unknown flag %BAD%, see build.bat -h
+exit /b 1
+
 :spaces
-echo ERROR: this folder's path contains spaces. Move the repo to a path without spaces, for example C:\vsrc
+echo ERROR: repo path contains spaces, which breaks icon embedding. Move the repo to a path without spaces.
 exit /b 1
 
 :nogcc
-echo ERROR: gcc/g++ not found. Add the w64devkit bin folder to PATH, or set the W64DEVKIT environment variable to the w64devkit folder.
+echo ERROR: gcc/g++ not found. Add the w64devkit bin folder to PATH or set W64DEVKIT to its folder.
 exit /b 1
 
 :nocmake
-echo ERROR: cmake/ninja not found in PATH. Install with: pip install cmake ninja
-echo and make sure Python's Scripts folder is in PATH.
+echo ERROR: cmake/ninja not found. Run pip install cmake ninja and add Python's Scripts folder to PATH.
 exit /b 1
 
 :nosdl
-echo ERROR: SDL2 MinGW package not found at: %SDL%
-echo Expected include\SDL2\SDL.h, lib\libSDL2.a and lib\libSDL2main.a inside it.
-echo Pass the x86_64-w64-mingw32 folder as the first argument.
+echo ERROR: SDL2 MinGW package incomplete in SDL32, expected include\SDL2\SDL.h, lib\libSDL2.a and lib\libSDL2main.a.
+exit /b 1
+
+:cleanfailed
+echo ERROR: could not delete the build folder, close programs using it.
 exit /b 1
 
 :failed
 echo.
-echo Build failed.
+echo ERROR: build failed.
 exit /b 1

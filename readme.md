@@ -32,7 +32,7 @@ The build is 64-bit and statically linked, so it needs no `SDL2.dll`. It uses th
 
 ### Steam achievements
 
-- Needs the 64-bit `steam_api64.dll` next to `VVVVVV.exe`. It is not included: copy it from any 64-bit Steam game's folder or from the Steamworks SDK (`redistributable_bin\win64`). If it is in the repo root, `build.bat` copies it to `build\` and `release.bat` adds it to the archive.
+- Needs the 64-bit `steam_api64.dll` next to `VVVVVV.exe`. It is not included: copy it from any 64-bit Steam game's folder or from the Steamworks SDK (`redistributable_bin\win64`). If it is in the repo root, `build.bat` copies it to `build\` and `-r` adds it to the archive.
 - Steam must be running and the game must be launched from the Steam library with `VVVVVV.exe` replaced as above. A Non-Steam Game shortcut has another app ID and gets no achievements.
 - Without the DLL or Steam the game runs normally, without achievements.
 - Check: each launch writes `steam_status.txt` to the game folder. It says `Steam API on`, or `Steam API off: <reason>`. If the file is missing, the exe is an older build or its folder is not writable.
@@ -52,26 +52,26 @@ The build is 64-bit and statically linked, so it needs no `SDL2.dll`. It uses th
 ### Steps
 
 1. Put the repo in a path **without spaces** (e.g. `C:\vsrc`). Paths with spaces break icon embedding.
-2. Extract the SDL2 MinGW package into `SDL32` in the repo root, either as `SDL32\x86_64-w64-mingw32\...` or with `bin`, `include` and `lib` directly inside `SDL32` (or pass its location to the script).
+2. Extract the SDL2 MinGW package into `SDL32` in the repo root, either as `SDL32\x86_64-w64-mingw32\...` or with `bin`, `include` and `lib` directly inside `SDL32`.
 3. Run in `cmd`:
 
    ```
-   build.bat
-   ```
-
-   or with a custom SDL2 location:
-
-   ```
-   build.bat C:\path\to\SDL2\x86_64-w64-mingw32
+   build.bat [-c] [-r] [-h]
    ```
 
 4. Output: `build\VVVVVV.exe` and `build\LiveSplit.VVVVVV.asl`, plus `steam_api64.dll` if it is in the repo root. Compiler warnings are expected.
 
-From a w64devkit shell, `sh build.sh <absolute path to x86_64-w64-mingw32>` does the same.
+| Flag | Action |
+|---|---|
+| `-c` | Clean: delete previous build output first |
+| `-r` | Release: package the build into `release\` |
+| `-h` | Show help and exit without building |
+
+Flags combine in any order, e.g. `build.bat -cr`. The build always runs.
 
 ## Releasing
 
-After building, run `release.bat`. It creates `release\SuperVVVVVV.zip` containing:
+`build.bat -r` creates `release\SuperVVVVVV.zip` containing:
 
 - `VVVVVV.exe`
 - `steam_api64.dll` (only if it is in the repo root)
@@ -80,7 +80,7 @@ After building, run `release.bat`. It creates `release\SuperVVVVVV.zip` containi
 
 ## Autosplitter
 
-`LiveSplit.VVVVVV.asl` is the VVVVVV autosplitter with SuperVVVVVV support. Start, split, reset, game time and settings are unchanged. Its source is `autosplitter\LiveSplit.VVVVVV.asl`; `build.bat` copies it to `build\` and `release.bat` adds it to the release zip.
+`LiveSplit.VVVVVV.asl` is the VVVVVV autosplitter with SuperVVVVVV support. Start, split, reset, game time and settings are unchanged. Its source is `autosplitter\LiveSplit.VVVVVV.asl`; `build.bat` copies it to `build\` and `-r` adds it to the release zip.
 
 ### Setup
 
