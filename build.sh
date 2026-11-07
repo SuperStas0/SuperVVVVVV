@@ -13,5 +13,6 @@ cmake -S desktop_version -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
     "-DSDL2_LIBRARIES=mingw32;$SDL/lib/libSDL2main.a;$SDL/lib/libSDL2.dll.a" \
     "-DCMAKE_EXE_LINKER_FLAGS=-static -static-libgcc -static-libstdc++"
 cmake --build build
+cp autosplitter/LiveSplit.VVVVVV.asl build/
 echo
-echo "Built: build/VVVVVV.exe  (copy $SDL/bin/SDL2.dll next to it)"
+echo "Built: build/VVVVVV.exe and build/LiveSplit.VVVVVV.asl  (copy $SDL/bin/SDL2.dll next to the exe)"

@@ -47,8 +47,10 @@ cmake --build build
 if errorlevel 1 goto :failed
 
 copy /y "%SDL%\bin\SDL2.dll" build\ >nul
+copy /y autosplitter\LiveSplit.VVVVVV.asl build\ >nul
+if errorlevel 1 goto :failed
 echo.
-echo Done: build\VVVVVV.exe and build\SDL2.dll
+echo Done: build\VVVVVV.exe, build\SDL2.dll and build\LiveSplit.VVVVVV.asl
 echo Run release.bat to create the archive.
 exit /b 0
 
