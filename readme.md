@@ -56,7 +56,7 @@ The build is 64-bit and statically linked, so it needs no `SDL2.dll`. It uses th
 3. Run in `cmd`:
 
    ```
-   build.bat [-c] [-r] [-h]
+   build.bat [-c] [-i] [-r] [-h]
    ```
 
 4. Output: `build\VVVVVV.exe` and `build\LiveSplit.VVVVVV.asl`, plus `steam_api64.dll` if it is in the repo root. Compiler warnings are expected.
@@ -64,10 +64,13 @@ The build is 64-bit and statically linked, so it needs no `SDL2.dll`. It uses th
 | Flag | Action |
 |---|---|
 | `-c` | Clean: delete previous build output first |
+| `-i` | Install: copy `VVVVVV.exe` (and `steam_api64.dll` if present) into the Steam game folder, overwriting the existing `VVVVVV.exe` |
 | `-r` | Release: package the build into `release\` |
 | `-h` | Show help and exit without building |
 
-Flags combine in any order, e.g. `build.bat -cr`. The build always runs.
+Flags combine in any order, e.g. `build.bat -cir`. The build always runs.
+
+`-i` finds the game via the Steam registry path (default `C:\Program Files (x86)\Steam`), then checks every library listed in `steamapps\libraryfolders.vdf`. Back up the original `VVVVVV.exe` first (see Install).
 
 ## Releasing
 

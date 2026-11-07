@@ -3,6 +3,7 @@ setlocal
 cd /d "%~dp0"
 
 set "CLEAN="
+set "INST="
 set "REL="
 set "HELP="
 set "BAD="
@@ -19,6 +20,7 @@ if "%ARG%"=="" goto :nextarg
 set "CH=%ARG:~0,1%"
 set "ARG=%ARG:~1%"
 if "%CH%"=="c" set "CLEAN=1" & goto :nextchar
+if "%CH%"=="i" set "INST=1" & goto :nextchar
 if "%CH%"=="r" set "REL=1" & goto :nextchar
 if "%CH%"=="h" set "HELP=1" & goto :nextchar
 if not defined BAD set "BAD=-%CH%"
@@ -73,6 +75,13 @@ if errorlevel 1 goto :failed
 if exist steam_api64.dll copy /y steam_api64.dll build\ >nul
 copy /y autosplitter\LiveSplit.VVVVVV.asl build\ >nul || goto :failed
 
+if not defined INST goto :noinst
+call :finddir
+if not defined GAME goto :nogame
+copy /y build\VVVVVV.exe "%GAME%\VVVVVV.exe" >nul || goto :instfailed
+if exist build\steam_api64.dll copy /y build\steam_api64.dll "%GAME%\steam_api64.dll" >nul || goto :instfailed
+:noinst
+
 if not defined REL goto :done
 if exist release rmdir /s /q release
 mkdir release
@@ -88,13 +97,17 @@ if errorlevel 1 goto :failed
 :done
 echo.
 echo Done: build\VVVVVV.exe and build\LiveSplit.VVVVVV.asl
+if defined INST echo Installed: %GAME%
 if defined REL echo Release: release\SuperVVVVVV.zip
 if not exist steam_api64.dll echo Note: steam_api64.dll not found in the repo root, Steam achievements need it next to VVVVVV.exe.
 exit /b 0
 
 :help
-echo Usage: build.bat [-c] [-r] [-h]
+call :finddir
+if not defined GAME set "GAME=not found"
+echo Usage: build.bat [-c] [-i] [-r] [-h]
 echo   -c  clean: delete previous build output first
+echo   -i  install: copy the build to the Steam game folder: %GAME%
 echo   -r  release: package the build into release\
 echo   -h  show this help
 echo Build output: %CD%\build
@@ -121,6 +134,14 @@ exit /b 1
 echo ERROR: SDL2 MinGW package incomplete in SDL32, expected include\SDL2\SDL.h, lib\libSDL2.a and lib\libSDL2main.a.
 exit /b 1
 
+:nogame
+echo ERROR: VVVVVV folder not found in the Steam libraries, expected steamapps\common\VVVVVV.
+exit /b 1
+
+:instfailed
+echo ERROR: could not copy to %GAME%, close the game and retry.
+exit /b 1
+
 :cleanfailed
 echo ERROR: could not delete the build folder, close programs using it.
 exit /b 1
@@ -129,3 +150,22 @@ exit /b 1
 echo.
 echo ERROR: build failed.
 exit /b 1
+
+:finddir
+set "GAME="
+set "STEAM="
+for /f "tokens=2,*" %%A in ('reg query "HKCU\Software\Valve\Steam" /v SteamPath 2^>nul ^| findstr /i SteamPath') do set "STEAM=%%B"
+if defined STEAM set "STEAM=%STEAM:/=\%"
+if not defined STEAM set "STEAM=%ProgramFiles(x86)%\Steam"
+call :trylib "%STEAM%"
+if defined GAME exit /b 0
+if not exist "%STEAM%\steamapps\libraryfolders.vdf" exit /b 0
+for /f "usebackq tokens=1,*" %%A in (`findstr /c:"path" "%STEAM%\steamapps\libraryfolders.vdf"`) do if /i "%%~A"=="path" call :trylib "%%~B"
+exit /b 0
+
+:trylib
+if defined GAME exit /b 0
+set "LIB=%~1"
+set "LIB=%LIB:\\=\%"
+if exist "%LIB%\steamapps\common\VVVVVV\" set "GAME=%LIB%\steamapps\common\VVVVVV"
+exit /b 0
