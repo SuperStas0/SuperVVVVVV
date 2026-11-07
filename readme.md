@@ -52,11 +52,11 @@ The build is 64-bit and statically linked, so it needs no `SDL2.dll`. It uses th
 ### Steps
 
 1. Put the repo in a path **without spaces** (e.g. `C:\vsrc`). Paths with spaces break icon embedding.
-2. Extract the SDL2 MinGW package into `SDL32` in the repo root, either as `SDL32\x86_64-w64-mingw32\...` or with `bin`, `include` and `lib` directly inside `SDL32`.
+2. Extract the SDL2 MinGW package into `SDL32` in the repo root, either as `SDL32\x86_64-w64-mingw32\...` or with `bin`, `include` and `lib` directly inside `SDL32`. Or pass another location with `-s`.
 3. Run in `cmd`:
 
    ```
-   build.bat [-c] [-i] [-r] [-h]
+   build.bat [-c] [-i] [-r] [-s path] [-h]
    ```
 
 4. Output: `build\VVVVVV.exe` and `build\LiveSplit.VVVVVV.asl`, plus `steam_api64.dll` if it is in the repo root. Compiler warnings are expected.
@@ -66,9 +66,10 @@ The build is 64-bit and statically linked, so it needs no `SDL2.dll`. It uses th
 | `-c` | Clean: delete previous build output first |
 | `-i` | Install: copy `VVVVVV.exe` (and `steam_api64.dll` if present) into the Steam game folder, overwriting the existing `VVVVVV.exe` |
 | `-r` | Release: package the build into `release\` |
+| `-s path` | SDL2: use this `x86_64-w64-mingw32` folder of the SDL2 MinGW package instead of `SDL32` |
 | `-h` | Show help and exit without building |
 
-Flags combine in any order, e.g. `build.bat -cir`. The build always runs.
+Flags combine in any order, e.g. `build.bat -cir` or `build.bat -cs C:\path\to\SDL2\x86_64-w64-mingw32`. The path of `-s` follows the flag group. The build always runs.
 
 `-i` finds the game via the Steam registry path (default `C:\Program Files (x86)\Steam`), then checks every library listed in `steamapps\libraryfolders.vdf`. Back up the original `VVVVVV.exe` first (see Install).
 
@@ -121,3 +122,14 @@ Based on the VVVVVV 2.4.4 tag (`ea811e1`). Useful when rebasing onto a newer ver
 | `autosplitter/LiveSplit.VVVVVV.asl` | Autosplitter with `SplitData` support, signature scan added to `init` and a `split` mode in `update` |
 | `desktop_version/src/SteamNetwork.c` | Loads `steam_api64.dll` on 64-bit Windows |
 | `desktop_version/CMakeLists.txt` | Adds `Savestate.cpp` and `SplitData.cpp` to the sources; embeds `icon.rc` on Windows |
+
+# License
+
+MIT
+
+Third-party:
+
+- VVVVVV Source Code License v1.0
+- zlib
+- Apache-2.0
+- BSD-3-Clause

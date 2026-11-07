@@ -7,8 +7,12 @@ set "INST="
 set "REL="
 set "HELP="
 set "BAD="
+set "WANTS="
+set "SDLARG="
+set "NOPATH="
 
 :nextarg
+if defined WANTS goto :takepath
 if "%~1"=="" goto :parsed
 set "ARG=%~1"
 shift
@@ -22,16 +26,29 @@ set "ARG=%ARG:~1%"
 if "%CH%"=="c" set "CLEAN=1" & goto :nextchar
 if "%CH%"=="i" set "INST=1" & goto :nextchar
 if "%CH%"=="r" set "REL=1" & goto :nextchar
+if "%CH%"=="s" set "WANTS=1" & goto :nextchar
 if "%CH%"=="h" set "HELP=1" & goto :nextchar
 if not defined BAD set "BAD=-%CH%"
 goto :nextchar
 :badarg
 if not defined BAD set "BAD=%ARG%"
 goto :nextarg
+:takepath
+set "WANTS="
+set "V=%~1"
+if "%V%"=="" goto :nopath
+if "%V:~0,1%"=="-" goto :nopath
+set "SDLARG=%V%"
+shift
+goto :nextarg
+:nopath
+set "NOPATH=1"
+goto :nextarg
 
 :parsed
 if defined HELP goto :help
 if defined BAD goto :unknown
+if defined NOPATH goto :nopatherr
 
 echo %~dp0| findstr /C:" " >nul
 if not errorlevel 1 goto :spaces
@@ -52,8 +69,12 @@ if errorlevel 1 goto :nocmake
 where ninja >nul 2>&1
 if errorlevel 1 goto :nocmake
 
+set "SDL=%SDLARG%"
+if defined SDL goto :sdlset
 set "SDL=%CD%\SDL32\x86_64-w64-mingw32"
 if not exist "%SDL%\include\SDL2\SDL.h" set "SDL=%CD%\SDL32"
+:sdlset
+for %%I in ("%SDL%") do set "SDL=%%~fI"
 if not exist "%SDL%\include\SDL2\SDL.h" goto :nosdl
 if not exist "%SDL%\lib\libSDL2.a" goto :nosdl
 if not exist "%SDL%\lib\libSDL2main.a" goto :nosdl
@@ -105,11 +126,12 @@ exit /b 0
 :help
 call :finddir
 if not defined GAME set "GAME=not found"
-echo Usage: build.bat [-c] [-i] [-r] [-h]
-echo   -c  clean: delete previous build output first
-echo   -i  install: copy the build to the Steam game folder: %GAME%
-echo   -r  release: package the build into release\
-echo   -h  show this help
+echo Usage: build.bat [-c] [-i] [-r] [-s path] [-h]
+echo   -c       clean: delete previous build output first
+echo   -i       install: copy the build to the Steam game folder: %GAME%
+echo   -r       release: package the build into release\
+echo   -s path  SDL2: x86_64-w64-mingw32 folder of the SDL2 MinGW package, default SDL32 in the repo
+echo   -h       show this help
 echo Build output: %CD%\build
 echo Release:      %CD%\release
 exit /b 0
@@ -131,7 +153,11 @@ echo ERROR: cmake/ninja not found. Run pip install cmake ninja and add Python's 
 exit /b 1
 
 :nosdl
-echo ERROR: SDL2 MinGW package incomplete in SDL32, expected include\SDL2\SDL.h, lib\libSDL2.a and lib\libSDL2main.a.
+echo ERROR: SDL2 MinGW package not found at %SDL%, expected include\SDL2\SDL.h, lib\libSDL2.a and lib\libSDL2main.a inside it.
+exit /b 1
+
+:nopatherr
+echo ERROR: -s needs a path, see build.bat -h
 exit /b 1
 
 :nogame
