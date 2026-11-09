@@ -5,6 +5,7 @@ cd /d "%~dp0"
 set "CLEAN="
 set "INST="
 set "REL="
+set "NOBUILD="
 set "HELP="
 set "BAD="
 set "WANTS="
@@ -26,6 +27,7 @@ set "ARG=%ARG:~1%"
 if "%CH%"=="c" set "CLEAN=1" & goto :nextchar
 if "%CH%"=="i" set "INST=1" & goto :nextchar
 if "%CH%"=="r" set "REL=1" & goto :nextchar
+if "%CH%"=="n" set "NOBUILD=1" & goto :nextchar
 if "%CH%"=="s" set "WANTS=1" & goto :nextchar
 if "%CH%"=="h" set "HELP=1" & goto :nextchar
 if not defined BAD set "BAD=-%CH%"
@@ -49,6 +51,10 @@ goto :nextarg
 if defined HELP goto :help
 if defined BAD goto :unknown
 if defined NOPATH goto :nopatherr
+if defined NOBUILD if defined CLEAN goto :nbclean
+if defined NOBUILD if not defined INST if not defined REL goto :nbneeds
+if defined NOBUILD if not exist build\VVVVVV.exe goto :nbmissing
+if defined NOBUILD goto :afterbuild
 
 echo %~dp0| findstr /C:" " >nul
 if not errorlevel 1 goto :spaces
@@ -96,6 +102,7 @@ if errorlevel 1 goto :failed
 if exist steam_api64.dll copy /y steam_api64.dll build\ >nul
 copy /y autosplitter\LiveSplit.VVVVVV.asl build\ >nul || goto :failed
 
+:afterbuild
 if not defined INST goto :noinst
 call :finddir
 if not defined GAME goto :nogame
@@ -117,7 +124,7 @@ if errorlevel 1 goto :failed
 
 :done
 echo.
-echo Done: build\VVVVVV.exe and build\LiveSplit.VVVVVV.asl
+if not defined NOBUILD echo Done: build\VVVVVV.exe and build\LiveSplit.VVVVVV.asl
 if defined INST echo Installed: %GAME%
 if defined REL echo Release: release\SuperVVVVVV.zip
 if not exist steam_api64.dll echo Note: steam_api64.dll not found in the repo root, Steam achievements need it next to VVVVVV.exe.
@@ -126,10 +133,11 @@ exit /b 0
 :help
 call :finddir
 if not defined GAME set "GAME=not found"
-echo Usage: build.bat [-c] [-i] [-r] [-s path] [-h]
+echo Usage: build.bat [-c] [-i] [-r] [-n] [-s path] [-h]
 echo   -c       clean: delete previous build output first
-echo   -i       install: copy the build to the Steam game folder: %GAME%
+echo   -i       install: copy the build to the Steam game folder, replacing VVVVVV.exe: %GAME%
 echo   -r       release: package the build into release\
+echo   -n       nobuild: skip the build, reuse existing output ^(needs -i and/or -r, not with -c^)
 echo   -s path  SDL2: x86_64-w64-mingw32 folder of the SDL2 MinGW package, default SDL32 in the repo
 echo   -h       show this help
 echo Build output: %CD%\build
@@ -154,6 +162,18 @@ exit /b 1
 
 :nosdl
 echo ERROR: SDL2 MinGW package not found at %SDL%, expected include\SDL2\SDL.h, lib\libSDL2.a and lib\libSDL2main.a inside it.
+exit /b 1
+
+:nbclean
+echo ERROR: -n cannot be used with -c, see build.bat -h
+exit /b 1
+
+:nbneeds
+echo ERROR: -n needs -i and/or -r, see build.bat -h
+exit /b 1
+
+:nbmissing
+echo ERROR: -n needs an existing build, build\VVVVVV.exe not found.
 exit /b 1
 
 :nopatherr
