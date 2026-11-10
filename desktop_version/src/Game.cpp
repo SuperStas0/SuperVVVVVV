@@ -6830,6 +6830,10 @@ void Game::createmenu( enum Menu::MenuName t, bool samemenu/*= false*/ )
         break;
     }
     case Menu::options:
+        if (savestate::options_has_super())
+        {
+            option(loc::gettext("super"));
+        }
         option(loc::gettext("gameplay"));
         option(loc::gettext("graphics"));
         option(loc::gettext("audio"));
@@ -6838,6 +6842,16 @@ void Game::createmenu( enum Menu::MenuName t, bool samemenu/*= false*/ )
         option(loc::gettext("language"), !translator_cutscene_test);
         option(loc::gettext("return"));
         menuyoff = 0;
+        maxspacing = 15;
+        break;
+    case Menu::supermode:
+        option(loc::gettext("super mode"));
+        option(loc::gettext("allow savestates"));
+        option(loc::gettext("delete savestates"));
+        option(loc::gettext("load state: `"), false);
+        option(loc::gettext("save state: shift + `"), false);
+        option(loc::gettext("return"));
+        menuyoff = -20;
         maxspacing = 15;
         break;
     case Menu::speedrunneroptions:
@@ -7293,7 +7307,7 @@ void Game::createmenu( enum Menu::MenuName t, bool samemenu/*= false*/ )
             option(loc::gettext("retry"));
             n_options++;
         }
-        option(loc::gettext(intimetrial || inintermission ? "return" : "return to play menu"));
+        option(loc::gettext("return to play menu"));
         menuyoff = 80 - 8 * (n_options - 1);
         break;
     }

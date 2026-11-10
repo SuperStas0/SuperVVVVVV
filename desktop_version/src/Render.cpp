@@ -366,7 +366,19 @@ static void menurender(void)
         break;
     }
     case Menu::options:
-        switch (game.currentmenuoption)
+    {
+        int selected = game.currentmenuoption;
+        if (savestate::options_has_super())
+        {
+            if (selected == 0)
+            {
+                font::print(PR_2X | PR_CEN, -1, 30, loc::gettext("Super"), tr, tg, tb);
+                font::print_wrap(PR_CEN, -1, 65, loc::gettext("Super mode and savestates."), tr, tg, tb);
+                break;
+            }
+            selected--;
+        }
+        switch (selected)
         {
         case 0:
             font::print(PR_2X | PR_CEN, -1, 30, loc::gettext("Gameplay Options"), tr, tg, tb);
@@ -400,6 +412,24 @@ static void menurender(void)
             font::print_wrap(PR_CEN, -1, 65, loc::gettext("Change the language."), tr, tg, tb);
         }
         break;
+    }
+    case Menu::supermode:
+    {
+        font::print(PR_2X | PR_CEN, -1, 30, loc::gettext("Super"), tr, tg, tb);
+
+        char buffer[SCREEN_WIDTH_CHARS + 1];
+        SDL_snprintf(
+            buffer, sizeof(buffer), "%s %s   %s %s (%d)",
+            loc::gettext("Super mode:"), savestate::super_mode() ? loc::gettext("ON") : loc::gettext("OFF"),
+            loc::gettext("Savestates:"), savestate::allow_states() ? loc::gettext("ON") : loc::gettext("OFF"),
+            savestate::state_count()
+        );
+        font::print_wrap(PR_CEN, -1, 60, buffer, tr, tg, tb);
+        font::print_wrap(PR_CEN, -1, 76, loc::gettext("NDM + super mode: valid"), tr, tg, tb);
+        font::print_wrap(PR_CEN, -1, 88, loc::gettext("Time trial + super mode: not valid"), tr, tg, tb);
+        font::print_wrap(PR_CEN, -1, 100, loc::gettext("Any savestate: not valid"), tr, tg, tb);
+        break;
+    }
     case Menu::graphicoptions:
     {
         int offset = 0;
@@ -1540,7 +1570,7 @@ static void menurender(void)
     case Menu::timetrialcomplete2:
     case Menu::timetrialcomplete3:
     {
-        font::print(PR_3X | PR_CEN, -1, 20, loc::gettext("Results"), tr, tg, tb);
+        font::print(PR_3X | PR_CEN, -1, 20, savestate::invalid_run() ? "GG!" : loc::gettext("Results"), tr, tg, tb);
 
         std::string tempstring = game.resulttimestring() + loc::gettext(" / ") + game.timetstring(game.timetrialresultpar) + loc::gettext(".99");
 

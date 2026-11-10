@@ -1065,7 +1065,20 @@ static void menuactionpress(void)
         break;
     }
     case Menu::options:
-        switch (game.currentmenuoption)
+    {
+        int selected = game.currentmenuoption;
+        if (savestate::options_has_super())
+        {
+            if (selected == 0)
+            {
+                music.playef(Sound_VIRIDIAN);
+                game.createmenu(Menu::supermode);
+                map.nexttowercolour();
+                break;
+            }
+            selected--;
+        }
+        switch (selected)
         {
         case 0:
             //gameplay options
@@ -1124,6 +1137,33 @@ static void menuactionpress(void)
                 game.returnmenu();
                 map.nexttowercolour();
             }
+            break;
+        }
+        break;
+    }
+    case Menu::supermode:
+        switch (game.currentmenuoption)
+        {
+        case 0:
+            music.playef(Sound_VIRIDIAN);
+            savestate::toggle_super();
+            break;
+        case 1:
+            music.playef(Sound_VIRIDIAN);
+            savestate::toggle_allow();
+            break;
+        case 2:
+            music.playef(Sound_VIRIDIAN);
+            savestate::delete_states();
+            break;
+        case 3:
+        case 4:
+            music.playef(Sound_CRY);
+            break;
+        default:
+            music.playef(Sound_VIRIDIAN);
+            game.returnmenu();
+            map.nexttowercolour();
             break;
         }
         break;
@@ -2233,14 +2273,7 @@ static void menuactionpress(void)
         //back
         music.playef(Sound_VIRIDIAN);
         music.play(Music_PRESENTINGVVVVVV);
-        if (game.intimetrial || game.inintermission)
-        {
-            game.returnmenu();
-        }
-        else
-        {
-            game.returntomenu(Menu::playmodes);
-        }
+        game.returntomenu(Menu::playmodes);
         map.nexttowercolour();
         break;
     }

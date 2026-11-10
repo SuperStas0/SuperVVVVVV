@@ -1,6 +1,6 @@
 # SuperVVVVVV
 
-Practice patch for VVVVVV (Windows, Steam version) built on the VVVVVV 2.4.4 source, adding in-memory savestates for time trials, intermission replays and No Death Mode, an NDM mode for trials, and fast death in No Death Mode.
+Altered version of [VVVVVV](https://github.com/TerryCavanagh/VVVVVV), not the original game. VVVVVV is copyright of Terry Cavanagh and this is based on the VVVVVV 2.4.4 source code. Practice patch for Windows (Steam version) that adds savestates for time trials, intermission replays and No Death Mode, and a Super mode with fast restarts.
 
 # Installation
 Requires your own copy of VVVVVV on Steam. The game's `data.zip` is not included.
@@ -18,7 +18,7 @@ The build is 64-bit and statically linked, so it needs no `SDL2.dll`. It uses th
 - Steam must be running and the game must be launched from the Steam library with `VVVVVV.exe` replaced as above. A Non-Steam Game shortcut has another app ID and gets no achievements.
 - Without the DLL or Steam the game runs normally, without achievements.
 - Check: each launch writes `steam_status.txt` to the game folder. It says `Steam API on`, or `Steam API off: <reason>`. If the file is missing, the exe is an older build or its folder is not writable.
-- A time trial run that loaded a state never unlocks achievements, same as its record. At startup the game re-sends the achievements your save data already implies, as the original does.
+- An invalid run (see Valid runs) never unlocks achievements, same as its record. At startup the game re-sends the achievements your save data already implies, as the original does.
 
 # Usage
 ## Savestates
@@ -26,43 +26,52 @@ The build is 64-bit and statically linked, so it needs no `SDL2.dll`. It uses th
 | --- | --- |
 | `Shift` + `` ` `` (`~`) | Save state |
 | `` ` `` (`~`) | Load state |
-| `Ctrl` + `` ` `` (`~`) | Toggle NDM mode (time trials and intermission replays) |
-| `Alt` + `` ` `` (`~`) | Toggle fast death (No Death Mode) |
 
-The key is the one left of `1`. Holding more than one modifier does nothing.
+The key is the one left of `1`. Ctrl or Alt held does nothing.
 
+- Off by default. Turn them on with `Allow savestates` in the Super menu.
 - Saves the full in-game state: time, trinkets, room, position, checkpoint, gravity, entities, script progress and music.
-- One slot, kept in memory only (lost when the game closes).
-- Active in Time Trials, Intermission replays and No Death Mode.
-- A state loads only in the mode it was saved in (same trial, intermission or cutscene choice, and same NDM mode setting).
-- Saving is ignored during the death animation.
-- Save, load, failed load and toggles show a message in place of the room name.
+- One slot per mode: each time trial, each intermission replay, No Death Mode with cutscenes and without. Time trials and intermissions with Super mode on have their own slots.
+- Slots are kept while the game runs, also across leaving and entering levels. Nothing is saved to disk.
+- A state loads only in the mode it was saved in. Saving is ignored during the death animation.
+- Save, load and toggles show a message in place of the room name.
 
-## Invalid runs
-A run is invalid if a state was loaded in it, or NDM mode is on in a trial or intermission.
-- Time trial: `GG!` replaces `Level Complete!`, and the result is not recorded (best time, rank, trinkets, deaths, achievements).
-- No Death Mode: `GG!` replaces `Game Complete!` and `WOW`. No achievements, trophies or best death count are saved.
+## Super menu
+`Esc` > `options` > `super`, shown only during a time trial, intermission replay or No Death Mode run. Everything is off when the game starts.
 
-## NDM mode in trials
-`Ctrl` + `` ` `` restarts the current time trial or intermission replay with No Death Mode rules: no cutscenes, no checkpoints, death ends the run with the game over screen. The setting is kept until the game closes. The run is invalid (see above).
+| Item | Action |
+| --- | --- |
+| `super mode` | Toggle Super mode. In a time trial or intermission it restarts the level. |
+| `allow savestates` | Toggle the save and load keys and the game over buttons. |
+| `delete savestates` | Delete all states in all modes. |
+
+## Super mode
+Affects only what happens after dying and which screens appear.
+- No Death Mode: 0.5 s after dying the game leaves the run without the fade and the game over delay. Gameplay is not affected.
+  - Without a state: opens the cutscene choice screen of No Death Mode.
+  - With a state: opens the game over screen with its buttons at once.
+- Time trials and intermission replays: No Death Mode rules (no checkpoints, no cutscenes). Dying restarts the level at its start 0.5 s later, without the fade. Time trials use a 1 s countdown. The timer restarts. States are kept.
 
 ## Game over screen
-Shown after dying in No Death Mode (and NDM mode in trials).
+Shown after dying in No Death Mode.
 
 | Button | Action |
 | --- | --- |
-| `load savestate` | Starts the mode of the saved state and loads it. The run is invalid. Only shown if a state exists. |
-| `retry` | Restarts the same mode. Only shown if a state exists, or with fast death in trials. |
-| `return to play menu` | Original button. `return` in trials. |
+| `load savestate` | Starts the mode of the last saved No Death Mode state and loads it. Selected by default. |
+| `retry` | Starts the same mode again. |
+| `return to play menu` | Original button. |
 
-Without fast death the screen keeps its original delay. The extra buttons appear with the original one.
+`load savestate` and `retry` appear only if savestates are allowed and a No Death Mode state exists. Without Super mode the screen keeps its original delay.
 
-## Fast death
-- Toggled in No Death Mode with `Alt` + `` ` ``. Off by default, kept until the game closes.
-- Leaves the game 0.2 s after dying, without the fade and the game over delay. Gameplay is not affected.
-- With a state: opens the game over screen with `load savestate`, `retry` and `return to play menu` at once.
-- Without a state: opens the cutscene choice screen of No Death Mode (in trials: the game over screen with `retry` and `return`).
-- Completing the game still shows the original screen.
+## Valid runs
+A run is invalid if any of these is true:
+- a state was loaded in it
+- a state exists for its mode (in No Death Mode: for either cutscene choice)
+- it is a time trial or intermission with Super mode on
+
+Invalid runs show `GG!` in place of `Level Complete!` and `Results` (time trials) or `Game Complete!` and `WOW` (No Death Mode). They save no records, achievements, trophies or best death count. Use `delete savestates` before a real run.
+
+Super mode in No Death Mode does not make a run invalid.
 
 # Autosplitter
 `LiveSplit.VVVVVV.asl` is the VVVVVV autosplitter with SuperVVVVVV support. Start, split, reset, game time and settings are unchanged. Its source is `autosplitter\LiveSplit.VVVVVV.asl`; `build.bat` copies it to `build\` and `-r` adds it to the release archive.
@@ -92,13 +101,14 @@ Based on the VVVVVV 2.4.4 tag (`ea811e1`). Useful when rebasing onto a newer ver
 | --- | --- |
 | `desktop_version\src\Savestate.h`, `desktop_version\src\Savestate.cpp` | New: savestate logic |
 | `desktop_version\src\SplitData.h`, `desktop_version\src\SplitData.cpp` | New: autosplitter data struct |
-| `desktop_version\src\Input.cpp` | `gameinput()` calls `savestate::input()`; `fadetomode` and `gotomode` made non-static; game over buttons |
-| `desktop_version\src\Script.cpp` | `startgamemode()` calls `savestate::note_mode()`, `savestate::apply_trial_mode()` and `savestate::after_start()` |
+| `desktop_version\src\Input.cpp` | `gameinput()` calls `savestate::input()`; `fadetomode` and `gotomode` made non-static; game over buttons; Super menu |
+| `desktop_version\src\Script.cpp` | `startgamemode()` calls `savestate::note_mode()`, `savestate::apply_trial_mode()`, `savestate::apply_trial_countdown()` and `savestate::after_start()` |
 | `desktop_version\src\Logic.cpp` | Death logic calls `savestate::fast_death_exit()` |
-| `desktop_version\src\Render.cpp` | Message in place of the room name; `GG!` on the NDM complete screen |
+| `desktop_version\src\Game.h` | New menu `supermode` |
+| `desktop_version\src\Render.cpp` | Message in place of the room name; `GG!` on the NDM complete and time trial results screens; Super menu |
 | `desktop_version\src\Graphics.cpp` | `GG!` replaces the Level Complete and Game Complete images |
 | `desktop_version\src\main.cpp` | `loop_end()` calls `splitdata::update()` |
-| `desktop_version\src\Game.cpp` | Records, achievements and trophies skipped when `savestate::invalid_run()`; game over menu buttons |
+| `desktop_version\src\Game.cpp` | Records, achievements and trophies skipped when `savestate::invalid_run()`; game over and Super menus |
 | `autosplitter\LiveSplit.VVVVVV.asl` | Autosplitter with `SplitData` support, signature scan added to `init` and a `split` mode in `update` |
 | `desktop_version\src\SteamNetwork.c` | Loads `steam_api64.dll` on 64-bit Windows |
 | `desktop_version\CMakeLists.txt` | Adds `Savestate.cpp` and `SplitData.cpp` to the sources; embeds `icon.rc` on Windows |

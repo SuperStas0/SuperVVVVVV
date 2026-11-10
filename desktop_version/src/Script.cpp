@@ -2669,6 +2669,7 @@ void scriptclass::startgamemode(const enum StartMode mode)
         game.intimetrial = true;
         savestate::apply_trial_mode();
         game.timetrialcountdown = 150;
+        savestate::apply_trial_countdown();
         game.timetriallevel = mode - Start_FIRST_TIMETRIAL;
 
         if (map.invincibility)
