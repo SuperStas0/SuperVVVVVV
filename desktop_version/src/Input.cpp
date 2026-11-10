@@ -2206,12 +2206,44 @@ static void menuactionpress(void)
         }
         break;
     case Menu::gameover2:
+    {
+        const savestate::GameOverButtons buttons = savestate::gameover_buttons();
+        int option = game.currentmenuoption;
+        if (buttons.load)
+        {
+            if (option == 0)
+            {
+                music.playef(Sound_VIRIDIAN);
+                savestate::request_load();
+                startmode(savestate::state_mode());
+                break;
+            }
+            option--;
+        }
+        if (buttons.retry)
+        {
+            if (option == 0)
+            {
+                music.playef(Sound_VIRIDIAN);
+                startmode(savestate::retry_mode());
+                break;
+            }
+            option--;
+        }
         //back
         music.playef(Sound_VIRIDIAN);
         music.play(Music_PRESENTINGVVVVVV);
-        game.returntomenu(Menu::playmodes);
+        if (game.intimetrial || game.inintermission)
+        {
+            game.returnmenu();
+        }
+        else
+        {
+            game.returntomenu(Menu::playmodes);
+        }
         map.nexttowercolour();
         break;
+    }
     case Menu::unlocktimetrials:
     case Menu::unlocktimetrial:
     case Menu::unlocknodeathmode:

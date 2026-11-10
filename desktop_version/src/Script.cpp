@@ -2667,6 +2667,7 @@ void scriptclass::startgamemode(const enum StartMode mode)
 
         game.nocutscenes = true;
         game.intimetrial = true;
+        savestate::apply_trial_mode();
         game.timetrialcountdown = 150;
         game.timetriallevel = mode - Start_FIRST_TIMETRIAL;
 
@@ -2745,6 +2746,7 @@ void scriptclass::startgamemode(const enum StartMode mode)
     case Start_INTERMISSION2_VERDIGRIS:
     case Start_INTERMISSION2_VICTORIA:
         music.fadeout();
+        savestate::apply_trial_mode();
 
         switch (mode)
         {
@@ -2937,6 +2939,8 @@ void scriptclass::startgamemode(const enum StartMode mode)
         map.cameramode = 0;
         map.colsuperstate = 0;
     }
+
+    savestate::after_start();
 }
 
 void scriptclass::teleport(void)

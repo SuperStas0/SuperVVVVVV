@@ -1926,7 +1926,7 @@ void Game::updatestate(void)
             if (deathcounts == 0) timetrialrank++;
 
             /* Results from a run that used savestates are not recorded. */
-            if (!savestate::used())
+            if (!savestate::invalid_run())
             {
                 if (timetrialresulttime < besttimes[timetriallevel]
                 || (timetrialresulttime == besttimes[timetriallevel] && timetrialresultframes < bestframes[timetriallevel])
@@ -3171,8 +3171,11 @@ void Game::updatestate(void)
             break;
         case 3501:
             //Game complete!
-            unlockAchievement("vvvvvvgamecomplete");
-            unlocknum(UnlockTrophy_GAME_COMPLETE);
+            if (!savestate::invalid_run())
+            {
+                unlockAchievement("vvvvvvgamecomplete");
+                unlocknum(UnlockTrophy_GAME_COMPLETE);
+            }
             crewstats[0] = true;
             incstate();
             setstatedelay(75);
@@ -3282,7 +3285,7 @@ void Game::updatestate(void)
             break;
         case 3510:
             //Save stats and stuff here
-            if (!obj.flags[73])
+            if (!savestate::invalid_run() && !obj.flags[73])
             {
                 //flip mode complete
                 unlockAchievement("vvvvvvgamecompleteflip");
@@ -3290,7 +3293,7 @@ void Game::updatestate(void)
             }
 
 #ifndef MAKEANDPLAY
-            if (!map.custommode)
+            if (!savestate::invalid_run() && !map.custommode)
             {
                 if (bestgamedeaths == -1)
                 {
@@ -3306,7 +3309,7 @@ void Game::updatestate(void)
             }
 #endif
 
-            if (bestgamedeaths > -1) {
+            if (!savestate::invalid_run() && bestgamedeaths > -1) {
                 if (bestgamedeaths <= 500) {
                     unlockAchievement("vvvvvvcomplete500");
                 }
@@ -3324,8 +3327,11 @@ void Game::updatestate(void)
 
             if (nodeathmode)
             {
-                unlockAchievement("vvvvvvmaster"); //bloody hell
-                unlocknum(UnlockTrophy_NODEATHMODE_COMPLETE);
+                if (!savestate::invalid_run())
+                {
+                    unlockAchievement("vvvvvvmaster"); //bloody hell
+                    unlocknum(UnlockTrophy_NODEATHMODE_COMPLETE);
+                }
                 setstate(3520);
                 setstatedelay(0);
             }
@@ -7274,9 +7280,23 @@ void Game::createmenu( enum Menu::MenuName t, bool samemenu/*= false*/ )
         menudest=Menu::gameover2;
         break;
     case Menu::gameover2:
-        option(loc::gettext("return to play menu"));
-        menuyoff = 80;
+    {
+        const savestate::GameOverButtons buttons = savestate::gameover_buttons();
+        int n_options = 1;
+        if (buttons.load)
+        {
+            option(loc::gettext("load savestate"));
+            n_options++;
+        }
+        if (buttons.retry)
+        {
+            option(loc::gettext("retry"));
+            n_options++;
+        }
+        option(loc::gettext(intimetrial || inintermission ? "return" : "return to play menu"));
+        menuyoff = 80 - 8 * (n_options - 1);
         break;
+    }
     case Menu::unlockmenutrials:
         option(loc::gettext("space station 1"), !unlock[Unlock_TIMETRIAL_SPACESTATION1]);
         option(loc::gettext("the laboratory"), !unlock[Unlock_TIMETRIAL_LABORATORY]);

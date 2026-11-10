@@ -10,6 +10,7 @@
 #include "Game.h"
 #include "Graphics.h"
 #include "Map.h"
+#include "Music.h"
 #include "Script.h"
 
 /* Whole-object snapshots of the gameplay globals. Anything that is a user
@@ -17,9 +18,22 @@
 
 namespace savestate
 {
+    static const int POPUP_FRAMES = 75;
+    static const int FAST_DEATH_FRAMES = 6;
+
     static int current_mode = -1;
     static int saved_mode = -1;
+    static int saved_song = -1;
+    static bool saved_trial_ndm = false;
     static bool loaded_this_run = false;
+    static bool trial_ndm = false;
+    static bool trial_ndm_setting = false;
+    static bool fast_death_setting = false;
+    static bool pending_load = false;
+    static bool restart_pending = false;
+    static bool restarting = false;
+    static int popup_timer = 0;
+    static std::string popup_text;
 
     static Game* s_game = NULL;
     static mapclass* s_map = NULL;
@@ -194,12 +208,28 @@ namespace savestate
         graphics.towerbg.tdrawback = true;
     }
 
+    static bool is_ndm_mode(const int mode)
+    {
+        return mode >= Start_FIRST_NODEATHMODE && mode <= Start_LAST_NODEATHMODE;
+    }
+
+    static bool is_trial_mode(const int mode)
+    {
+        return (mode >= Start_FIRST_TIMETRIAL && mode <= Start_TIMETRIAL_FINALLEVEL)
+            || (mode >= Start_FIRST_INTERMISSION1 && mode <= Start_LAST_INTERMISSION2);
+    }
+
+    static void show_popup(const char* text)
+    {
+        popup_text = text;
+        popup_timer = POPUP_FRAMES;
+    }
+
     static bool active(void)
     {
         return current_mode != -1
             && game.gamestate == GAMEMODE
-            && (game.intimetrial || game.inintermission)
-            && !game.nodeathmode
+            && (game.intimetrial || game.inintermission || game.nodeathmode)
             && !game.translator_exploring
             && !map.custommode
             && !game.fadetomenu
@@ -225,13 +255,44 @@ namespace savestate
         s_roomname = map.roomname;
         gfx_capture(s_gfx);
         saved_mode = current_mode;
+        saved_song = music.currentsong;
+        saved_trial_ndm = trial_ndm;
+        show_popup("State saved");
     }
 
-    static void load(void)
+    static void restore_music(const int song)
     {
-        if (s_game == NULL || saved_mode != current_mode)
+        if (music.currentsong == song)
         {
             return;
+        }
+
+        if (song == -1)
+        {
+            music.haltdasmusik();
+            return;
+        }
+
+        int track = song;
+        if (music.mmmmmm && !music.usingmmmmmm)
+        {
+            track -= music.num_mmmmmm_tracks;
+        }
+        if (track < 0)
+        {
+            return;
+        }
+
+        music.nicefade = false;
+        music.nicechange = -1;
+        music.play(track);
+    }
+
+    static bool load(void)
+    {
+        if (s_game == NULL || saved_mode != current_mode || saved_trial_ndm != trial_ndm)
+        {
+            return false;
         }
 
         Persist keep;
@@ -252,13 +313,37 @@ namespace savestate
         game.jumpheld = true;
         game.jumppressed = 0;
 
+        restore_music(saved_song);
+
         loaded_this_run = true;
+        show_popup("State loaded");
+        return true;
     }
 
     void note_mode(enum StartMode mode)
     {
         current_mode = (int) mode;
         loaded_this_run = false;
+        restart_pending = false;
+        trial_ndm = trial_ndm_setting && is_trial_mode(current_mode);
+        if (!restarting)
+        {
+            popup_timer = 0;
+        }
+    }
+
+    void after_start(void)
+    {
+        if (!pending_load)
+        {
+            return;
+        }
+
+        pending_load = false;
+        if (!load())
+        {
+            show_popup("No saved state");
+        }
     }
 
     bool used(void)
@@ -266,27 +351,212 @@ namespace savestate
         return loaded_this_run;
     }
 
+    bool invalid_run(void)
+    {
+        return loaded_this_run || trial_ndm;
+    }
+
+    bool gg_level_complete(void)
+    {
+        return invalid_run() && (game.intimetrial || game.inintermission);
+    }
+
+    bool gg_game_complete(void)
+    {
+        return invalid_run();
+    }
+
+    void apply_trial_mode(void)
+    {
+        if (trial_ndm)
+        {
+            game.nodeathmode = true;
+            game.nocutscenes = true;
+        }
+    }
+
+    static bool gameover_state_available(void)
+    {
+        if (s_game == NULL)
+        {
+            return false;
+        }
+        if (is_ndm_mode(saved_mode) && is_ndm_mode(current_mode))
+        {
+            return true;
+        }
+        return saved_mode == current_mode && saved_trial_ndm && trial_ndm;
+    }
+
+    GameOverButtons gameover_buttons(void)
+    {
+        GameOverButtons buttons;
+        buttons.load = gameover_state_available();
+        buttons.retry = buttons.load
+            || (fast_death_setting && (game.intimetrial || game.inintermission));
+        return buttons;
+    }
+
+    enum StartMode retry_mode(void)
+    {
+        return (enum StartMode) current_mode;
+    }
+
+    enum StartMode state_mode(void)
+    {
+        return (enum StartMode) saved_mode;
+    }
+
+    void request_load(void)
+    {
+        pending_load = true;
+    }
+
+    bool fast_death_exit(void)
+    {
+        if (!fast_death_setting
+        || !game.nodeathmode
+        || game.deathseq == -1
+        || game.deathseq > 30 - FAST_DEATH_FRAMES)
+        {
+            return false;
+        }
+
+        game.gethardestroom();
+        game.copyndmresults();
+        obj.entities.clear();
+        game.quittomenu();
+        graphics.fademode = FADE_NONE;
+
+        if (gameover_buttons().retry)
+        {
+            game.createmenu(Menu::gameover2);
+        }
+        else
+        {
+            game.createmenu(Menu::startnodeathmode);
+            game.currentmenuoption = current_mode == Start_NODEATHMODE_WITHCUTSCENES ? 1 : 0;
+            music.play(Music_PRESENTINGVVVVVV);
+        }
+        return true;
+    }
+
+    bool popup_active(void)
+    {
+        return popup_timer > 0;
+    }
+
+    const char* popup_message(void)
+    {
+        return popup_text.c_str();
+    }
+
+    static void begin_restart(void)
+    {
+        graphics.fademode = FADE_START_FADEOUT;
+        game.completestop = true;
+        music.fadeout();
+        restart_pending = true;
+    }
+
+    static void update_restart(void)
+    {
+        if (!restart_pending || graphics.fademode != FADE_FULLY_BLACK)
+        {
+            return;
+        }
+
+        restart_pending = false;
+        restarting = true;
+        script.startgamemode((enum StartMode) current_mode);
+        restarting = false;
+        game.deathseq = -1;
+        game.completestop = false;
+        if (game.intimetrial)
+        {
+            game.hascontrol = false;
+        }
+    }
+
+    static void toggle_trial_ndm(void)
+    {
+        if (current_mode == -1
+        || game.gamestate != GAMEMODE
+        || !(game.intimetrial || game.inintermission)
+        || map.custommode
+        || game.translator_exploring
+        || graphics.fademode != FADE_NONE
+        || restart_pending)
+        {
+            return;
+        }
+
+        trial_ndm_setting = !trial_ndm_setting;
+        show_popup(trial_ndm_setting ? "NDM mode on" : "NDM mode off");
+        begin_restart();
+    }
+
+    static void toggle_fast_death(void)
+    {
+        if (game.gamestate != GAMEMODE || !game.nodeathmode || map.custommode)
+        {
+            return;
+        }
+
+        fast_death_setting = !fast_death_setting;
+        show_popup(fast_death_setting ? "Fast death on" : "Fast death off");
+    }
+
     void input(void)
     {
         static bool was_down = false;
+
+        if (popup_timer > 0)
+        {
+            popup_timer--;
+        }
+
+        update_restart();
 
         const Uint8* keystate = SDL_GetKeyboardState(NULL);
         const bool down = keystate[SDL_SCANCODE_GRAVE] != 0;
         const bool pressed = down && !was_down;
         was_down = down;
 
-        if (!pressed || !active())
+        if (!pressed)
         {
             return;
         }
 
-        if ((SDL_GetModState() & KMOD_SHIFT) != 0)
+        const int mods = SDL_GetModState();
+        const bool shift = (mods & KMOD_SHIFT) != 0;
+        const bool ctrl = (mods & KMOD_CTRL) != 0;
+        const bool alt = (mods & KMOD_ALT) != 0;
+
+        if ((int) shift + (int) ctrl + (int) alt > 1)
+        {
+            return;
+        }
+
+        if (ctrl)
+        {
+            toggle_trial_ndm();
+        }
+        else if (alt)
+        {
+            toggle_fast_death();
+        }
+        else if (!active())
+        {
+            return;
+        }
+        else if (shift)
         {
             save();
         }
-        else
+        else if (!load())
         {
-            load();
+            show_popup("No saved state");
         }
     }
 }

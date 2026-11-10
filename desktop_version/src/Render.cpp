@@ -23,6 +23,7 @@
 #include "Music.h"
 #include "ReleaseVersion.h"
 #include "RoomnameTranslator.h"
+#include "Savestate.h"
 #include "Screen.h"
 #include "Script.h"
 #include "UtilityClass.h"
@@ -1510,7 +1511,8 @@ static void menurender(void)
     case Menu::nodeathmodecomplete:
     case Menu::nodeathmodecomplete2:
     {
-        font::print(PR_4X | PR_CEN | PR_CJK_LOW, -1, 8, loc::gettext("WOW"), tr, tg, tb);
+        const bool invalid = savestate::invalid_run();
+        font::print(PR_4X | PR_CEN | PR_CJK_LOW, -1, 8, invalid ? "GG!" : loc::gettext("WOW"), tr, tg, tb);
 
         for (size_t i = 0; i < SDL_arraysize(game.ndmresultcrewstats); i++)
         {
@@ -1528,7 +1530,10 @@ static void menurender(void)
         );
         font::print_wrap(PR_CEN | PR_CJK_LOW, -1, 110, buffer, tr, tg, tb);
 
-        font::print_wrap(PR_CEN, -1, 160, loc::gettext("A new trophy has been awarded and placed in the secret lab to acknowledge your achievement!"), tr, tg, tb);
+        if (!invalid)
+        {
+            font::print_wrap(PR_CEN, -1, 160, loc::gettext("A new trophy has been awarded and placed in the secret lab to acknowledge your achievement!"), tr, tg, tb);
+        }
         break;
     }
     case Menu::timetrialcomplete:
@@ -2470,12 +2475,15 @@ void gamerender(void)
         );
     }
 
-    if ((map.extrarow==0 || (map.custommode && map.roomname[0] != '\0')) && !force_roomname_hidden)
+    const bool popup = savestate::popup_active();
+    if (popup || ((map.extrarow==0 || (map.custommode && map.roomname[0] != '\0')) && !force_roomname_hidden))
     {
-        const char* roomname = loc::gettext_roomname(map.custommode, game.roomx, game.roomy, map.roomname, map.roomname_special);
+        const char* roomname = popup
+            ? savestate::popup_message()
+            : loc::gettext_roomname(map.custommode, game.roomx, game.roomy, map.roomname, map.roomname_special);
 
         graphics.render_roomname(
-            roomname_untranslated ? PR_FONT_8X8 : PR_FONT_LEVEL,
+            (roomname_untranslated || popup) ? PR_FONT_8X8 : PR_FONT_LEVEL,
             roomname,
             roomname_r, roomname_g, roomname_b
         );

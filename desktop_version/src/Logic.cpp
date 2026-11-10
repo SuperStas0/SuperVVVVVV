@@ -9,6 +9,7 @@
 #include "Map.h"
 #include "Music.h"
 #include "Network.h"
+#include "Savestate.h"
 #include "Script.h"
 #include "UtilityClass.h"
 
@@ -459,7 +460,7 @@ void gamelogic(void)
 
         game.deathsequence();
         game.deathseq--;
-        if (game.deathseq <= 0)
+        if (!savestate::fast_death_exit() && game.deathseq <= 0)
         {
             if (game.nodeathmode)
             {
