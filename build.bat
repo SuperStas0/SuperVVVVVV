@@ -108,6 +108,7 @@ call :finddir
 if not defined GAME goto :nogame
 copy /y build\VVVVVV.exe "%GAME%\VVVVVV.exe" >nul || goto :instfailed
 if exist build\steam_api64.dll copy /y build\steam_api64.dll "%GAME%\steam_api64.dll" >nul || goto :instfailed
+xcopy /s /i /y /q "desktop_version\lang\super.xml" "%GAME%\lang\" >nul || goto :instfailed
 :noinst
 
 if not defined REL goto :done
@@ -139,7 +140,7 @@ call :finddir
 if not defined GAME set "GAME=not found"
 echo Usage: build.bat [-c] [-i] [-r] [-n] [-s path] [-h]
 echo   -c       clean: delete previous build output first
-echo   -i       install: copy the build to the Steam game folder, replacing VVVVVV.exe: %GAME%
+echo   -i       install: copy the build and every lang\^<code^>\super.xml to the Steam game folder, replacing VVVVVV.exe: %GAME%
 echo   -r       release: package the build into release\
 echo   -n       nobuild: skip the build, reuse existing output ^(needs -i and/or -r, not with -c^)
 echo   -s path  SDL2: x86_64-w64-mingw32 folder of the SDL2 MinGW package, default SDL32 in the repo
