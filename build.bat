@@ -119,7 +119,7 @@ copy /y build\VVVVVV.exe build\package\VVVVVV.exe >nul || goto :failed
 copy /y autosplitter\LiveSplit.VVVVVV.asl build\package\LiveSplit.VVVVVV.asl >nul || goto :failed
 copy /y readme.md build\package\SuperVVVVVV-README.md >nul || goto :failed
 copy /y licenses\LICENSE.md build\package\LICENSE.md >nul || goto :failed
-xcopy /s /i /y /q "desktop_version\lang\supervvvvvv.json" "build\package\lang\" >nul || goto :failed
+xcopy /s /i /y /q "desktop_version\lang\super.xml" "build\package\lang\" >nul || goto :failed
 powershell -NoProfile -Command "Compress-Archive -Path 'build\package\*' -DestinationPath 'release\SuperVVVVVV.zip' -Force"
 if errorlevel 1 goto :failed
 powershell -NoProfile -Command "$n=[char]10; $z=(Get-FileHash -Algorithm SHA256 -LiteralPath 'release\SuperVVVVVV.zip').Hash.ToLower(); $e=(Get-FileHash -Algorithm SHA256 -LiteralPath 'build\package\VVVVVV.exe').Hash.ToLower(); [IO.File]::WriteAllText('release\SHA256.txt', $z + ' *SuperVVVVVV.zip' + $n + $e + ' *VVVVVV.exe' + $n)"
