@@ -29,13 +29,13 @@ The build is 64-bit and statically linked, so it needs no `SDL2.dll`. It uses th
 
 The key is the one left of `1`. Ctrl or Alt held does nothing.
 
-- Off by default. Turn them on with `Allow savestates` in the Super menu.
+- Off by default. Turn them on with `allow savestates` in the Super menu.
 - Saves the full in-game state: trinkets, room, position, checkpoint, gravity, entities, script progress and music. The timer is not saved or loaded, it keeps running.
 - Active in the main game, time trials, intermission replays and No Death Mode.
 - One slot per mode: the main game (new game, continue and quicksave share it), each time trial, each intermission replay, No Death Mode with cutscenes and without. Time trials and intermissions with Super mode on have their own slots.
 - Slots are kept while the game runs, also across leaving and entering levels. Nothing is saved to disk.
-- A state loads only in the mode it was saved in. Saving is ignored during the death animation.
-- Save, load and toggles show a message in place of the room name.
+- A state loads only in the mode it was saved in. Saving is ignored during the death animation and during the countdown after a load.
+- Save and load show a message in place of the room name.
 
 ## Super menu
 `Esc` > `options` > `super`, shown only during a main game, time trial, intermission replay or No Death Mode run. Everything is off when the game starts.
@@ -43,33 +43,29 @@ The key is the one left of `1`. Ctrl or Alt held does nothing.
 | Item | Action |
 | --- | --- |
 | `super mode` | Toggle Super mode. In a time trial or intermission it restarts the level. |
-| `allow savestates` | Toggle the save and load keys and the game over buttons. |
+| `allow savestates` | Toggle the save and load keys and loading a state on death. |
 | `delete savestates` | Delete all states in all modes. |
 
+## Dying with a state
+Applies where dying would end the run: No Death Mode, and time trials and intermission replays with Super mode on. Needs `allow savestates` and a state for the current mode. The main game and time trials without Super mode keep the original respawn.
+
+| Super mode | Delay | After the load |
+| --- | --- | --- |
+| off | original death delay (1 s) | 1 s countdown without control, then `Go!` |
+| on | 0.5 s | none |
+
+Without a state, No Death Mode ends the run as in the original game.
+
 ## Super mode
-Affects only what happens after dying and which screens appear.
 - Main game: no effect, and it does not make a run invalid.
-- No Death Mode: 0.5 s after dying the game leaves the run without the fade and the game over delay. Gameplay is not affected.
-  - Without a state: opens the cutscene choice screen of No Death Mode.
-  - With a state: opens the game over screen with its buttons at once.
-- Time trials and intermission replays: No Death Mode rules (no checkpoints, no cutscenes). Dying restarts the level at its start 0.5 s later, without the fade. Time trials use a 1 s countdown. The timer restarts. States are kept.
-
-## Game over screen
-Shown after dying in No Death Mode.
-
-| Button | Action |
-| --- | --- |
-| `load savestate` | Starts the mode of the last saved No Death Mode state and loads it. Selected by default. |
-| `retry` | Starts the same mode again. |
-| `return to play menu` | Original button. |
-
-`load savestate` and `retry` appear only if savestates are allowed and a No Death Mode state exists. Without Super mode the screen keeps its original delay.
+- No Death Mode: only changes dying with a state (see above). Gameplay is not affected.
+- Time trials and intermission replays: No Death Mode rules (no checkpoints, no cutscenes). Without a state, dying restarts the level at its start 0.5 s later, without the fade. Time trials use a 1 s countdown. The timer restarts.
 
 ## Valid runs
 A run is invalid if any of these is true:
 - a state was loaded in it
 - a state exists for its mode (main game: any state of the main game; No Death Mode: for either cutscene choice)
-- it is a time trial or intermission with Super mode on
+- it is a time trial or intermission replay with Super mode on
 
 Invalid runs show `GG!` in place of `Level Complete!` and `Game Complete!` (main game and No Death Mode), `Results` (time trials) and `WOW` (No Death Mode). From the moment a run is invalid it earns no achievements, trophies, unlocks, trinket stats, Super Gravitron records, best death count or time trial records. What was earned before the first state was saved stays. Use `delete savestates` before a real run.
 
@@ -109,20 +105,23 @@ Based on the VVVVVV 2.4.4 tag (`ea811e1`). Useful when rebasing onto a newer ver
 
 | File | Change |
 | --- | --- |
-| `desktop_version\src\Savestate.h`, `desktop_version\src\Savestate.cpp` | New: savestate logic |
+| `desktop_version\src\Savestate.h`, `desktop_version\src\Savestate.cpp` | New: savestate store and the save and load keys |
+| `desktop_version\src\Supermode.h`, `desktop_version\src\Supermode.cpp` | New: Super mode, run validity, death handling, countdown, popups, `GG!` |
+| `desktop_version\src\Supermenu.h`, `desktop_version\src\Supermenu.cpp` | New: Super menu |
+| `desktop_version\src\Supertext.h`, `desktop_version\src\Supertext.cpp` | New: loads `lang\<code>\super.xml` |
 | `desktop_version\src\SplitData.h`, `desktop_version\src\SplitData.cpp` | New: autosplitter data struct |
-| `desktop_version\src\Input.cpp` | `gameinput()` calls `savestate::input()`; `fadetomode` and `gotomode` made non-static; game over buttons; Super menu |
-| `desktop_version\src\Script.cpp` | `startgamemode()` calls `savestate::note_mode()`, `savestate::apply_trial_mode()`, `savestate::apply_trial_countdown()` and `savestate::after_start()` |
-| `desktop_version\src\LocalizationStorage.cpp` | `loadtext()` also loads `lang\<code>\super.xml` |
-| `desktop_version\src\Logic.cpp` | Death logic calls `savestate::fast_death_exit()` |
 | `desktop_version\src\Game.h` | New menu `supermode` |
-| `desktop_version\src\Render.cpp` | Message in place of the room name; `GG!` on the NDM complete and time trial results screens; Super menu |
+| `desktop_version\src\Game.cpp` | Hooks: Super entry in the options menu and the Super menu, `supermode::invalid_run()` checks for records, unlocks and achievements |
+| `desktop_version\src\Input.cpp` | `gameinput()` calls `savestate::input()`; `fadetomode` and `gotomode` made non-static; Super menu hooks |
+| `desktop_version\src\Script.cpp` | `startgamemode()` calls `savestate::note_mode()`, `supermode::apply_trial_rules()` and `supermode::after_start()` |
+| `desktop_version\src\Logic.cpp` | Death logic calls `supermode::death_exit()`; Super Gravitron records skipped in invalid runs |
+| `desktop_version\src\Entity.cpp` | Trinket stat skipped in invalid runs |
+| `desktop_version\src\Render.cpp` | Super menu, popup in place of the room name, countdown, `GG!` on the WOW and results screens |
 | `desktop_version\src\Graphics.cpp` | `GG!` replaces the Level Complete and Game Complete images |
 | `desktop_version\src\main.cpp` | `loop_end()` calls `splitdata::update()` |
-| `desktop_version\src\Game.cpp` | Records, achievements and trophies skipped when `savestate::invalid_run()`; game over and Super menus |
 | `autosplitter\LiveSplit.VVVVVV.asl` | Autosplitter with `SplitData` support, signature scan added to `init` and a `split` mode in `update` |
 | `desktop_version\src\SteamNetwork.c` | Loads `steam_api64.dll` on 64-bit Windows |
-| `desktop_version\CMakeLists.txt` | Adds `Savestate.cpp` and `SplitData.cpp` to the sources; embeds `icon.rc` on Windows |
+| `desktop_version\CMakeLists.txt` | Adds `Savestate.cpp`, `Supermode.cpp`, `Supermenu.cpp`, `Supertext.cpp` and `SplitData.cpp` to the sources; embeds `icon.rc` on Windows |
 
 # Building
 Requirements:

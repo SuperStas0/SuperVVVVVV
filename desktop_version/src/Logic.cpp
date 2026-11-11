@@ -9,8 +9,8 @@
 #include "Map.h"
 #include "Music.h"
 #include "Network.h"
-#include "Savestate.h"
 #include "Script.h"
+#include "Supermode.h"
 #include "UtilityClass.h"
 
 void titlelogic(void)
@@ -444,7 +444,7 @@ void gamelogic(void)
                 game.swnstate4 = 0;
                 game.swndelay = 0;
 #ifndef MAKEANDPLAY
-                if (game.swntimer >= game.swnrecord && !map.custommode && !savestate::invalid_run())
+                if (game.swntimer >= game.swnrecord && !map.custommode && !supermode::invalid_run())
                 {
                     game.swnrecord = game.swntimer;
                     if (game.swnmessage == 0)
@@ -460,7 +460,7 @@ void gamelogic(void)
 
         game.deathsequence();
         game.deathseq--;
-        if (!savestate::fast_death_exit() && game.deathseq <= 0)
+        if (!supermode::death_exit() && game.deathseq <= 0)
         {
             if (game.nodeathmode)
             {
@@ -577,7 +577,7 @@ void gamelogic(void)
             case SWN_SUPERGRAVITRON:
                 game.swntimer += 1;
 #ifndef MAKEANDPLAY
-                if (!map.custommode && !savestate::invalid_run())
+                if (!map.custommode && !supermode::invalid_run())
                 {
                     if (game.swntimer > game.swnrecord)
                     {

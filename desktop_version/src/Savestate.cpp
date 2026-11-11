@@ -9,20 +9,16 @@
 #include "Enums.h"
 #include "Game.h"
 #include "Graphics.h"
-#include "Localization.h"
 #include "Map.h"
 #include "Music.h"
 #include "Script.h"
+#include "Supermode.h"
 
 /* Whole-object snapshots of the gameplay globals. Anything that is a user
  * setting or persistent progress (not part of the run) is kept as-is on load. */
 
 namespace savestate
 {
-    static const int POPUP_FRAMES = 75;
-    static const int FAST_DEATH_FRAMES = 15;
-    static const int TRIAL_COUNTDOWN = 60;
-
     struct GfxState
     {
         int rcol;
@@ -210,46 +206,7 @@ namespace savestate
     };
 
     static std::map<int, Slot> slots;
-    static int last_ndm_key = -1;
-
-    static int current_mode = -1;
     static bool loaded_this_run = false;
-    static bool trial_super = false;
-    static bool super_setting = false;
-    static bool allow_setting = false;
-    static bool pending_load = false;
-    static bool restart_pending = false;
-    static bool restart_instant = false;
-    static bool restarting = false;
-    static int popup_timer = 0;
-    static std::string popup_text;
-
-    static bool is_ndm_mode(const int mode)
-    {
-        return mode >= Start_FIRST_NODEATHMODE && mode <= Start_LAST_NODEATHMODE;
-    }
-
-    static bool is_trial_mode(const int mode)
-    {
-        return (mode >= Start_FIRST_TIMETRIAL && mode <= Start_TIMETRIAL_FINALLEVEL)
-            || (mode >= Start_FIRST_INTERMISSION1 && mode <= Start_LAST_INTERMISSION2);
-    }
-
-    static bool is_main_mode(const int mode)
-    {
-        return mode >= Start_MAINGAME && mode <= Start_MAINGAME_QUICKSAVE;
-    }
-
-    static int make_key(const int mode, const bool super)
-    {
-        /* New game, telesave and quicksave runs share one slot. */
-        return (is_main_mode(mode) ? (int) Start_MAINGAME : mode) * 2 + (super ? 1 : 0);
-    }
-
-    static int current_key(void)
-    {
-        return make_key(current_mode, trial_super);
-    }
 
     static void free_slot(Slot& slot)
     {
@@ -259,53 +216,44 @@ namespace savestate
         delete slot.script;
     }
 
-    static void show_popup(const char* text)
+    void note_mode(enum StartMode mode)
     {
-        popup_text = text;
-        popup_timer = POPUP_FRAMES;
+        loaded_this_run = false;
+        supermode::note_mode(mode);
     }
 
-    static bool ndm_state_exists(void)
+    bool used(void)
     {
-        for (std::map<int, Slot>::const_iterator it = slots.begin(); it != slots.end(); ++it)
+        return loaded_this_run;
+    }
+
+    bool exists(const int key)
+    {
+        return slots.count(key) != 0;
+    }
+
+    int count(void)
+    {
+        return (int) slots.size();
+    }
+
+    void remove_all(void)
+    {
+        for (std::map<int, Slot>::iterator it = slots.begin(); it != slots.end(); ++it)
         {
-            if (is_ndm_mode(it->first / 2))
-            {
-                return true;
-            }
+            free_slot(it->second);
         }
-        return false;
+        slots.clear();
     }
 
-    static bool run_has_state(void)
-    {
-        if (is_ndm_mode(current_mode))
-        {
-            return ndm_state_exists();
-        }
-        return slots.count(current_key()) != 0;
-    }
-
-    static bool active(void)
-    {
-        return current_mode != -1
-            && game.gamestate == GAMEMODE
-            && (game.intimetrial || game.inintermission || game.nodeathmode || is_main_mode(current_mode))
-            && !game.translator_exploring
-            && !map.custommode
-            && !game.fadetomenu
-            && !game.fadetolab;
-    }
-
-    static void save(void)
+    bool save(const int key)
     {
         /* Don't capture the death animation. */
         if (game.deathseq != -1)
         {
-            return;
+            return false;
         }
 
-        const int key = current_key();
         std::map<int, Slot>::iterator old = slots.find(key);
         if (old != slots.end())
         {
@@ -322,19 +270,20 @@ namespace savestate
         gfx_capture(slot.gfx);
         slot.song = music.currentsong;
         slots[key] = slot;
-
-        if (is_ndm_mode(current_mode))
-        {
-            last_ndm_key = key;
-        }
-        show_popup("State saved");
+        return true;
     }
 
-    static void restore_music(const int song)
+    static void restore_music(const int song, const bool force)
     {
-        if (music.currentsong == song)
+        if (!force && music.currentsong == song)
         {
             return;
+        }
+
+        if (force)
+        {
+            /* Also stops a fade out that is still running. */
+            music.haltdasmusik();
         }
 
         if (song == -1)
@@ -358,9 +307,9 @@ namespace savestate
         music.play(track);
     }
 
-    static bool load(void)
+    bool load(const int key, const bool force_music)
     {
-        std::map<int, Slot>::iterator it = slots.find(current_key());
+        std::map<int, Slot>::iterator it = slots.find(key);
         if (it == slots.end())
         {
             return false;
@@ -385,257 +334,25 @@ namespace savestate
         game.jumpheld = true;
         game.jumppressed = 0;
 
-        restore_music(slot.song);
+        restore_music(slot.song, force_music);
 
         loaded_this_run = true;
-        show_popup("State loaded");
+        supermode::cancel_countdown();
         return true;
-    }
-
-    void note_mode(enum StartMode mode)
-    {
-        current_mode = (int) mode;
-        loaded_this_run = false;
-        restart_pending = false;
-        restart_instant = false;
-        trial_super = super_setting && is_trial_mode(current_mode);
-        if (!restarting)
-        {
-            popup_timer = 0;
-        }
-    }
-
-    void after_start(void)
-    {
-        if (!pending_load)
-        {
-            return;
-        }
-
-        pending_load = false;
-        if (!load())
-        {
-            show_popup("No saved state");
-        }
-    }
-
-    bool invalid_run(void)
-    {
-        return loaded_this_run || trial_super || run_has_state();
-    }
-
-    bool gg_level_complete(void)
-    {
-        return invalid_run();
-    }
-
-    bool gg_game_complete(void)
-    {
-        return invalid_run();
-    }
-
-    void apply_trial_mode(void)
-    {
-        if (trial_super)
-        {
-            game.nodeathmode = true;
-            game.nocutscenes = true;
-        }
-    }
-
-    void apply_trial_countdown(void)
-    {
-        if (trial_super)
-        {
-            game.timetrialcountdown = TRIAL_COUNTDOWN;
-        }
-    }
-
-    GameOverButtons gameover_buttons(void)
-    {
-        GameOverButtons buttons;
-        buttons.load = allow_setting && last_ndm_key != -1 && slots.count(last_ndm_key) != 0
-            && is_ndm_mode(current_mode);
-        buttons.retry = buttons.load;
-        return buttons;
-    }
-
-    enum StartMode retry_mode(void)
-    {
-        return (enum StartMode) current_mode;
-    }
-
-    enum StartMode state_mode(void)
-    {
-        return (enum StartMode) (last_ndm_key / 2);
-    }
-
-    void request_load(void)
-    {
-        pending_load = true;
-    }
-
-    bool fast_death_exit(void)
-    {
-        if (!super_setting
-        || !game.nodeathmode
-        || game.deathseq == -1
-        || game.deathseq > 30 - FAST_DEATH_FRAMES)
-        {
-            return false;
-        }
-
-        if (game.intimetrial || game.inintermission)
-        {
-            if (!restart_pending)
-            {
-                restart_pending = true;
-                restart_instant = true;
-            }
-            return true;
-        }
-
-        game.gethardestroom();
-        game.copyndmresults();
-        obj.entities.clear();
-        game.quittomenu();
-        graphics.fademode = FADE_NONE;
-
-        if (gameover_buttons().retry)
-        {
-            game.createmenu(Menu::gameover2);
-        }
-        else
-        {
-            game.createmenu(Menu::startnodeathmode);
-            game.currentmenuoption = current_mode == Start_NODEATHMODE_WITHCUTSCENES ? 1 : 0;
-            music.play(Music_PRESENTINGVVVVVV);
-        }
-        return true;
-    }
-
-    bool popup_active(void)
-    {
-        return popup_timer > 0;
-    }
-
-    const char* popup_message(void)
-    {
-        return loc::gettext(popup_text.c_str());
-    }
-
-    bool options_has_super(void)
-    {
-        return game.ingame_titlemode
-            && current_mode != -1
-            && (game.intimetrial || game.inintermission || game.nodeathmode || is_main_mode(current_mode))
-            && !map.custommode
-            && !game.translator_exploring;
-    }
-
-    bool super_mode(void)
-    {
-        return super_setting;
-    }
-
-    bool allow_states(void)
-    {
-        return allow_setting;
-    }
-
-    int state_count(void)
-    {
-        return (int) slots.size();
-    }
-
-    void toggle_super(void)
-    {
-        super_setting = !super_setting;
-        show_popup(super_setting ? "Super mode on" : "Super mode off");
-    }
-
-    void toggle_allow(void)
-    {
-        allow_setting = !allow_setting;
-        show_popup(allow_setting ? "Savestates on" : "Savestates off");
-    }
-
-    void delete_states(void)
-    {
-        for (std::map<int, Slot>::iterator it = slots.begin(); it != slots.end(); ++it)
-        {
-            free_slot(it->second);
-        }
-        slots.clear();
-        last_ndm_key = -1;
-        show_popup("Savestates deleted");
-    }
-
-    static void begin_restart(void)
-    {
-        graphics.fademode = FADE_START_FADEOUT;
-        game.completestop = true;
-        music.fadeout();
-        restart_pending = true;
-        restart_instant = false;
-    }
-
-    static void update_restart(void)
-    {
-        if (!restart_pending)
-        {
-            return;
-        }
-        if (!restart_instant && graphics.fademode != FADE_FULLY_BLACK)
-        {
-            return;
-        }
-
-        const bool instant = restart_instant;
-        restart_pending = false;
-        restart_instant = false;
-        restarting = true;
-        script.startgamemode((enum StartMode) current_mode);
-        restarting = false;
-        game.deathseq = -1;
-        game.completestop = false;
-        if (instant)
-        {
-            graphics.fademode = FADE_NONE;
-        }
-        if (game.intimetrial)
-        {
-            game.hascontrol = false;
-        }
     }
 
     void input(void)
     {
         static bool was_down = false;
 
-        if (popup_timer > 0)
-        {
-            popup_timer--;
-        }
-
-        update_restart();
-
-        /* Super mode was toggled in the options menu during a trial. */
-        if (active()
-        && is_trial_mode(current_mode)
-        && (super_setting != trial_super)
-        && graphics.fademode == FADE_NONE
-        && !restart_pending)
-        {
-            begin_restart();
-        }
+        supermode::update();
 
         const Uint8* keystate = SDL_GetKeyboardState(NULL);
         const bool down = keystate[SDL_SCANCODE_GRAVE] != 0;
         const bool pressed = down && !was_down;
         was_down = down;
 
-        if (!pressed || !active())
+        if (!pressed || !supermode::states_allowed())
         {
             return;
         }
@@ -646,18 +363,20 @@ namespace savestate
             return;
         }
 
-        if (!allow_setting)
-        {
-            return;
-        }
-
         if ((mods & KMOD_SHIFT) != 0)
         {
-            save();
+            if (!supermode::counting_down() && save(supermode::key()))
+            {
+                supermode::popup("State saved");
+            }
         }
-        else if (!load())
+        else if (load(supermode::key(), false))
         {
-            show_popup("No saved state");
+            supermode::popup("State loaded");
+        }
+        else
+        {
+            supermode::popup("No saved state");
         }
     }
 }

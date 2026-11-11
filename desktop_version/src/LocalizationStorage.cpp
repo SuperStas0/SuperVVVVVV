@@ -1038,38 +1038,6 @@ void loadtext_custom(const char* custom_path)
     loadtext_roomnames(true, false);
 }
 
-static void loadtext_super(void)
-{
-    tinyxml2::XMLDocument doc;
-    tinyxml2::XMLHandle hDoc(&doc);
-    tinyxml2::XMLElement* pElem;
-
-    if (!load_lang_doc("super", doc))
-    {
-        return;
-    }
-
-    FOR_EACH_XML_ELEMENT(hDoc, pElem)
-    {
-        EXPECT_ELEM(pElem, "string");
-
-        const char* eng = pElem->Attribute("english");
-        const char* tra = pElem->Attribute("translation");
-
-        if (tra == NULL || tra[0] == '\0')
-        {
-            continue;
-        }
-
-        map_store_translation(
-            &textbook_main,
-            map_translation,
-            eng,
-            tra
-        );
-    }
-}
-
 void loadtext(bool check_max)
 {
     resettext(false);
@@ -1089,7 +1057,6 @@ void loadtext(bool check_max)
     {
         loadtext_numbers();
         loadtext_strings(check_max);
-        loadtext_super();
         loadtext_strings_plural(check_max);
         loadtext_cutscenes(false);
         loadtext_roomnames(false, check_max);

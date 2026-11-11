@@ -7,14 +7,12 @@
     <string english="delete savestates" translation="видалити всі стани збереження" explanation="Super menu item, deletes all saved states"/>
     <string english="load state: `" translation="завантажити стан: `" explanation="Super menu line, not selectable. ` is the key left of 1"/>
     <string english="save state: shift + `" translation="зберегти стан: шифт + `" explanation="Super menu line, not selectable. ` is the key left of 1"/>
-    <string english="load savestate" translation="завантажити стан збереження" explanation="game over screen button, loads the saved state"/>
-    <string english="retry" translation="перезапустити" explanation="game over screen button, starts the same mode again"/>
     <string english="Super" translation="Супер" explanation="title of the Super menu and of its entry in the options menu"/>
     <string english="Super mode and savestates." translation="Суперрежим та стани збереження" explanation="description in the options menu when the Super item is selected"/>
     <string english="Super mode:" translation="Суперрежим:" explanation="Super menu status line, followed by ON or OFF"/>
-    <string english="Savestates:" translation="Стани збереження:" explanation="Super menu status line, followed by ON or OFF and the number of saved states"/>
-    <string english="ON" translation="УВІМК." explanation="Super menu status value"/>
-    <string english="OFF" translation="ВИМК." explanation="Super menu status value"/>
+    <string english="Savestates:" translation="Стани:" explanation="Super menu status line, followed by ON or OFF and the number of saved states"/>
+    <string english="ON" translation="ТАК" explanation="Super menu status value"/>
+    <string english="OFF" translation="НІ" explanation="Super menu status value"/>
     <string english="NDM + super mode: valid" translation="Безсмертний режим + суперрежим: дійсний забіг" explanation="Super menu info line. NDM = No Death Mode"/>
     <string english="Time trial + super mode: not valid" translation="Змагання на час + суперрежим: недійсний забіг" explanation="Super menu info line"/>
     <string english="Any savestate: not valid" translation="Будь-яке використання станів збереження: недійсний забіг" explanation="Super menu info line"/>

@@ -18,9 +18,9 @@
 #include "Maths.h"
 #include "Music.h"
 #include "RoomnameTranslator.h"
-#include "Savestate.h"
 #include "Screen.h"
 #include "Script.h"
+#include "Supermode.h"
 #include "UtilityClass.h"
 #include "VFormat.h"
 #include "Vlogging.h"
@@ -978,16 +978,12 @@ void Graphics::drawgui(void)
             continue;
         }
 
-        if (textboxes[i].image == TEXTIMAGE_LEVELCOMPLETE && savestate::gg_level_complete())
+        if (supermode::draw_gg(textboxes[i].image, flipmode))
         {
-            const SDL_Color color = TEXT_COLOUR("cyan");
-            font::print(PR_3X | PR_CEN, -1, flipmode ? 196 : 20, "GG!", color.r, color.g, color.b);
+            continue;
         }
-        else if (textboxes[i].image == TEXTIMAGE_GAMECOMPLETE && savestate::gg_game_complete())
-        {
-            font::print(PR_3X | PR_CEN, -1, flipmode ? 196 : 20, "GG!", 196, 196, 243);
-        }
-        else if (textboxes[i].image == TEXTIMAGE_LEVELCOMPLETE)
+
+        if (textboxes[i].image == TEXTIMAGE_LEVELCOMPLETE)
         {
             // Level complete
             const char* english = "Level Complete!";

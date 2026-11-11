@@ -28,6 +28,8 @@
 #include "Screen.h"
 #include "Savestate.h"
 #include "Script.h"
+#include "Supermenu.h"
+#include "Supermode.h"
 #include "Unused.h"
 #include "UTF8.h"
 #include "UtilityClass.h"
@@ -1925,8 +1927,8 @@ void Game::updatestate(void)
             if (trinkets() >= timetrialshinytarget) timetrialrank++;
             if (deathcounts == 0) timetrialrank++;
 
-            /* Results from a run that used savestates are not recorded. */
-            if (!savestate::invalid_run())
+            /* Results from an invalid run are not recorded. */
+            if (!supermode::invalid_run())
             {
                 if (timetrialresulttime < besttimes[timetriallevel]
                 || (timetrialresulttime == besttimes[timetriallevel] && timetrialresultframes < bestframes[timetriallevel])
@@ -3171,11 +3173,8 @@ void Game::updatestate(void)
             break;
         case 3501:
             //Game complete!
-            if (!savestate::invalid_run())
-            {
-                unlockAchievement("vvvvvvgamecomplete");
-                unlocknum(UnlockTrophy_GAME_COMPLETE);
-            }
+            unlockAchievement("vvvvvvgamecomplete");
+            unlocknum(UnlockTrophy_GAME_COMPLETE);
             crewstats[0] = true;
             incstate();
             setstatedelay(75);
@@ -3285,7 +3284,7 @@ void Game::updatestate(void)
             break;
         case 3510:
             //Save stats and stuff here
-            if (!savestate::invalid_run() && !obj.flags[73])
+            if (!obj.flags[73])
             {
                 //flip mode complete
                 unlockAchievement("vvvvvvgamecompleteflip");
@@ -3293,7 +3292,7 @@ void Game::updatestate(void)
             }
 
 #ifndef MAKEANDPLAY
-            if (!savestate::invalid_run() && !map.custommode)
+            if (!map.custommode && !supermode::invalid_run())
             {
                 if (bestgamedeaths == -1)
                 {
@@ -3309,7 +3308,7 @@ void Game::updatestate(void)
             }
 #endif
 
-            if (!savestate::invalid_run() && bestgamedeaths > -1) {
+            if (bestgamedeaths > -1) {
                 if (bestgamedeaths <= 500) {
                     unlockAchievement("vvvvvvcomplete500");
                 }
@@ -3327,11 +3326,8 @@ void Game::updatestate(void)
 
             if (nodeathmode)
             {
-                if (!savestate::invalid_run())
-                {
-                    unlockAchievement("vvvvvvmaster"); //bloody hell
-                    unlocknum(UnlockTrophy_NODEATHMODE_COMPLETE);
-                }
+                unlockAchievement("vvvvvvmaster"); //bloody hell
+                unlocknum(UnlockTrophy_NODEATHMODE_COMPLETE);
                 setstate(3520);
                 setstatedelay(0);
             }
@@ -4621,7 +4617,7 @@ void Game::unlocknum( int t )
 #ifdef MAKEANDPLAY
     UNUSED(t);
 #else
-    if (map.custommode || savestate::invalid_run())
+    if (map.custommode || supermode::invalid_run())
     {
         //Don't let custom levels or invalid runs unlock things!
         return;
@@ -6830,10 +6826,7 @@ void Game::createmenu( enum Menu::MenuName t, bool samemenu/*= false*/ )
         break;
     }
     case Menu::options:
-        if (savestate::options_has_super())
-        {
-            option(loc::gettext("super"));
-        }
+        supermenu::options_item();
         option(loc::gettext("gameplay"));
         option(loc::gettext("graphics"));
         option(loc::gettext("audio"));
@@ -6842,16 +6835,6 @@ void Game::createmenu( enum Menu::MenuName t, bool samemenu/*= false*/ )
         option(loc::gettext("language"), !translator_cutscene_test);
         option(loc::gettext("return"));
         menuyoff = 0;
-        maxspacing = 15;
-        break;
-    case Menu::supermode:
-        option(loc::gettext("super mode"));
-        option(loc::gettext("allow savestates"));
-        option(loc::gettext("delete savestates"));
-        option(loc::gettext("load state: `"), false);
-        option(loc::gettext("save state: shift + `"), false);
-        option(loc::gettext("return"));
-        menuyoff = -20;
         maxspacing = 15;
         break;
     case Menu::speedrunneroptions:
@@ -6883,6 +6866,10 @@ void Game::createmenu( enum Menu::MenuName t, bool samemenu/*= false*/ )
         option(loc::gettext("room name background"));
         option(loc::gettext("return"));
         menuyoff = 0;
+        maxspacing = 15;
+        break;
+    case Menu::supermode:
+        supermenu::create();
         maxspacing = 15;
         break;
     case Menu::audiooptions:
@@ -7294,23 +7281,9 @@ void Game::createmenu( enum Menu::MenuName t, bool samemenu/*= false*/ )
         menudest=Menu::gameover2;
         break;
     case Menu::gameover2:
-    {
-        const savestate::GameOverButtons buttons = savestate::gameover_buttons();
-        int n_options = 1;
-        if (buttons.load)
-        {
-            option(loc::gettext("load savestate"));
-            n_options++;
-        }
-        if (buttons.retry)
-        {
-            option(loc::gettext("retry"));
-            n_options++;
-        }
         option(loc::gettext("return to play menu"));
-        menuyoff = 80 - 8 * (n_options - 1);
+        menuyoff = 80;
         break;
-    }
     case Menu::unlockmenutrials:
         option(loc::gettext("space station 1"), !unlock[Unlock_TIMETRIAL_SPACESTATION1]);
         option(loc::gettext("the laboratory"), !unlock[Unlock_TIMETRIAL_LABORATORY]);
@@ -7818,7 +7791,7 @@ void Game::unlockAchievement(const char* name)
 #ifdef MAKEANDPLAY
     UNUSED(name);
 #else
-    if (map.custommode || savestate::invalid_run())
+    if (map.custommode || supermode::invalid_run())
     {
         return;
     }

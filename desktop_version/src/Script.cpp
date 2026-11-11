@@ -21,6 +21,7 @@
 #include "Map.h"
 #include "Music.h"
 #include "Savestate.h"
+#include "Supermode.h"
 #include "Unreachable.h"
 #include "UtilityClass.h"
 #include "VFormat.h"
@@ -2667,9 +2668,8 @@ void scriptclass::startgamemode(const enum StartMode mode)
 
         game.nocutscenes = true;
         game.intimetrial = true;
-        savestate::apply_trial_mode();
+        supermode::apply_trial_rules();
         game.timetrialcountdown = 150;
-        savestate::apply_trial_countdown();
         game.timetriallevel = mode - Start_FIRST_TIMETRIAL;
 
         if (map.invincibility)
@@ -2747,7 +2747,7 @@ void scriptclass::startgamemode(const enum StartMode mode)
     case Start_INTERMISSION2_VERDIGRIS:
     case Start_INTERMISSION2_VICTORIA:
         music.fadeout();
-        savestate::apply_trial_mode();
+        supermode::apply_trial_rules();
 
         switch (mode)
         {
@@ -2941,7 +2941,7 @@ void scriptclass::startgamemode(const enum StartMode mode)
         map.colsuperstate = 0;
     }
 
-    savestate::after_start();
+    supermode::after_start();
 }
 
 void scriptclass::teleport(void)

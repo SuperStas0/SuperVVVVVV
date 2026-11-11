@@ -7,8 +7,6 @@
     <string english="delete savestates" translation="" explanation="Super menu item, deletes all saved states"/>
     <string english="load state: `" translation="" explanation="Super menu line, not selectable. ` is the key left of 1"/>
     <string english="save state: shift + `" translation="" explanation="Super menu line, not selectable. ` is the key left of 1"/>
-    <string english="load savestate" translation="" explanation="game over screen button, loads the saved state"/>
-    <string english="retry" translation="" explanation="game over screen button, starts the same mode again"/>
     <string english="Super" translation="" explanation="title of the Super menu and of its entry in the options menu"/>
     <string english="Super mode and savestates." translation="" explanation="description in the options menu when the Super item is selected"/>
     <string english="Super mode:" translation="" explanation="Super menu status line, followed by ON or OFF"/>

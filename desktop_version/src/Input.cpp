@@ -24,6 +24,7 @@
 #include "Savestate.h"
 #include "Screen.h"
 #include "Script.h"
+#include "Supermenu.h"
 #include "UtilityClass.h"
 #include "Vlogging.h"
 
@@ -1065,21 +1066,11 @@ static void menuactionpress(void)
         break;
     }
     case Menu::options:
-    {
-        int selected = game.currentmenuoption;
-        if (savestate::options_has_super())
+        switch (supermenu::options_selected())
         {
-            if (selected == 0)
-            {
-                music.playef(Sound_VIRIDIAN);
-                game.createmenu(Menu::supermode);
-                map.nexttowercolour();
-                break;
-            }
-            selected--;
-        }
-        switch (selected)
-        {
+        case supermenu::OPTION_SUPER:
+            supermenu::open();
+            break;
         case 0:
             //gameplay options
             music.playef(Sound_VIRIDIAN);
@@ -1140,32 +1131,8 @@ static void menuactionpress(void)
             break;
         }
         break;
-    }
     case Menu::supermode:
-        switch (game.currentmenuoption)
-        {
-        case 0:
-            music.playef(Sound_VIRIDIAN);
-            savestate::toggle_super();
-            break;
-        case 1:
-            music.playef(Sound_VIRIDIAN);
-            savestate::toggle_allow();
-            break;
-        case 2:
-            music.playef(Sound_VIRIDIAN);
-            savestate::delete_states();
-            break;
-        case 3:
-        case 4:
-            music.playef(Sound_CRY);
-            break;
-        default:
-            music.playef(Sound_VIRIDIAN);
-            game.returnmenu();
-            map.nexttowercolour();
-            break;
-        }
+        supermenu::input();
         break;
     case Menu::audiooptions:
         switch (game.currentmenuoption)
@@ -2246,37 +2213,12 @@ static void menuactionpress(void)
         }
         break;
     case Menu::gameover2:
-    {
-        const savestate::GameOverButtons buttons = savestate::gameover_buttons();
-        int option = game.currentmenuoption;
-        if (buttons.load)
-        {
-            if (option == 0)
-            {
-                music.playef(Sound_VIRIDIAN);
-                savestate::request_load();
-                startmode(savestate::state_mode());
-                break;
-            }
-            option--;
-        }
-        if (buttons.retry)
-        {
-            if (option == 0)
-            {
-                music.playef(Sound_VIRIDIAN);
-                startmode(savestate::retry_mode());
-                break;
-            }
-            option--;
-        }
         //back
         music.playef(Sound_VIRIDIAN);
         music.play(Music_PRESENTINGVVVVVV);
         game.returntomenu(Menu::playmodes);
         map.nexttowercolour();
         break;
-    }
     case Menu::unlocktimetrials:
     case Menu::unlocktimetrial:
     case Menu::unlocknodeathmode:

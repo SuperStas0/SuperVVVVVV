@@ -23,9 +23,10 @@
 #include "Music.h"
 #include "ReleaseVersion.h"
 #include "RoomnameTranslator.h"
-#include "Savestate.h"
 #include "Screen.h"
 #include "Script.h"
+#include "Supermenu.h"
+#include "Supermode.h"
 #include "UtilityClass.h"
 #include "VFormat.h"
 
@@ -366,20 +367,11 @@ static void menurender(void)
         break;
     }
     case Menu::options:
-    {
-        int selected = game.currentmenuoption;
-        if (savestate::options_has_super())
+        switch (supermenu::options_selected())
         {
-            if (selected == 0)
-            {
-                font::print(PR_2X | PR_CEN, -1, 30, loc::gettext("Super"), tr, tg, tb);
-                font::print_wrap(PR_CEN, -1, 65, loc::gettext("Super mode and savestates."), tr, tg, tb);
-                break;
-            }
-            selected--;
-        }
-        switch (selected)
-        {
+        case supermenu::OPTION_SUPER:
+            supermenu::render_options(tr, tg, tb);
+            break;
         case 0:
             font::print(PR_2X | PR_CEN, -1, 30, loc::gettext("Gameplay Options"), tr, tg, tb);
             font::print_wrap(PR_CEN, -1, 65, loc::gettext("Adjust various gameplay settings."), tr, tg, tb);
@@ -412,24 +404,6 @@ static void menurender(void)
             font::print_wrap(PR_CEN, -1, 65, loc::gettext("Change the language."), tr, tg, tb);
         }
         break;
-    }
-    case Menu::supermode:
-    {
-        font::print(PR_2X | PR_CEN, -1, 30, loc::gettext("Super"), tr, tg, tb);
-
-        char buffer[SCREEN_WIDTH_CHARS + 1];
-        SDL_snprintf(
-            buffer, sizeof(buffer), "%s %s   %s %s (%d)",
-            loc::gettext("Super mode:"), savestate::super_mode() ? loc::gettext("ON") : loc::gettext("OFF"),
-            loc::gettext("Savestates:"), savestate::allow_states() ? loc::gettext("ON") : loc::gettext("OFF"),
-            savestate::state_count()
-        );
-        font::print_wrap(PR_CEN, -1, 60, buffer, tr, tg, tb);
-        font::print_wrap(PR_CEN, -1, 76, loc::gettext("NDM + super mode: valid"), tr, tg, tb);
-        font::print_wrap(PR_CEN, -1, 88, loc::gettext("Time trial + super mode: not valid"), tr, tg, tb);
-        font::print_wrap(PR_CEN, -1, 100, loc::gettext("Any savestate: not valid"), tr, tg, tb);
-        break;
-    }
     case Menu::graphicoptions:
     {
         int offset = 0;
@@ -521,6 +495,9 @@ static void menurender(void)
         }
         break;
     }
+    case Menu::supermode:
+        supermenu::render(tr, tg, tb);
+        break;
     case Menu::audiooptions:
         switch (game.currentmenuoption)
         {
@@ -1541,8 +1518,7 @@ static void menurender(void)
     case Menu::nodeathmodecomplete:
     case Menu::nodeathmodecomplete2:
     {
-        const bool invalid = savestate::invalid_run();
-        font::print(PR_4X | PR_CEN | PR_CJK_LOW, -1, 8, invalid ? "GG!" : loc::gettext("WOW"), tr, tg, tb);
+        supermode::print_title(4, PR_4X | PR_CEN | PR_CJK_LOW, 8, loc::gettext("WOW"), tr, tg, tb);
 
         for (size_t i = 0; i < SDL_arraysize(game.ndmresultcrewstats); i++)
         {
@@ -1560,7 +1536,7 @@ static void menurender(void)
         );
         font::print_wrap(PR_CEN | PR_CJK_LOW, -1, 110, buffer, tr, tg, tb);
 
-        if (!invalid)
+        if (!supermode::invalid_run())
         {
             font::print_wrap(PR_CEN, -1, 160, loc::gettext("A new trophy has been awarded and placed in the secret lab to acknowledge your achievement!"), tr, tg, tb);
         }
@@ -1570,7 +1546,7 @@ static void menurender(void)
     case Menu::timetrialcomplete2:
     case Menu::timetrialcomplete3:
     {
-        font::print(PR_3X | PR_CEN, -1, 20, savestate::invalid_run() ? "GG!" : loc::gettext("Results"), tr, tg, tb);
+        supermode::print_title(3, PR_3X | PR_CEN, 20, loc::gettext("Results"), tr, tg, tb);
 
         std::string tempstring = game.resulttimestring() + loc::gettext(" / ") + game.timetstring(game.timetrialresultpar) + loc::gettext(".99");
 
@@ -2505,15 +2481,12 @@ void gamerender(void)
         );
     }
 
-    const bool popup = savestate::popup_active();
-    if (popup || ((map.extrarow==0 || (map.custommode && map.roomname[0] != '\0')) && !force_roomname_hidden))
+    if (!supermode::render_popup() && (map.extrarow==0 || (map.custommode && map.roomname[0] != '\0')) && !force_roomname_hidden)
     {
-        const char* roomname = popup
-            ? savestate::popup_message()
-            : loc::gettext_roomname(map.custommode, game.roomx, game.roomy, map.roomname, map.roomname_special);
+        const char* roomname = loc::gettext_roomname(map.custommode, game.roomx, game.roomy, map.roomname, map.roomname_special);
 
         graphics.render_roomname(
-            popup ? PR_FONT_INTERFACE : (roomname_untranslated ? PR_FONT_8X8 : PR_FONT_LEVEL),
+            roomname_untranslated ? PR_FONT_8X8 : PR_FONT_LEVEL,
             roomname,
             roomname_r, roomname_g, roomname_b
         );
@@ -2712,6 +2685,8 @@ void gamerender(void)
             }
         }
     }
+
+    supermode::render_countdown();
 
     if (game.intimetrial && graphics.fademode == FADE_NONE)
     {
