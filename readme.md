@@ -71,7 +71,7 @@ A run is invalid if any of these is true:
 - a state exists for its mode (main game: any state of the main game; No Death Mode: for either cutscene choice)
 - it is a time trial or intermission with Super mode on
 
-Invalid runs show `GG!` in place of `Level Complete!` and `Game Complete!` (main game and No Death Mode), `Results` (time trials) and `WOW` (No Death Mode). They save no records, achievements, trophies or best death count. Use `delete savestates` before a real run.
+Invalid runs show `GG!` in place of `Level Complete!` and `Game Complete!` (main game and No Death Mode), `Results` (time trials) and `WOW` (No Death Mode). From the moment a run is invalid it earns no achievements, trophies, unlocks, trinket stats, Super Gravitron records, best death count or time trial records. What was earned before the first state was saved stays. Use `delete savestates` before a real run.
 
 Super mode in No Death Mode does not make a run invalid.
 
@@ -79,7 +79,7 @@ Super mode in No Death Mode does not make a run invalid.
 Texts added by SuperVVVVVV are translated with `lang\<code>\super.xml`, in the same format as the game's `strings.xml`. Missing or empty translations stay English. Official texts stay in the game's own `strings.xml`.
 
 To add a language:
-1. Copy `desktop_version\lang\uk\super.xml` to `desktop_version\lang\<code>\super.xml`. `<code>` is the folder name the game uses for that language. The language must already exist in the game.
+1. Copy `desktop_version\lang\en\super.xml` to `desktop_version\lang\<code>\super.xml`. `<code>` is the folder name the game uses for that language. The language must already exist in the game.
 2. Fill the `translation` attributes. Keep the `english` attributes unchanged.
 3. Run `build.bat -r`, or copy the file into the game's `lang\<code>\` folder.
 

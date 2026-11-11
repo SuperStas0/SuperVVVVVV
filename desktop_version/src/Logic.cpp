@@ -444,7 +444,7 @@ void gamelogic(void)
                 game.swnstate4 = 0;
                 game.swndelay = 0;
 #ifndef MAKEANDPLAY
-                if (game.swntimer >= game.swnrecord && !map.custommode)
+                if (game.swntimer >= game.swnrecord && !map.custommode && !savestate::invalid_run())
                 {
                     game.swnrecord = game.swntimer;
                     if (game.swnmessage == 0)
@@ -577,7 +577,7 @@ void gamelogic(void)
             case SWN_SUPERGRAVITRON:
                 game.swntimer += 1;
 #ifndef MAKEANDPLAY
-                if (!map.custommode)
+                if (!map.custommode && !savestate::invalid_run())
                 {
                     if (game.swntimer > game.swnrecord)
                     {

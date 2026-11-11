@@ -4621,9 +4621,9 @@ void Game::unlocknum( int t )
 #ifdef MAKEANDPLAY
     UNUSED(t);
 #else
-    if (map.custommode)
+    if (map.custommode || savestate::invalid_run())
     {
-        //Don't let custom levels unlock things!
+        //Don't let custom levels or invalid runs unlock things!
         return;
     }
 
@@ -7818,7 +7818,7 @@ void Game::unlockAchievement(const char* name)
 #ifdef MAKEANDPLAY
     UNUSED(name);
 #else
-    if (map.custommode)
+    if (map.custommode || savestate::invalid_run())
     {
         return;
     }
