@@ -116,9 +116,9 @@ mkdir release
 if exist build\package rmdir /s /q build\package
 mkdir build\package
 copy /y build\VVVVVV.exe build\package\VVVVVV.exe >nul || goto :failed
-if exist steam_api64.dll copy /y steam_api64.dll build\package\steam_api64.dll >nul
 copy /y autosplitter\LiveSplit.VVVVVV.asl build\package\LiveSplit.VVVVVV.asl >nul || goto :failed
 copy /y readme.md build\package\SuperVVVVVV-README.md >nul || goto :failed
+copy /y licenses\LICENSE.md build\package\LICENSE.md >nul || goto :failed
 powershell -NoProfile -Command "Compress-Archive -Path 'build\package\*' -DestinationPath 'release\SuperVVVVVV.zip' -Force"
 if errorlevel 1 goto :failed
 

@@ -120,7 +120,7 @@ Requirements:
 - CMake and Ninja: `pip install cmake ninja`, with Python's `Scripts` folder in `PATH`
 - SDL2 2.24.0+ MinGW dev package (x86_64), `SDL2-devel-<version>-mingw.zip` from the [SDL releases](https://github.com/libsdl-org/SDL/releases) (built with 2.32.8), linked statically (`lib\libSDL2.a`); extract it into `SDL32` in the repo root, either as `SDL32\x86_64-w64-mingw32\...` or with `bin`, `include` and `lib` directly inside `SDL32`
 - Repo path without spaces, e.g. `C:\vsrc` (spaces break icon embedding)
-- `steam_api64.dll` in the repo root (optional, for Steam achievements): copied to `build\`, added to the release by `-r`
+- `steam_api64.dll` in the repo root (optional, for Steam achievements): copied to `build\`, never added to the release
 
 Run `build.bat [-c] [-i] [-r] [-n] [-s path] [-h]`. Flags combine in any order, e.g. `build.bat -cir`; the path of `-s` follows the flag group, e.g. `build.bat -cs C:\SDL2\x86_64-w64-mingw32`.
 
@@ -128,7 +128,7 @@ Run `build.bat [-c] [-i] [-r] [-n] [-s path] [-h]`. Flags combine in any order, 
 | --- | --- |
 | `-c` | Clean: delete previous build output first |
 | `-i` | Install: copy the build to the Steam game folder, replacing `VVVVVV.exe` |
-| `-r` | Release: package the build into `release\SuperVVVVVV.zip` (`VVVVVV.exe`, `steam_api64.dll` if present, `LiveSplit.VVVVVV.asl`, `SuperVVVVVV-README.md`) |
+| `-r` | Release: package the build into `release\SuperVVVVVV.zip` (`VVVVVV.exe`, `LiveSplit.VVVVVV.asl`, `SuperVVVVVV-README.md`, `LICENSE.md`) |
 | `-n` | Nobuild: skip the build, reuse existing output (needs `-i` and/or `-r`, not with `-c`) |
 | `-s path` | SDL2: `x86_64-w64-mingw32` folder of the SDL2 MinGW package, default `SDL32` in the repo |
 | `-h` | Show help, no build |
@@ -136,8 +136,8 @@ Run `build.bat [-c] [-i] [-r] [-n] [-s path] [-h]`. Flags combine in any order, 
 Build output: `build\VVVVVV.exe`, `build\LiveSplit.VVVVVV.asl`, `build\steam_api64.dll` (if present)
 
 # License
-- [MIT](LICENSE.md)
-- VVVVVV (VVVVVV Source Code License v1.0)
+- [MIT](LICENSE.md) (changes by SuperStas0 only)
+- VVVVVV (VVVVVV Source Code License v1.0, [full text with third-party licenses](licenses/LICENSE.md))
 - SDL2 (zlib)
 - FAudio (zlib)
 - PhysicsFS (zlib)
