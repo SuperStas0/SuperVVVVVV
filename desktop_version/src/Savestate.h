@@ -3,8 +3,8 @@
 
 #include "Script.h"
 
-/* In-memory savestates for time trials, intermission replays and No Death
- * Mode. One slot per mode, kept until the game closes.
+/* In-memory savestates for the main game, time trials, intermission replays
+ * and No Death Mode. One slot per mode, kept until the game closes.
  *   `            load
  *   Shift + `    save
  * Super mode and the state toggle are in the in-game options menu. */

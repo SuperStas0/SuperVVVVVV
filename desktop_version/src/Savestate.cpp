@@ -60,6 +60,7 @@ namespace savestate
         int stat_trinkets, bestgamedeaths, swnbestrank, swnrecord;
         std::map<std::string, int> customlevelstats;
         bool invincibility;
+        int frames, seconds, minutes, hours;
     };
 
     static void persist_capture(Persist& p)
@@ -97,6 +98,10 @@ namespace savestate
         p.swnrecord = game.swnrecord;
         p.customlevelstats = game.customlevelstats;
         p.invincibility = map.invincibility;
+        p.frames = game.frames;
+        p.seconds = game.seconds;
+        p.minutes = game.minutes;
+        p.hours = game.hours;
     }
 
     static void persist_apply(const Persist& p)
@@ -134,6 +139,10 @@ namespace savestate
         game.swnrecord = p.swnrecord;
         game.customlevelstats = p.customlevelstats;
         map.invincibility = p.invincibility;
+        game.frames = p.frames;
+        game.seconds = p.seconds;
+        game.minutes = p.minutes;
+        game.hours = p.hours;
     }
 
     static void gfx_capture(GfxState& g)
@@ -226,9 +235,15 @@ namespace savestate
             || (mode >= Start_FIRST_INTERMISSION1 && mode <= Start_LAST_INTERMISSION2);
     }
 
+    static bool is_main_mode(const int mode)
+    {
+        return mode >= Start_MAINGAME && mode <= Start_MAINGAME_QUICKSAVE;
+    }
+
     static int make_key(const int mode, const bool super)
     {
-        return mode * 2 + (super ? 1 : 0);
+        /* New game, telesave and quicksave runs share one slot. */
+        return (is_main_mode(mode) ? (int) Start_MAINGAME : mode) * 2 + (super ? 1 : 0);
     }
 
     static int current_key(void)
@@ -275,7 +290,7 @@ namespace savestate
     {
         return current_mode != -1
             && game.gamestate == GAMEMODE
-            && (game.intimetrial || game.inintermission || game.nodeathmode)
+            && (game.intimetrial || game.inintermission || game.nodeathmode || is_main_mode(current_mode))
             && !game.translator_exploring
             && !map.custommode
             && !game.fadetomenu
@@ -411,7 +426,7 @@ namespace savestate
 
     bool gg_level_complete(void)
     {
-        return invalid_run() && (game.intimetrial || game.inintermission);
+        return invalid_run();
     }
 
     bool gg_game_complete(void)
@@ -513,7 +528,7 @@ namespace savestate
     {
         return game.ingame_titlemode
             && current_mode != -1
-            && (game.intimetrial || game.inintermission || game.nodeathmode)
+            && (game.intimetrial || game.inintermission || game.nodeathmode || is_main_mode(current_mode))
             && !map.custommode
             && !game.translator_exploring;
     }

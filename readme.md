@@ -30,14 +30,15 @@ The build is 64-bit and statically linked, so it needs no `SDL2.dll`. It uses th
 The key is the one left of `1`. Ctrl or Alt held does nothing.
 
 - Off by default. Turn them on with `Allow savestates` in the Super menu.
-- Saves the full in-game state: time, trinkets, room, position, checkpoint, gravity, entities, script progress and music.
-- One slot per mode: each time trial, each intermission replay, No Death Mode with cutscenes and without. Time trials and intermissions with Super mode on have their own slots.
+- Saves the full in-game state: trinkets, room, position, checkpoint, gravity, entities, script progress and music. The timer is not saved or loaded, it keeps running.
+- Active in the main game, time trials, intermission replays and No Death Mode.
+- One slot per mode: the main game (new game, continue and quicksave share it), each time trial, each intermission replay, No Death Mode with cutscenes and without. Time trials and intermissions with Super mode on have their own slots.
 - Slots are kept while the game runs, also across leaving and entering levels. Nothing is saved to disk.
 - A state loads only in the mode it was saved in. Saving is ignored during the death animation.
 - Save, load and toggles show a message in place of the room name.
 
 ## Super menu
-`Esc` > `options` > `super`, shown only during a time trial, intermission replay or No Death Mode run. Everything is off when the game starts.
+`Esc` > `options` > `super`, shown only during a main game, time trial, intermission replay or No Death Mode run. Everything is off when the game starts.
 
 | Item | Action |
 | --- | --- |
@@ -47,6 +48,7 @@ The key is the one left of `1`. Ctrl or Alt held does nothing.
 
 ## Super mode
 Affects only what happens after dying and which screens appear.
+- Main game: no effect, and it does not make a run invalid.
 - No Death Mode: 0.5 s after dying the game leaves the run without the fade and the game over delay. Gameplay is not affected.
   - Without a state: opens the cutscene choice screen of No Death Mode.
   - With a state: opens the game over screen with its buttons at once.
@@ -66,10 +68,10 @@ Shown after dying in No Death Mode.
 ## Valid runs
 A run is invalid if any of these is true:
 - a state was loaded in it
-- a state exists for its mode (in No Death Mode: for either cutscene choice)
+- a state exists for its mode (main game: any state of the main game; No Death Mode: for either cutscene choice)
 - it is a time trial or intermission with Super mode on
 
-Invalid runs show `GG!` in place of `Level Complete!` and `Results` (time trials) or `Game Complete!` and `WOW` (No Death Mode). They save no records, achievements, trophies or best death count. Use `delete savestates` before a real run.
+Invalid runs show `GG!` in place of `Level Complete!` and `Game Complete!` (main game and No Death Mode), `Results` (time trials) and `WOW` (No Death Mode). They save no records, achievements, trophies or best death count. Use `delete savestates` before a real run.
 
 Super mode in No Death Mode does not make a run invalid.
 
