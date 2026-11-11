@@ -9,6 +9,7 @@
 #include "Enums.h"
 #include "Game.h"
 #include "Graphics.h"
+#include "Localization.h"
 #include "Map.h"
 #include "Music.h"
 #include "Script.h"
@@ -505,7 +506,7 @@ namespace savestate
 
     const char* popup_message(void)
     {
-        return popup_text.c_str();
+        return loc::gettext(popup_text.c_str());
     }
 
     bool options_has_super(void)

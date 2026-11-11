@@ -2513,7 +2513,7 @@ void gamerender(void)
             : loc::gettext_roomname(map.custommode, game.roomx, game.roomy, map.roomname, map.roomname_special);
 
         graphics.render_roomname(
-            (roomname_untranslated || popup) ? PR_FONT_8X8 : PR_FONT_LEVEL,
+            popup ? PR_FONT_INTERFACE : (roomname_untranslated ? PR_FONT_8X8 : PR_FONT_LEVEL),
             roomname,
             roomname_r, roomname_g, roomname_b
         );

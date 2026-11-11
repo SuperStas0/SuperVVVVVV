@@ -73,6 +73,15 @@ Invalid runs show `GG!` in place of `Level Complete!` and `Results` (time trials
 
 Super mode in No Death Mode does not make a run invalid.
 
+# Translations
+Texts added by SuperVVVVVV are translated with `lang\<code>\supervvvvvv.json`, a flat JSON object that maps the English text to its translation. Missing or empty entries stay English. Official texts stay in the game's own `strings.xml`.
+
+To add a language:
+1. Copy `desktop_version\lang\en\supervvvvvv.json` to `desktop_version\lang\<code>\supervvvvvv.json`. `<code>` is the folder name the game uses for that language (`uk`, `ru`). The language must already exist in the game.
+2. Replace the values with the translation. Keep the keys unchanged.
+3. Keep the file UTF-8. Write a quote as `\"` and a backslash as `\\`.
+4. Run `build.bat -r`, or copy the file into the game's `lang\<code>\` folder.
+
 # Autosplitter
 `LiveSplit.VVVVVV.asl` is the VVVVVV autosplitter with SuperVVVVVV support. Start, split, reset, game time and settings are unchanged. Its source is `autosplitter\LiveSplit.VVVVVV.asl`; `build.bat` copies it to `build\` and `-r` adds it to the release archive.
 
@@ -103,6 +112,7 @@ Based on the VVVVVV 2.4.4 tag (`ea811e1`). Useful when rebasing onto a newer ver
 | `desktop_version\src\SplitData.h`, `desktop_version\src\SplitData.cpp` | New: autosplitter data struct |
 | `desktop_version\src\Input.cpp` | `gameinput()` calls `savestate::input()`; `fadetomode` and `gotomode` made non-static; game over buttons; Super menu |
 | `desktop_version\src\Script.cpp` | `startgamemode()` calls `savestate::note_mode()`, `savestate::apply_trial_mode()`, `savestate::apply_trial_countdown()` and `savestate::after_start()` |
+| `desktop_version\src\LocalizationStorage.cpp` | `loadtext()` also loads `lang\<code>\supervvvvvv.json` |
 | `desktop_version\src\Logic.cpp` | Death logic calls `savestate::fast_death_exit()` |
 | `desktop_version\src\Game.h` | New menu `supermode` |
 | `desktop_version\src\Render.cpp` | Message in place of the room name; `GG!` on the NDM complete and time trial results screens; Super menu |
@@ -128,7 +138,7 @@ Run `build.bat [-c] [-i] [-r] [-n] [-s path] [-h]`. Flags combine in any order, 
 | --- | --- |
 | `-c` | Clean: delete previous build output first |
 | `-i` | Install: copy the build to the Steam game folder, replacing `VVVVVV.exe` |
-| `-r` | Release: package the build into `release\SuperVVVVVV.zip` (`VVVVVV.exe`, `LiveSplit.VVVVVV.asl`, `SuperVVVVVV-README.md`, `LICENSE.md`) and write `release\SHA256.txt` (SHA-256 of the archive and of `VVVVVV.exe`) |
+| `-r` | Release: package the build into `release\SuperVVVVVV.zip` (`VVVVVV.exe`, `LiveSplit.VVVVVV.asl`, `SuperVVVVVV-README.md`, `LICENSE.md`, `lang\<code>\supervvvvvv.json`) and write `release\SHA256.txt` (SHA-256 of the archive and of `VVVVVV.exe`) |
 | `-n` | Nobuild: skip the build, reuse existing output (needs `-i` and/or `-r`, not with `-c`) |
 | `-s path` | SDL2: `x86_64-w64-mingw32` folder of the SDL2 MinGW package, default `SDL32` in the repo |
 | `-h` | Show help, no build |

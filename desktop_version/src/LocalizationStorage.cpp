@@ -1038,6 +1038,234 @@ void loadtext_custom(const char* custom_path)
     loadtext_roomnames(true, false);
 }
 
+/* Extra translations for SuperVVVVVV: lang/<code>/supervvvvvv.json,
+ * a flat JSON object that maps English text to its translation. */
+static bool json_skip_space(const char** p, const char* end)
+{
+    while (*p < end && (**p == ' ' || **p == '\t' || **p == '\r' || **p == '\n'))
+    {
+        (*p)++;
+    }
+    return *p < end;
+}
+
+static bool json_hex4(const char** p, const char* end, unsigned int* out)
+{
+    if (end - *p < 4)
+    {
+        return false;
+    }
+
+    unsigned int value = 0;
+    for (int i = 0; i < 4; i++)
+    {
+        const char c = (*p)[i];
+        value <<= 4;
+        if (c >= '0' && c <= '9')
+        {
+            value |= (unsigned int) (c - '0');
+        }
+        else if (c >= 'a' && c <= 'f')
+        {
+            value |= (unsigned int) (c - 'a' + 10);
+        }
+        else if (c >= 'A' && c <= 'F')
+        {
+            value |= (unsigned int) (c - 'A' + 10);
+        }
+        else
+        {
+            return false;
+        }
+    }
+    *p += 4;
+    *out = value;
+    return true;
+}
+
+static void json_append_utf8(std::string& out, unsigned int code)
+{
+    if (code < 0x80)
+    {
+        out += (char) code;
+    }
+    else if (code < 0x800)
+    {
+        out += (char) (0xC0 | (code >> 6));
+        out += (char) (0x80 | (code & 0x3F));
+    }
+    else if (code < 0x10000)
+    {
+        out += (char) (0xE0 | (code >> 12));
+        out += (char) (0x80 | ((code >> 6) & 0x3F));
+        out += (char) (0x80 | (code & 0x3F));
+    }
+    else
+    {
+        out += (char) (0xF0 | (code >> 18));
+        out += (char) (0x80 | ((code >> 12) & 0x3F));
+        out += (char) (0x80 | ((code >> 6) & 0x3F));
+        out += (char) (0x80 | (code & 0x3F));
+    }
+}
+
+static bool json_string(const char** p, const char* end, std::string& out)
+{
+    out.clear();
+    if (*p >= end || **p != '"')
+    {
+        return false;
+    }
+    (*p)++;
+
+    while (*p < end)
+    {
+        const char c = **p;
+        (*p)++;
+
+        if (c == '"')
+        {
+            return true;
+        }
+        if ((unsigned char) c < 0x20)
+        {
+            return false;
+        }
+        if (c != '\\')
+        {
+            out += c;
+            continue;
+        }
+
+        if (*p >= end)
+        {
+            return false;
+        }
+        const char e = **p;
+        (*p)++;
+
+        switch (e)
+        {
+        case '"': out += '"'; break;
+        case '\\': out += '\\'; break;
+        case '/': out += '/'; break;
+        case 'b': out += '\b'; break;
+        case 'f': out += '\f'; break;
+        case 'n': out += '\n'; break;
+        case 'r': out += '\r'; break;
+        case 't': out += '\t'; break;
+        case 'u':
+        {
+            unsigned int code;
+            if (!json_hex4(p, end, &code))
+            {
+                return false;
+            }
+            if (code >= 0xD800 && code <= 0xDBFF)
+            {
+                unsigned int low;
+                if (end - *p < 2 || (*p)[0] != '\\' || (*p)[1] != 'u')
+                {
+                    return false;
+                }
+                *p += 2;
+                if (!json_hex4(p, end, &low) || low < 0xDC00 || low > 0xDFFF)
+                {
+                    return false;
+                }
+                code = 0x10000 + ((code - 0xD800) << 10) + (low - 0xDC00);
+            }
+            json_append_utf8(out, code);
+            break;
+        }
+        default:
+            return false;
+        }
+    }
+    return false;
+}
+
+static void loadtext_supervvvvvv(void)
+{
+    const std::string name = "lang/" + lang + "/supervvvvvv.json";
+
+    unsigned char* mem = NULL;
+    size_t len = 0;
+    FILESYSTEM_loadFileToMemory(name.c_str(), &mem, &len);
+    if (mem == NULL)
+    {
+        return;
+    }
+
+    const char* p = (const char*) mem;
+    const char* end = p + len;
+
+    /* Skip a UTF-8 byte order mark. */
+    if (end - p >= 3 && (unsigned char) p[0] == 0xEF && (unsigned char) p[1] == 0xBB && (unsigned char) p[2] == 0xBF)
+    {
+        p += 3;
+    }
+
+    std::string eng;
+    std::string tra;
+    bool ok = json_skip_space(&p, end) && *p == '{';
+    if (ok)
+    {
+        p++;
+    }
+
+    bool first = true;
+    while (ok)
+    {
+        if (!json_skip_space(&p, end))
+        {
+            ok = false;
+            break;
+        }
+        if (*p == '}')
+        {
+            break;
+        }
+        if (!first)
+        {
+            if (*p != ',')
+            {
+                ok = false;
+                break;
+            }
+            p++;
+            json_skip_space(&p, end);
+        }
+        first = false;
+
+        if (!json_string(&p, end, eng)
+        || !json_skip_space(&p, end)
+        || *p != ':')
+        {
+            ok = false;
+            break;
+        }
+        p++;
+        if (!json_skip_space(&p, end) || !json_string(&p, end, tra))
+        {
+            ok = false;
+            break;
+        }
+
+        if (!tra.empty())
+        {
+            map_store_translation(&textbook_main, map_translation, eng.c_str(), tra.c_str());
+        }
+    }
+
+    if (!ok)
+    {
+        vlog_error("Error parsing %s near byte %d.", name.c_str(), (int) (p - (const char*) mem));
+    }
+
+    VVV_free(mem);
+}
+
 void loadtext(bool check_max)
 {
     resettext(false);
@@ -1057,6 +1285,7 @@ void loadtext(bool check_max)
     {
         loadtext_numbers();
         loadtext_strings(check_max);
+        loadtext_supervvvvvv();
         loadtext_strings_plural(check_max);
         loadtext_cutscenes(false);
         loadtext_roomnames(false, check_max);
