@@ -121,12 +121,15 @@ copy /y readme.md build\package\SuperVVVVVV-README.md >nul || goto :failed
 copy /y licenses\LICENSE.md build\package\LICENSE.md >nul || goto :failed
 powershell -NoProfile -Command "Compress-Archive -Path 'build\package\*' -DestinationPath 'release\SuperVVVVVV.zip' -Force"
 if errorlevel 1 goto :failed
+powershell -NoProfile -Command "$n=[char]10; $z=(Get-FileHash -Algorithm SHA256 -LiteralPath 'release\SuperVVVVVV.zip').Hash.ToLower(); $e=(Get-FileHash -Algorithm SHA256 -LiteralPath 'build\package\VVVVVV.exe').Hash.ToLower(); [IO.File]::WriteAllText('release\SHA256.txt', $z + ' *SuperVVVVVV.zip' + $n + $e + ' *VVVVVV.exe' + $n)"
+if errorlevel 1 goto :failed
 
 :done
 echo.
 if not defined NOBUILD echo Done: build\VVVVVV.exe and build\LiveSplit.VVVVVV.asl
 if defined INST echo Installed: %GAME%
 if defined REL echo Release: release\SuperVVVVVV.zip
+if defined REL echo Checksums: release\SHA256.txt
 if not exist steam_api64.dll echo Note: steam_api64.dll not found in the repo root, Steam achievements need it next to VVVVVV.exe.
 exit /b 0
 

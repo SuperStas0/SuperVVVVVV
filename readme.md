@@ -128,7 +128,7 @@ Run `build.bat [-c] [-i] [-r] [-n] [-s path] [-h]`. Flags combine in any order, 
 | --- | --- |
 | `-c` | Clean: delete previous build output first |
 | `-i` | Install: copy the build to the Steam game folder, replacing `VVVVVV.exe` |
-| `-r` | Release: package the build into `release\SuperVVVVVV.zip` (`VVVVVV.exe`, `LiveSplit.VVVVVV.asl`, `SuperVVVVVV-README.md`, `LICENSE.md`) |
+| `-r` | Release: package the build into `release\SuperVVVVVV.zip` (`VVVVVV.exe`, `LiveSplit.VVVVVV.asl`, `SuperVVVVVV-README.md`, `LICENSE.md`) and write `release\SHA256.txt` (SHA-256 of the archive and of `VVVVVV.exe`) |
 | `-n` | Nobuild: skip the build, reuse existing output (needs `-i` and/or `-r`, not with `-c`) |
 | `-s path` | SDL2: `x86_64-w64-mingw32` folder of the SDL2 MinGW package, default `SDL32` in the repo |
 | `-h` | Show help, no build |

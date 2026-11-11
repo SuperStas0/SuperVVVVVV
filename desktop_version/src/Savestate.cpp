@@ -632,9 +632,10 @@ namespace savestate
 
         if (!allow_setting)
         {
-            show_popup("Savestates are off");
+            return;
         }
-        else if ((mods & KMOD_SHIFT) != 0)
+
+        if ((mods & KMOD_SHIFT) != 0)
         {
             save();
         }
