@@ -110,8 +110,11 @@ Based on VVVVVV 2.4.4. The own code is in `Savestate`, `Supermode`, `Supermenu`,
 | `changes.bat` | Write `changesFromVanilla.txt` (file list and full diff, ignored by git) |
 | `changes.bat -b` | Create the branch `compare-vanilla` to browse the changes in GitHub Desktop |
 | `changes.bat -d` | Delete the branch `compare-vanilla` |
+| `changes.bat -f` | Full: all files, not only `desktop_version\src\`. Works with the file and with `-b`. |
 | `changes.bat -t <tag>` | Compare with another vanilla tag, default `2.4.4` |
 | `changes.bat -h` | Show help |
+
+How `-b` works: git stores a full snapshot of the files in every commit, and the changes shown for a commit are its snapshot minus its parent's snapshot. The script makes two commits on the branch `compare-vanilla`. The first is the vanilla snapshot of the chosen tag: only `desktop_version\src\` comes from vanilla and everything else is your files, or with `-f` the whole vanilla tag. The second has exactly the files of your last commit. Its changes are therefore what turns vanilla into your version. Your own branch is not touched.
 
 In GitHub Desktop:
 1. Commit your changes and run `changes.bat -b`.
@@ -153,4 +156,4 @@ Build output: `build\VVVVVV.exe`, `build\LiveSplit.VVVVVV.asl`, `build\steam_api
 - LodePNG (zlib)
 - SheenBidi (Apache-2.0)
 - C-HashMap (BSD-3-Clause)
-- `LiveSplit.VVVVVV.asl` ([tzann/Autosplitters](https://github.com/tzann/Autosplitters), no license published)
+- LiveSplit.VVVVVV.asl (https://github.com/tzann/Autosplitters)

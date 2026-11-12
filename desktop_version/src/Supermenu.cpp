@@ -48,7 +48,7 @@ namespace supermenu
         game.option(supertext::get("load state: `"), false);
         game.option(supertext::get("save state: shift + `"), false);
         game.option(loc::gettext("return"));
-        game.menuyoff = -20;
+        game.menuyoff = 0;
     }
 
     void input(void)
@@ -98,9 +98,12 @@ namespace supermenu
             supertext::get(supermode::allow_states() ? "ON" : "OFF"),
             savestate::count()
         );
-        font::print_wrap(PR_CEN, -1, 60, buffer, r, g, b);
-        font::print_wrap(PR_CEN, -1, 76, supertext::get("NDM + super mode: valid"), r, g, b);
-        font::print_wrap(PR_CEN, -1, 88, supertext::get("Time trial + super mode: not valid"), r, g, b);
-        font::print_wrap(PR_CEN, -1, 100, supertext::get("Any savestate: not valid"), r, g, b);
+
+        /* Long translations wrap, so each line starts where the last one ended. */
+        int y = 56;
+        y = font::print_wrap(PR_CEN, -1, y, buffer, r, g, b) + 6;
+        y = font::print_wrap(PR_CEN, -1, y, supertext::get("NDM + super mode: valid"), r, g, b) + 2;
+        y = font::print_wrap(PR_CEN, -1, y, supertext::get("Time trial + super mode: not valid"), r, g, b) + 2;
+        font::print_wrap(PR_CEN, -1, y, supertext::get("Any savestate: not valid"), r, g, b);
     }
 }

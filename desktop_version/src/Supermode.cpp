@@ -340,6 +340,11 @@ namespace supermode
         game.createmenu(Menu::startnodeathmode);
         game.currentmenuoption = current_mode == Start_NODEATHMODE_WITHCUTSCENES ? 1 : 0;
         music.play(Music_PRESENTINGVVVVVV);
+
+        /* Keys still held from playing must not pick a menu option. The menu
+         * ignores input until they are released. */
+        game.jumpheld = true;
+        game.mapheld = true;
     }
 
     bool death_exit(void)
@@ -465,11 +470,11 @@ namespace supermode
         if (image == TEXTIMAGE_LEVELCOMPLETE)
         {
             const SDL_Color color = TEXT_COLOUR("cyan");
-            print_gg(3, flipmode ? 196 : 20, color.r, color.g, color.b);
+            print_gg(3, flipmode ? 194 : 25, color.r, color.g, color.b);
         }
         else
         {
-            print_gg(3, flipmode ? 196 : 20, 196, 196, 243);
+            print_gg(3, flipmode ? 194 : 25, 196, 196, 243);
         }
         return true;
     }
