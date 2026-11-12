@@ -36,9 +36,6 @@ namespace supermode
     void toggle_allow(void);
     void delete_states(void);
 
-    /* The Super menu is available in the in-game options menu. */
-    bool in_options(void);
-
     bool invalid_run(void);
 
     /* Called from startgamemode() right after hardreset(), before the level is

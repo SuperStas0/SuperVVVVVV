@@ -17,20 +17,13 @@ namespace supermenu
 {
     int options_selected(void)
     {
-        int selected = game.currentmenuoption;
-        if (supermode::in_options())
-        {
-            selected--;
-        }
-        return selected;
+        /* The Super entry is the first one. */
+        return game.currentmenuoption - 1;
     }
 
     void options_item(void)
     {
-        if (supermode::in_options())
-        {
-            game.option(supertext::get("super"));
-        }
+        game.option(supertext::get("super"));
     }
 
     void open(void)

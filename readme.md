@@ -38,7 +38,7 @@ The key is the one left of `1`. Ctrl or Alt held does nothing.
 - Save and load show a message in place of the room name.
 
 ## Super menu
-`Esc` > `options` > `super`, shown only during a main game, time trial, intermission replay or No Death Mode run. Everything is off when the game starts.
+The first entry of the options menu, in the main menu and in the game (`Esc` > `options`). Everything is off when the game starts.
 
 | Item | Action |
 | --- | --- |
@@ -121,6 +121,8 @@ In GitHub Desktop:
 2. Current Branch > `compare-vanilla`. The branch has the same files as your last commit, so nothing changes on disk.
 3. Open the History tab and select the top commit. Its changed files and diffs are the differences from vanilla.
 4. Switch back to your branch and run `changes.bat -d`.
+
+Flags combine, for example `changes.bat -fb`.
 
 Same steps by hand: `git remote add vanilla https://github.com/TerryCavanagh/VVVVVV.git`, `git fetch vanilla tag 2.4.4`, `git diff --stat 2.4.4 HEAD -- desktop_version/src/`.
 

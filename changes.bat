@@ -3,93 +3,103 @@ setlocal
 cd /d "%~dp0"
 
 set "TAG=2.4.4"
-set "MODE=file"
-set "FULL="
 set "BRANCH=compare-vanilla"
 set "OUT=changesFromVanilla.txt"
 set "SRC=desktop_version/src"
 set "VANILLA_URL=https://github.com/TerryCavanagh/VVVVVV.git"
 
-:args
-if "%~1"=="" goto :args_done
-if /i "%~1"=="-h" goto :help
-if /i "%~1"=="-b" set "MODE=branch" & shift & goto :args
-if /i "%~1"=="-d" set "MODE=delete" & shift & goto :args
-if /i "%~1"=="-f" set "FULL=1" & shift & goto :args
-if /i "%~1"=="-t" goto :arg_tag
-echo ERROR: unknown option %~1, see -h
-exit /b 1
+set "FULL="
+set "MAKEBRANCH="
+set "DELBRANCH="
+set "HELP="
+set "BAD="
+set "WANTS="
+set "NOTAG="
 
-:arg_tag
-if "%~2"=="" (
-    echo ERROR: -t needs a tag, see -h
-    exit /b 1
-)
-set "TAG=%~2"
+:nextarg
+if defined WANTS goto :taketag
+if "%~1"=="" goto :parsed
+set "ARG=%~1"
 shift
+if not "%ARG:~0,1%"=="-" goto :badarg
+if "%ARG%"=="-" goto :badarg
+set "ARG=%ARG:~1%"
+:nextchar
+if "%ARG%"=="" goto :nextarg
+set "CH=%ARG:~0,1%"
+set "ARG=%ARG:~1%"
+if "%CH%"=="f" set "FULL=1" & goto :nextchar
+if "%CH%"=="b" set "MAKEBRANCH=1" & goto :nextchar
+if "%CH%"=="d" set "DELBRANCH=1" & goto :nextchar
+if "%CH%"=="t" set "WANTS=1" & goto :nextchar
+if "%CH%"=="h" set "HELP=1" & goto :nextchar
+if not defined BAD set "BAD=-%CH%"
+goto :nextchar
+:badarg
+if not defined BAD set "BAD=%ARG%"
+goto :nextarg
+:taketag
+set "WANTS="
+set "V=%~1"
+if "%V%"=="" goto :notag
+if "%V:~0,1%"=="-" goto :notag
+set "TAG=%V%"
 shift
-goto :args
+goto :nextarg
+:notag
+set "NOTAG=1"
+goto :nextarg
 
-:args_done
+:parsed
+if defined HELP goto :help
+if defined BAD goto :unknown
+if defined NOTAG goto :notagerr
+if defined MAKEBRANCH if defined DELBRANCH goto :bothbd
 
 git --version >nul 2>&1
-if errorlevel 1 (
-    echo ERROR: git was not found
-    exit /b 1
-)
+if errorlevel 1 goto :nogit
 git rev-parse --is-inside-work-tree >nul 2>&1
-if errorlevel 1 (
-    echo ERROR: this folder is not a git repository
-    exit /b 1
-)
+if errorlevel 1 goto :norepo
 
-if "%MODE%"=="delete" goto :delete
+if defined DELBRANCH goto :delete
 
 set "SCOPE=%SRC%/"
 set "PATHSPEC=-- %SRC%/"
-if defined FULL (
-    set "SCOPE=all files"
-    set "PATHSPEC="
-)
+if defined FULL set "SCOPE=all files"
+if defined FULL set "PATHSPEC="
 
 git remote get-url vanilla >nul 2>&1
-if errorlevel 1 (
-    echo Adding remote vanilla: %VANILLA_URL%
-    git remote add vanilla %VANILLA_URL%
-    if errorlevel 1 exit /b 1
-)
+if not errorlevel 1 goto :havevanilla
+echo Adding remote vanilla: %VANILLA_URL%
+git remote add vanilla %VANILLA_URL%
+if errorlevel 1 exit /b 1
+:havevanilla
 
 git rev-parse -q --verify "refs/tags/%TAG%" >nul 2>&1
-if errorlevel 1 (
-    echo Fetching tag %TAG% from vanilla...
-    git fetch vanilla tag %TAG% --no-tags --quiet
-    if errorlevel 1 (
-        echo ERROR: could not fetch tag %TAG%
-        exit /b 1
-    )
-)
+if not errorlevel 1 goto :havetag
+echo Fetching tag %TAG% from vanilla...
+git fetch vanilla tag %TAG% --no-tags --quiet
+if errorlevel 1 goto :fetchfailed
+:havetag
 
-if "%MODE%"=="branch" goto :branch
+if defined MAKEBRANCH goto :branch
 
 echo Vanilla %TAG% to HEAD, %SCOPE% > "%OUT%"
 echo. >> "%OUT%"
-git diff --stat=120 %TAG% HEAD %PATHSPEC% >> "%OUT%"
+git diff --no-renames --stat=120 %TAG% HEAD %PATHSPEC% >> "%OUT%"
 echo. >> "%OUT%"
-git diff --no-color %TAG% HEAD %PATHSPEC% >> "%OUT%"
+git diff --no-renames --no-color %TAG% HEAD %PATHSPEC% >> "%OUT%"
 if errorlevel 1 exit /b 1
-echo Wrote %OUT% (%SCOPE%). Only committed changes are included.
+echo Wrote %OUT% for %SCOPE%. Only committed changes are included.
 exit /b 0
 
 :branch
 rem The commit "Compare against vanilla" has exactly the files of HEAD. Its parent
-rem is a vanilla snapshot, so the diff of that commit is vanilla -> your files.
+rem is a vanilla snapshot, so the diff of that commit is vanilla to your files.
 rem With -f the parent is the whole vanilla tag. Without it, the parent is your
 rem HEAD with only %SRC%/ taken from vanilla, so other files do not show up.
 set "BASE_TREE="
-if defined FULL (
-    for /f %%T in ('git rev-parse %TAG%:') do set "BASE_TREE=%%T"
-    goto :branch_base
-)
+if defined FULL goto :fulltree
 set "GIT_INDEX_FILE=%TEMP%\vvvvvv-compare-index"
 if exist "%GIT_INDEX_FILE%" del "%GIT_INDEX_FILE%"
 git read-tree HEAD || goto :branch_failed
@@ -97,6 +107,9 @@ git rm -r -q --cached %SRC% || goto :branch_failed
 git read-tree --prefix=%SRC%/ %TAG%:%SRC% || goto :branch_failed
 for /f %%T in ('git write-tree') do set "BASE_TREE=%%T"
 set "GIT_INDEX_FILE="
+goto :branch_base
+:fulltree
+for /f %%T in ('git rev-parse %TAG%:') do set "BASE_TREE=%%T"
 
 :branch_base
 if not defined BASE_TREE goto :branch_failed
@@ -114,7 +127,7 @@ if not defined COMPARE_COMMIT goto :branch_failed
 git branch -f %BRANCH% %COMPARE_COMMIT%
 if errorlevel 1 goto :branch_failed
 
-echo Created branch %BRANCH% (%SCOPE%). It has the same files as HEAD, so switching to it changes nothing on disk.
+echo Created branch %BRANCH% for %SCOPE%. It has the same files as HEAD, so switching to it changes nothing on disk.
 echo In GitHub Desktop: switch to %BRANCH%, open History, select the top commit.
 echo Switch back afterwards and run: changes.bat -d
 exit /b 0
@@ -128,13 +141,38 @@ exit /b 1
 git branch -D %BRANCH%
 exit /b %errorlevel%
 
+:unknown
+echo ERROR: unknown option %BAD%, see -h
+exit /b 1
+
+:notagerr
+echo ERROR: -t needs a tag, see -h
+exit /b 1
+
+:bothbd
+echo ERROR: -b and -d cannot be combined, see -h
+exit /b 1
+
+:nogit
+echo ERROR: git was not found
+exit /b 1
+
+:norepo
+echo ERROR: this folder is not a git repository
+exit /b 1
+
+:fetchfailed
+echo ERROR: could not fetch tag %TAG%
+exit /b 1
+
 :help
 echo Usage: changes.bat [-f] [-b] [-d] [-t tag] [-h]
-echo   no option  write %OUT%: the changes in %SRC%/ from vanilla to the last commit
-echo   -b         create the branch %BRANCH% to browse the changes in GitHub Desktop
-echo   -d         delete the branch %BRANCH%
-echo   -f         full: all files, not only %SRC%/ ^(for the file and for -b^)
-echo   -t tag     vanilla tag to compare with, default %TAG%
-echo   -h         show this help
+echo Flags combine, for example -fb.
+echo   no flag  write %OUT%: the changes in %SRC%/ from vanilla to the last commit
+echo   -b       create the branch %BRANCH% to browse the changes in GitHub Desktop
+echo   -d       delete the branch %BRANCH%
+echo   -f       full: all files, not only %SRC%/ ^(with the file and with -b^)
+echo   -t tag   vanilla tag to compare with, default %TAG%
+echo   -h       show this help
 echo Commit your changes first, only HEAD is compared.
 exit /b 0

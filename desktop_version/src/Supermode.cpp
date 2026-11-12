@@ -141,11 +141,6 @@ namespace supermode
         popup("Savestates deleted");
     }
 
-    bool in_options(void)
-    {
-        return game.ingame_titlemode && in_context();
-    }
-
     static bool run_has_state(void)
     {
         if (current_mode == -1)
