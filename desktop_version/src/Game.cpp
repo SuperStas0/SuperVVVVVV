@@ -26,7 +26,6 @@
 #include "Network.h"
 #include "RoomnameTranslator.h"
 #include "Screen.h"
-#include "Savestate.h"
 #include "Script.h"
 #include "Supermenu.h"
 #include "Supermode.h"
@@ -1927,54 +1926,52 @@ void Game::updatestate(void)
             if (trinkets() >= timetrialshinytarget) timetrialrank++;
             if (deathcounts == 0) timetrialrank++;
 
-            /* Results from an invalid run are not recorded. */
-            if (!supermode::invalid_run())
+            supermode::protect_records();
+            if (timetrialresulttime < besttimes[timetriallevel]
+            || (timetrialresulttime == besttimes[timetriallevel] && timetrialresultframes < bestframes[timetriallevel])
+            || besttimes[timetriallevel]==-1)
             {
-                if (timetrialresulttime < besttimes[timetriallevel]
-                || (timetrialresulttime == besttimes[timetriallevel] && timetrialresultframes < bestframes[timetriallevel])
-                || besttimes[timetriallevel]==-1)
+                besttimes[timetriallevel] = timetrialresulttime;
+                bestframes[timetriallevel] = timetrialresultframes;
+            }
+            if (timetrialresulttrinkets > besttrinkets[timetriallevel] || besttrinkets[timetriallevel]==-1)
+            {
+                besttrinkets[timetriallevel] = trinkets();
+            }
+            if (deathcounts < bestlives[timetriallevel] || bestlives[timetriallevel]==-1)
+            {
+                bestlives[timetriallevel] = deathcounts;
+            }
+            if (timetrialrank > bestrank[timetriallevel] || bestrank[timetriallevel]==-1)
+            {
+                bestrank[timetriallevel] = timetrialrank;
+                if (timetrialrank >= 3)
                 {
-                    besttimes[timetriallevel] = timetrialresulttime;
-                    bestframes[timetriallevel] = timetrialresultframes;
-                }
-                if (timetrialresulttrinkets > besttrinkets[timetriallevel] || besttrinkets[timetriallevel]==-1)
-                {
-                    besttrinkets[timetriallevel] = trinkets();
-                }
-                if (deathcounts < bestlives[timetriallevel] || bestlives[timetriallevel]==-1)
-                {
-                    bestlives[timetriallevel] = deathcounts;
-                }
-                if (timetrialrank > bestrank[timetriallevel] || bestrank[timetriallevel]==-1)
-                {
-                    bestrank[timetriallevel] = timetrialrank;
-                    if (timetrialrank >= 3)
+                    switch (timetriallevel)
                     {
-                        switch (timetriallevel)
-                        {
-                        case TimeTrial_SPACESTATION1:
-                            unlockAchievement("vvvvvvtimetrial_station1_fixed");
-                            break;
-                        case TimeTrial_LABORATORY:
-                            unlockAchievement("vvvvvvtimetrial_lab_fixed");
-                            break;
-                        case TimeTrial_TOWER:
-                            unlockAchievement("vvvvvvtimetrial_tower_fixed");
-                            break;
-                        case TimeTrial_SPACESTATION2:
-                            unlockAchievement("vvvvvvtimetrial_station2_fixed");
-                            break;
-                        case TimeTrial_WARPZONE:
-                            unlockAchievement("vvvvvvtimetrial_warp_fixed");
-                            break;
-                        case TimeTrial_FINALLEVEL:
-                            unlockAchievement("vvvvvvtimetrial_final_fixed");
-                        }
+                    case TimeTrial_SPACESTATION1:
+                        unlockAchievement("vvvvvvtimetrial_station1_fixed");
+                        break;
+                    case TimeTrial_LABORATORY:
+                        unlockAchievement("vvvvvvtimetrial_lab_fixed");
+                        break;
+                    case TimeTrial_TOWER:
+                        unlockAchievement("vvvvvvtimetrial_tower_fixed");
+                        break;
+                    case TimeTrial_SPACESTATION2:
+                        unlockAchievement("vvvvvvtimetrial_station2_fixed");
+                        break;
+                    case TimeTrial_WARPZONE:
+                        unlockAchievement("vvvvvvtimetrial_warp_fixed");
+                        break;
+                    case TimeTrial_FINALLEVEL:
+                        unlockAchievement("vvvvvvtimetrial_final_fixed");
                     }
                 }
-
-                savestatsandsettings();
             }
+
+            supermode::restore_records();
+            savestatsandsettings();
 
             graphics.fademode = FADE_START_FADEOUT;
             music.fadeout();

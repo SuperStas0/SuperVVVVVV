@@ -2,6 +2,7 @@
 
 #include <string>
 
+#include "Entity.h"
 #include "Enums.h"
 #include "Font.h"
 #include "Game.h"
@@ -182,11 +183,46 @@ namespace supermode
         }
     }
 
-    void after_start(void)
+    static int records_times[Game::numtrials];
+    static int records_frames[Game::numtrials];
+    static int records_trinkets[Game::numtrials];
+    static int records_lives[Game::numtrials];
+    static int records_rank[Game::numtrials];
+    static bool records_kept = false;
+
+    void protect_records(void)
     {
-        if (trial_super && game.intimetrial)
+        records_kept = invalid_run();
+        if (!records_kept)
         {
-            game.timetrialcountdown = TRIAL_COUNTDOWN;
+            return;
+        }
+
+        for (int i = 0; i < Game::numtrials; i++)
+        {
+            records_times[i] = game.besttimes[i];
+            records_frames[i] = game.bestframes[i];
+            records_trinkets[i] = game.besttrinkets[i];
+            records_lives[i] = game.bestlives[i];
+            records_rank[i] = game.bestrank[i];
+        }
+    }
+
+    void restore_records(void)
+    {
+        if (!records_kept)
+        {
+            return;
+        }
+        records_kept = false;
+
+        for (int i = 0; i < Game::numtrials; i++)
+        {
+            game.besttimes[i] = records_times[i];
+            game.bestframes[i] = records_frames[i];
+            game.besttrinkets[i] = records_trinkets[i];
+            game.bestlives[i] = records_lives[i];
+            game.bestrank[i] = records_rank[i];
         }
     }
 
@@ -276,6 +312,12 @@ namespace supermode
         update_pending();
         update_countdown();
 
+        /* The first frame of a time trial with Super mode on: shorten the countdown. */
+        if (trial_super && game.intimetrial && game.timetrialcountdown > TRIAL_COUNTDOWN)
+        {
+            game.timetrialcountdown = TRIAL_COUNTDOWN;
+        }
+
         /* Super mode was toggled in the options menu during a trial. */
         if (in_run()
         && is_trial_mode(current_mode)
@@ -285,6 +327,19 @@ namespace supermode
         {
             begin_restart();
         }
+    }
+
+    /* Skips the fade and the game over screen. */
+    static void leave_to_cutscene_screen(void)
+    {
+        game.gethardestroom();
+        game.copyndmresults();
+        obj.entities.clear();
+        game.quittomenu();
+        graphics.fademode = FADE_NONE;
+        game.createmenu(Menu::startnodeathmode);
+        game.currentmenuoption = current_mode == Start_NODEATHMODE_WITHCUTSCENES ? 1 : 0;
+        music.play(Music_PRESENTINGVVVVVV);
     }
 
     bool death_exit(void)
@@ -317,6 +372,12 @@ namespace supermode
         if (trial_super)
         {
             pending = Pending_RESTART_INSTANT;
+            return true;
+        }
+
+        if (super_setting && is_ndm_mode(current_mode))
+        {
+            leave_to_cutscene_screen();
             return true;
         }
 
@@ -368,6 +429,14 @@ namespace supermode
         const int shift = (scale * 4 + 1) / 3;
         const uint32_t size = scale == 4 ? PR_4X : PR_3X;
         font::print(size | PR_FONT_8X8 | PR_CEN, 160 + shift, y, "GG!", r, g, b);
+    }
+
+    void print_wrap_valid(const uint32_t flags, const int x, const int y, const char* text, const int r, const int g, const int b)
+    {
+        if (!invalid_run())
+        {
+            font::print_wrap(flags, x, y, text, r, g, b);
+        }
     }
 
     void print_title(const int scale, const uint32_t flags, const int y, const char* text, const int r, const int g, const int b)

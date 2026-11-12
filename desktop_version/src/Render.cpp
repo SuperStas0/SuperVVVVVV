@@ -1536,10 +1536,7 @@ static void menurender(void)
         );
         font::print_wrap(PR_CEN | PR_CJK_LOW, -1, 110, buffer, tr, tg, tb);
 
-        if (!supermode::invalid_run())
-        {
-            font::print_wrap(PR_CEN, -1, 160, loc::gettext("A new trophy has been awarded and placed in the secret lab to acknowledge your achievement!"), tr, tg, tb);
-        }
+        supermode::print_wrap_valid(PR_CEN, -1, 160, loc::gettext("A new trophy has been awarded and placed in the secret lab to acknowledge your achievement!"), tr, tg, tb);
         break;
     }
     case Menu::timetrialcomplete:

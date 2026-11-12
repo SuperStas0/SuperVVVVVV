@@ -2588,6 +2588,7 @@ void scriptclass::startgamemode(const enum StartMode mode)
     }
 
     hardreset();
+    supermode::apply_trial_rules();
 
     if (mode == Start_EDITOR)
     {
@@ -2668,7 +2669,6 @@ void scriptclass::startgamemode(const enum StartMode mode)
 
         game.nocutscenes = true;
         game.intimetrial = true;
-        supermode::apply_trial_rules();
         game.timetrialcountdown = 150;
         game.timetriallevel = mode - Start_FIRST_TIMETRIAL;
 
@@ -2747,7 +2747,6 @@ void scriptclass::startgamemode(const enum StartMode mode)
     case Start_INTERMISSION2_VERDIGRIS:
     case Start_INTERMISSION2_VICTORIA:
         music.fadeout();
-        supermode::apply_trial_rules();
 
         switch (mode)
         {
@@ -2940,8 +2939,6 @@ void scriptclass::startgamemode(const enum StartMode mode)
         map.cameramode = 0;
         map.colsuperstate = 0;
     }
-
-    supermode::after_start();
 }
 
 void scriptclass::teleport(void)

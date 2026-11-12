@@ -54,11 +54,11 @@ Applies where dying would end the run: No Death Mode, and time trials and interm
 | off | original death delay (1 s) | 1 s countdown without control, then `Go!` |
 | on | 0.5 s | none |
 
-Without a state, No Death Mode ends the run as in the original game.
+Without a state (or with savestates off), No Death Mode ends the run as in the original game, except with Super mode on: see below.
 
 ## Super mode
 - Main game: no effect, and it does not make a run invalid.
-- No Death Mode: only changes dying with a state (see above). Gameplay is not affected.
+- No Death Mode: dying with a state loads it (see above). Without a state, 0.5 s after dying the game leaves the run without the fade and the game over screen, and opens the cutscene choice screen of No Death Mode. Gameplay is not affected.
 - Time trials and intermission replays: No Death Mode rules (no checkpoints, no cutscenes). Without a state, dying restarts the level at its start 0.5 s later, without the fade. Time trials use a 1 s countdown. The timer restarts.
 
 ## Valid runs
@@ -100,28 +100,26 @@ To add a language:
 - Incompatible layout: change the marker in `SplitData.cpp` and in the `.asl` `init` block, so older scripts stay inactive instead of reading wrong data.
 - Other exe name: duplicate the `VVVVVV` `split` and `unknown` states in the `.asl` with that process name.
 
-# What changed from upstream
-Based on the VVVVVV 2.4.4 tag (`ea811e1`). Useful when rebasing onto a newer version:
+# Changes from vanilla
+Based on VVVVVV 2.4.4. The own code is in `Savestate`, `Supermode`, `Supermenu`, `Supertext` and `SplitData` in `desktop_version\src`. Other files in that folder only get small hooks into it.
 
-| File | Change |
+`changes.bat` shows what differs from the vanilla source in `desktop_version\src\`. It needs git, adds the remote `vanilla` (`https://github.com/TerryCavanagh/VVVVVV.git`) if it is missing and fetches the tag. It compares the last commit, so commit first.
+
+| Command | Action |
 | --- | --- |
-| `desktop_version\src\Savestate.h`, `desktop_version\src\Savestate.cpp` | New: savestate store and the save and load keys |
-| `desktop_version\src\Supermode.h`, `desktop_version\src\Supermode.cpp` | New: Super mode, run validity, death handling, countdown, popups, `GG!` |
-| `desktop_version\src\Supermenu.h`, `desktop_version\src\Supermenu.cpp` | New: Super menu |
-| `desktop_version\src\Supertext.h`, `desktop_version\src\Supertext.cpp` | New: loads `lang\<code>\super.xml` |
-| `desktop_version\src\SplitData.h`, `desktop_version\src\SplitData.cpp` | New: autosplitter data struct |
-| `desktop_version\src\Game.h` | New menu `supermode` |
-| `desktop_version\src\Game.cpp` | Hooks: Super entry in the options menu and the Super menu, `supermode::invalid_run()` checks for records, unlocks and achievements |
-| `desktop_version\src\Input.cpp` | `gameinput()` calls `savestate::input()`; `fadetomode` and `gotomode` made non-static; Super menu hooks |
-| `desktop_version\src\Script.cpp` | `startgamemode()` calls `savestate::note_mode()`, `supermode::apply_trial_rules()` and `supermode::after_start()` |
-| `desktop_version\src\Logic.cpp` | Death logic calls `supermode::death_exit()`; Super Gravitron records skipped in invalid runs |
-| `desktop_version\src\Entity.cpp` | Trinket stat skipped in invalid runs |
-| `desktop_version\src\Render.cpp` | Super menu, popup in place of the room name, countdown, `GG!` on the WOW and results screens |
-| `desktop_version\src\Graphics.cpp` | `GG!` replaces the Level Complete and Game Complete images |
-| `desktop_version\src\main.cpp` | `loop_end()` calls `splitdata::update()` |
-| `autosplitter\LiveSplit.VVVVVV.asl` | Autosplitter with `SplitData` support, signature scan added to `init` and a `split` mode in `update` |
-| `desktop_version\src\SteamNetwork.c` | Loads `steam_api64.dll` on 64-bit Windows |
-| `desktop_version\CMakeLists.txt` | Adds `Savestate.cpp`, `Supermode.cpp`, `Supermenu.cpp`, `Supertext.cpp` and `SplitData.cpp` to the sources; embeds `icon.rc` on Windows |
+| `changes.bat` | Write `changesFromVanilla.txt` (file list and full diff, ignored by git) |
+| `changes.bat -b` | Create the branch `compare-vanilla` to browse the changes in GitHub Desktop |
+| `changes.bat -d` | Delete the branch `compare-vanilla` |
+| `changes.bat -t <tag>` | Compare with another vanilla tag, default `2.4.4` |
+| `changes.bat -h` | Show help |
+
+In GitHub Desktop:
+1. Commit your changes and run `changes.bat -b`.
+2. Current Branch > `compare-vanilla`. The branch has the same files as your last commit, so nothing changes on disk.
+3. Open the History tab and select the top commit. Its changed files and diffs are the differences from vanilla.
+4. Switch back to your branch and run `changes.bat -d`.
+
+Same steps by hand: `git remote add vanilla https://github.com/TerryCavanagh/VVVVVV.git`, `git fetch vanilla tag 2.4.4`, `git diff --stat 2.4.4 HEAD -- desktop_version/src/`.
 
 # Building
 Requirements:
@@ -155,3 +153,4 @@ Build output: `build\VVVVVV.exe`, `build\LiveSplit.VVVVVV.asl`, `build\steam_api
 - LodePNG (zlib)
 - SheenBidi (Apache-2.0)
 - C-HashMap (BSD-3-Clause)
+- `LiveSplit.VVVVVV.asl` ([tzann/Autosplitters](https://github.com/tzann/Autosplitters), no license published)
