@@ -3,15 +3,17 @@
 Altered version of [VVVVVV](https://github.com/TerryCavanagh/VVVVVV), not the original game. VVVVVV is copyright of Terry Cavanagh and this is based on the VVVVVV 2.4.4 source code. Practice patch for Windows (Steam version) that adds savestates for time trials, intermission replays and No Death Mode, and a Super mode with fast restarts.
 
 # Installation
-Requires your own copy of VVVVVV on Steam. The game's `data.zip` is not included.
+Requires your own copy of VVVVVV on Steam.
 
 1. In the game folder (`...\steamapps\common\VVVVVV`), copy the original `VVVVVV.exe` to a backup, e.g. `VVVVVV-vanilla.exe`.
 2. Extract the release archive into the game folder, overwriting `VVVVVV.exe`.
 3. Launch the game from Steam.
 
+If you use LiveSplit, use `LiveSplit.VVVVVV.asl` from the release archive as the autosplitter, see Autosplitter.
+
 To go back to vanilla, put the backup back as `VVVVVV.exe`, or use Steam > Properties > Installed Files > Verify integrity of game files. A Steam update also restores it.
 
-The build is 64-bit and statically linked, so it needs no `SDL2.dll`. It uses the same save and settings folder as the original game.
+It uses the same save and settings folder as the original game.
 
 ## Steam achievements
 - Needs the 64-bit `steam_api64.dll` next to `VVVVVV.exe`. It is not included: copy it from any 64-bit Steam game's folder or from the Steamworks SDK (`redistributable_bin\win64`).
@@ -81,6 +83,8 @@ To add a language:
 
 # Autosplitter
 `LiveSplit.VVVVVV.asl` is the VVVVVV autosplitter with SuperVVVVVV support. Start, split, reset, game time and settings are unchanged. Its source is `autosplitter\LiveSplit.VVVVVV.asl`; `build.bat` copies it to `build\` and `-r` adds it to the release archive.
+
+Based on [tzann/Autosplitters](https://github.com/tzann/Autosplitters).
 
 ## Setup
 1. LiveSplit: right-click > Edit Layout > add Control > Scriptable Auto Splitter.
