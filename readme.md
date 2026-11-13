@@ -1,6 +1,6 @@
 # SuperVVVVVV
 
-Altered version of [VVVVVV](https://github.com/TerryCavanagh/VVVVVV), not the original game. VVVVVV is copyright of Terry Cavanagh and this is based on the VVVVVV 2.4.4 source code. Practice patch for Windows (Steam version) that adds savestates for time trials, intermission replays and No Death Mode, and a Super mode with fast restarts.
+Altered version of [VVVVVV](https://github.com/TerryCavanagh/VVVVVV) (copyright Terry Cavanagh, based on the 2.4.4 source code), not the original game: practice patch for Windows (Steam version) with savestates for time trials, intermission replays and No Death Mode, and a Super mode with fast restarts.
 
 # Installation
 Requires your own copy of VVVVVV on Steam.
@@ -82,7 +82,7 @@ To add a language:
 3. Run `build.bat -r`, or copy the file into the game's `lang\<code>\` folder.
 
 # Autosplitter
-`LiveSplit.VVVVVV.asl` is the VVVVVV autosplitter with SuperVVVVVV support. Start, split, reset, game time and settings are unchanged. Its source is `autosplitter\LiveSplit.VVVVVV.asl`; `build.bat` copies it to `build\` and `-r` adds it to the release archive.
+`LiveSplit.VVVVVV.asl` is the VVVVVV autosplitter with SuperVVVVVV support. Game time and settings are unchanged. Start, split and reset work as in the original, except in invalid runs (see Invalid runs). Its source is `autosplitter\LiveSplit.VVVVVV.asl`; `build.bat` copies it to `build\` and `-r` adds it to the release archive.
 
 Based on [tzann/Autosplitters](https://github.com/tzann/Autosplitters).
 
@@ -97,6 +97,12 @@ Based on [tzann/Autosplitters](https://github.com/tzann/Autosplitters).
 | Vanilla VVVVVV 2.0-2.4.4 | Original module size detection and offsets |
 | Modded build (any other `VVVVVV.exe`) | Scans the exe for the `SUPERVVVVVV_SPLIT` marker and reads the `SplitData` struct. Works for any exe size. |
 | Anything else | Inactive |
+
+## Invalid runs
+With a SuperVVVVVV build, an invalid run (see Valid runs) is handled like this:
+- Invalid from the start: the timer does not start.
+- Invalid after the start: the timer keeps running and is never split or reset automatically. Split and reset it manually. This lasts until the timer is started again.
+- Use `VVVVVV.exe` and `LiveSplit.VVVVVV.asl` from the same release.
 
 ## Changing the game
 - `SplitData.cpp` mirrors the game variables each frame in `loop_end()`. The struct is append-only: never move, resize or remove fields.
@@ -153,8 +159,8 @@ Run `build.bat [-c] [-i] [-r] [-n] [-s path] [-h]`. Flags combine in any order, 
 Build output: `build\VVVVVV.exe`, `build\LiveSplit.VVVVVV.asl`, `build\steam_api64.dll` (if present)
 
 # License
-- [MIT](LICENSE.md) (changes by SuperStas0 only)
-- VVVVVV (VVVVVV Source Code License v1.0, [full text with third-party licenses](licenses/LICENSE.md))
+- [MIT](LICENSE.md)
+- VVVVVV (VVVVVV Source Code License v1.0, [full text](licenses/LICENSE.md))
 - SDL2 (zlib)
 - FAudio (zlib)
 - PhysicsFS (zlib)

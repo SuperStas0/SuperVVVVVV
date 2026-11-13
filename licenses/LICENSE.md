@@ -1,6 +1,6 @@
 # Licenses
 
-SuperVVVVVV is an altered version of VVVVVV. The VVVVVV Source Code License v1.0 below applies to the whole work. The MIT license applies only to the changes by SuperStas0. Third-party components follow.
+SuperVVVVVV is an altered version of VVVVVV. The VVVVVV Source Code License v1.0 below applies to the whole work. Third-party components follow.
 
 # VVVVVV Source Code License v1.0
 
@@ -24,7 +24,7 @@ Permission is granted to anyone to use this software and to alter it and redistr
  - You must not distribute any materials from the game which are not included in this repo unless approved by us in writing.
  - This notice may not be removed or altered from any source/binary distribution.
 
-# SuperVVVVVV changes (MIT)
+# SuperVVVVVV (MIT)
 
 MIT License
 

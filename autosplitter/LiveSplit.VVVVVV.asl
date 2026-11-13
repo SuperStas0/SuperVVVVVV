@@ -345,6 +345,7 @@ init {
 	vars.splitAddr = IntPtr.Zero;
 	vars.cur = null;
 	vars.old = null;
+	vars.runInvalid = false;
 
 	if (modules.First().ModuleMemorySize == 0x6D9000) {
 		version = "v2.0";
@@ -488,6 +489,11 @@ start {
 	var cur = version == "split" ? vars.cur : current;
 	var prev = version == "split" ? vars.old : old;
 
+	// Modded build: an invalid run never starts the timer
+	if (version == "split" && cur.invalidRun) {
+		return false;
+	}
+
 	if (version == "v2.3.4" || version == "v2.3.6" || version == "v2.4" || version == "v2.4.1" || version == "v2.4.2" || version == "v2.4.3" || version == "v2.4.4" || version == "split") {
 		// Triggers when fade to new mode completes
 		if (!cur.fadetomode && prev.fadetomode) {
@@ -569,6 +575,11 @@ start {
 split {
 	var cur = version == "split" ? vars.cur : current;
 	var prev = version == "split" ? vars.old : old;
+
+	// Modded build: once the run was invalid, the timer is never split automatically
+	if (version == "split" && vars.runInvalid) {
+		return false;
+	}
 
 	if (version == "v2.4.1" || version == "v2.4.2" || version == "v2.4.3" || version == "v2.4.4" || version == "split") {
 		// In order to fix the bug where the timer often stopped a frame late, I forced the autosplitter to wait an extra cycle before actually stopping
@@ -952,6 +963,11 @@ reset {
 	var cur = version == "split" ? vars.cur : current;
 	var prev = version == "split" ? vars.old : old;
 
+	// Modded build: once the run was invalid, the timer is never reset automatically
+	if (version == "split" && vars.runInvalid) {
+		return false;
+	}
+
 	if (version == "v2.4" || version == "v2.4.1" || version == "v2.4.2" || version == "v2.4.3" || version == "v2.4.4" || version == "split") {
 		// menustate values:
 		// 0: in-game
@@ -1021,6 +1037,10 @@ reset {
 	}
 }
 
+onStart {
+	vars.runInvalid = false;
+}
+
 gameTime {
 	var cur = version == "split" ? vars.cur : current;
 
@@ -1052,8 +1072,8 @@ update {
 	if (version == "split") {
 		// Modded build: read the whole SplitData struct (desktop_version/src/SplitData.cpp) in one go
 		IntPtr splitAddr = (IntPtr) vars.splitAddr;
-		byte[] buf = game.ReadBytes(splitAddr, 264);
-		if (buf == null || buf.Length < 264 || System.Text.Encoding.ASCII.GetString(buf, 0, 17) != "SUPERVVVVVV_SPLIT") {
+		byte[] buf = game.ReadBytes(splitAddr, 265);
+		if (buf == null || buf.Length < 265 || System.Text.Encoding.ASCII.GetString(buf, 0, 17) != "SUPERVVVVVV_SPLIT") {
 			return false;
 		}
 
@@ -1091,6 +1111,11 @@ update {
 		string text = System.Text.Encoding.UTF8.GetString(buf, 200, textLength);
 		data["firstTextLineSmall"] = text;
 		data["firstTextLineLarge"] = text;
+		data["invalidRun"] = buf[264] != 0;
+
+		if (buf[264] != 0) {
+			vars.runInvalid = true;
+		}
 
 		if (vars.cur == null) {
 			vars.old = snapshot;

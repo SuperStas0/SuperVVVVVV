@@ -8,6 +8,7 @@
 #include "Game.h"
 #include "Map.h"
 #include "Script.h"
+#include "Supermode.h"
 
 /* Defined in Input.cpp. */
 extern bool fadetomode;
@@ -41,6 +42,7 @@ namespace splitdata
         uint8_t ingame_titlemode;   /* offset  99: game.ingame_titlemode */
         uint8_t collect[100];       /* offset 100: obj.collect */
         char firstTextLine[64];     /* offset 200: script.txt[0], zero terminated */
+        uint8_t invalidrun;         /* offset 264: supermode::invalid_run() */
     };
 #pragma pack(pop)
 
@@ -50,7 +52,8 @@ namespace splitdata
     static_assert(offsetof(SplitData, fadetomode) == 96, "layout");
     static_assert(offsetof(SplitData, collect) == 100, "layout");
     static_assert(offsetof(SplitData, firstTextLine) == 200, "layout");
-    static_assert(sizeof(SplitData) == 264, "layout");
+    static_assert(offsetof(SplitData, invalidrun) == 264, "layout");
+    static_assert(sizeof(SplitData) == 265, "layout");
 
     /* Written as a char array so the marker exists only here, not as a second
      * copy in a string literal. */
@@ -80,6 +83,7 @@ namespace splitdata
         data.finalstretch = map.finalstretch;
         data.nodeathmode = game.nodeathmode;
         data.ingame_titlemode = game.ingame_titlemode;
+        data.invalidrun = supermode::invalid_run();
 
         for (int i = 0; i < 100; ++i)
         {
