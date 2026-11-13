@@ -59,8 +59,24 @@ namespace supermode
      * music alone. */
     bool loads_state_on_death(void);
 
+    /* Called from the death sequence of No Death Mode instead of fading out
+     * the music. */
+    void death_music(void);
+
+    /* Pause menu entry of Super mode in the main game: deletes the save files,
+     * unlocks all play modes and goes to the menu right before a new run. */
+    bool reset_run_available(void);
+    const char* reset_run_text(void);
+    void reset_run(void);
+
+    /* Last page of the pause menu: 32, or 33 with the reset run entry. */
+    int last_pause_page(void);
+
     /* Message in place of the room name. text is a key of supertext. */
     void popup(const char* text);
+
+    /* text has the placeholder {n}, filled with number. */
+    void popup_state(const char* text, int number);
     bool render_popup(void);
 
     void render_countdown(void);

@@ -206,7 +206,18 @@ namespace savestate
     };
 
     static std::map<int, Slot> slots;
+    static std::map<int, int> last_slots;
     static bool loaded_this_run = false;
+
+    static int slot_index(const int key, const int slot)
+    {
+        return key * SLOTS + slot;
+    }
+
+    static bool valid_slot(const int slot)
+    {
+        return slot >= 0 && slot < SLOTS;
+    }
 
     static void free_slot(Slot& slot)
     {
@@ -227,9 +238,31 @@ namespace savestate
         return loaded_this_run;
     }
 
-    bool exists(const int key)
+    bool exists(const int key, const int slot)
     {
-        return slots.count(key) != 0;
+        return valid_slot(slot) && slots.count(slot_index(key, slot)) != 0;
+    }
+
+    bool exists_any(const int key)
+    {
+        for (int slot = 0; slot < SLOTS; slot++)
+        {
+            if (exists(key, slot))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    int last(const int key)
+    {
+        const std::map<int, int>::const_iterator it = last_slots.find(key);
+        if (it == last_slots.end() || !exists(key, it->second))
+        {
+            return -1;
+        }
+        return it->second;
     }
 
     int count(void)
@@ -244,32 +277,35 @@ namespace savestate
             free_slot(it->second);
         }
         slots.clear();
+        last_slots.clear();
     }
 
-    bool save(const int key)
+    bool save(const int key, const int slot)
     {
         /* Don't capture the death animation. */
-        if (game.deathseq != -1)
+        if (!valid_slot(slot) || game.deathseq != -1)
         {
             return false;
         }
 
-        std::map<int, Slot>::iterator old = slots.find(key);
+        const int index = slot_index(key, slot);
+        std::map<int, Slot>::iterator old = slots.find(index);
         if (old != slots.end())
         {
             free_slot(old->second);
             slots.erase(old);
         }
 
-        Slot slot;
-        slot.game = new Game(game);
-        slot.map = new mapclass(map);
-        slot.obj = new entityclass(obj);
-        slot.script = new scriptclass(script);
-        slot.roomname = map.roomname;
-        gfx_capture(slot.gfx);
-        slot.song = music.currentsong;
-        slots[key] = slot;
+        Slot data;
+        data.game = new Game(game);
+        data.map = new mapclass(map);
+        data.obj = new entityclass(obj);
+        data.script = new scriptclass(script);
+        data.roomname = map.roomname;
+        gfx_capture(data.gfx);
+        data.song = music.currentsong;
+        slots[index] = data;
+        last_slots[key] = slot;
         return true;
     }
 
@@ -301,35 +337,41 @@ namespace savestate
         music.play(track);
     }
 
-    bool load(const int key)
+    bool load(const int key, const int slot)
     {
-        std::map<int, Slot>::iterator it = slots.find(key);
+        if (!valid_slot(slot))
+        {
+            return false;
+        }
+
+        std::map<int, Slot>::iterator it = slots.find(slot_index(key, slot));
         if (it == slots.end())
         {
             return false;
         }
-        const Slot& slot = it->second;
+        const Slot& state = it->second;
 
         Persist keep;
         persist_capture(keep);
 
-        game = *slot.game;
-        map = *slot.map;
-        obj = *slot.obj;
-        script = *slot.script;
+        game = *state.game;
+        map = *state.map;
+        obj = *state.obj;
+        script = *state.script;
 
         persist_apply(keep);
-        gfx_apply(slot.gfx);
+        gfx_apply(state.gfx);
 
         /* map.roomname points into a shared buffer, so rebuild it. */
-        map.setroomname(slot.roomname.c_str());
+        map.setroomname(state.roomname.c_str());
 
         /* Holding the flip button while loading shouldn't flip. */
         game.jumpheld = true;
         game.jumppressed = 0;
 
-        restore_music(slot.song);
+        restore_music(state.song);
 
+        last_slots[key] = slot;
         loaded_this_run = true;
         supermode::cancel_countdown();
         return true;
@@ -337,16 +379,24 @@ namespace savestate
 
     void input(void)
     {
-        static bool was_down = false;
+        static const SDL_Scancode keys[SLOTS] = {SDL_SCANCODE_1, SDL_SCANCODE_2, SDL_SCANCODE_3};
+        static bool was_down[SLOTS] = {false, false, false};
 
         supermode::update();
 
         const Uint8* keystate = SDL_GetKeyboardState(NULL);
-        const bool down = keystate[SDL_SCANCODE_GRAVE] != 0;
-        const bool pressed = down && !was_down;
-        was_down = down;
+        int pressed_slot = -1;
+        for (int slot = 0; slot < SLOTS; slot++)
+        {
+            const bool down = keystate[keys[slot]] != 0;
+            if (down && !was_down[slot])
+            {
+                pressed_slot = slot;
+            }
+            was_down[slot] = down;
+        }
 
-        if (!pressed || !supermode::states_allowed())
+        if (pressed_slot == -1 || !supermode::states_allowed())
         {
             return;
         }
@@ -357,20 +407,21 @@ namespace savestate
             return;
         }
 
+        const int number = pressed_slot + 1;
         if ((mods & KMOD_SHIFT) != 0)
         {
-            if (!supermode::counting_down() && save(supermode::key()))
+            if (!supermode::counting_down() && save(supermode::key(), pressed_slot))
             {
-                supermode::popup("State saved");
+                supermode::popup_state("State {n} saved", number);
             }
         }
-        else if (load(supermode::key()))
+        else if (load(supermode::key(), pressed_slot))
         {
-            supermode::popup("State loaded");
+            supermode::popup_state("State {n} loaded", number);
         }
         else
         {
-            supermode::popup("No saved state");
+            supermode::popup_state("State {n} empty", number);
         }
     }
 }

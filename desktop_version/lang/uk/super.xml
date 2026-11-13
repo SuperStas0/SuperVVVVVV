@@ -5,8 +5,8 @@
     <string english="super mode" translation="суперрежим" explanation="Super menu item, toggles Super mode"/>
     <string english="allow savestates" translation="дозволити стани збереження" explanation="Super menu item, toggles the save and load keys"/>
     <string english="delete savestates" translation="видалити всі стани збереження" explanation="Super menu item, deletes all saved states"/>
-    <string english="load state: `" translation="завантажити стан: `" explanation="Super menu line, not selectable. ` is the key left of 1"/>
-    <string english="save state: shift + `" translation="зберегти стан: шифт+`" explanation="Super menu line, not selectable. ` is the key left of 1"/>
+    <string english="load state: 1 2 3" translation="завантажити стан: 1 2 3" explanation="Super menu line, not selectable"/>
+    <string english="save state: shift + 1 2 3" translation="зберегти стан: шифт+1 2 3" explanation="Super menu line, not selectable"/>
     <string english="Super" translation="Супер" explanation="title of the Super menu and of its entry in the options menu"/>
     <string english="Super mode and savestates." translation="Суперрежим та стани збереження" explanation="description in the options menu when the Super item is selected"/>
     <string english="Super mode:" translation="Суперрежим:" explanation="Super menu status line, followed by ON or OFF"/>
@@ -16,12 +16,13 @@
     <string english="NDM + super mode: valid" translation="Безсмертний режим+суперрежим: дійсний" explanation="Super menu info line. NDM = No Death Mode"/>
     <string english="Time trial + super mode: not valid" translation="Змагання на час+суперрежим: недійсний" explanation="Super menu info line"/>
     <string english="Any savestate: not valid" translation="Будь-яке використання станів: недійсний" explanation="Super menu info line"/>
-    <string english="State saved" translation="Стан збережено" explanation="popup in place of the room name"/>
-    <string english="State loaded" translation="Стан завантажено" explanation="popup in place of the room name"/>
-    <string english="No saved state" translation="Немає збереженого стану" explanation="popup in place of the room name"/>
+    <string english="State {n} saved" translation="Стан {n} збережено" explanation="popup in place of the room name. {n} is the slot number, 1 to 3"/>
+    <string english="State {n} loaded" translation="Стан {n} завантажено" explanation="popup in place of the room name. {n} is the slot number, 1 to 3"/>
+    <string english="State {n} empty" translation="Стан {n} порожній" explanation="popup in place of the room name. {n} is the slot number, 1 to 3"/>
     <string english="Super mode on" translation="Суперрежим увімкнено" explanation="popup in place of the room name"/>
     <string english="Super mode off" translation="Суперрежим вимкнено" explanation="popup in place of the room name"/>
     <string english="Savestates on" translation="Стани збереження увімкнені" explanation="popup in place of the room name"/>
     <string english="Savestates off" translation="Стани збереження вимкнені" explanation="popup in place of the room name"/>
     <string english="Savestates deleted" translation="Стани збереження видалені" explanation="popup in place of the room name"/>
+    <string english="reset run" translation="скинути забіг" explanation="pause menu item in Super mode, below quit to menu. Deletes the save files, unlocks all play modes and goes to the menu before a new run"/>
 </strings>

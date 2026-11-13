@@ -38,8 +38,8 @@ namespace supermenu
         game.option(supertext::get("super mode"));
         game.option(supertext::get("allow savestates"));
         game.option(supertext::get("delete savestates"));
-        game.option(supertext::get("load state: `"), false);
-        game.option(supertext::get("save state: shift + `"), false);
+        game.option(supertext::get("load state: 1 2 3"), false);
+        game.option(supertext::get("save state: shift + 1 2 3"), false);
         game.option(loc::gettext("return"));
         game.menuyoff = 0;
     }

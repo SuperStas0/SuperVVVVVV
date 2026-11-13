@@ -25,6 +25,7 @@
 #include "Screen.h"
 #include "Script.h"
 #include "Supermenu.h"
+#include "Supermode.h"
 #include "UtilityClass.h"
 #include "Vlogging.h"
 
@@ -3174,7 +3175,7 @@ void mapinput(void)
         }
         if (game.menupage < 12
         || (game.menupage >= 20 && game.menupage <= 21)
-        || (game.menupage >= 30 && game.menupage <= 32))
+        || (game.menupage >= 30 && game.menupage <= 33))
         {
             if (key.isDown(KEYBOARD_ENTER) || key.isDown(game.controllerButton_map) ) game.press_map = true;
             if (key.isDown(27) && !game.mapheld)
@@ -3260,8 +3261,8 @@ void mapinput(void)
         if (game.menupage == 19) game.menupage = 21;
         if (game.menupage == 22) game.menupage = 20;
 
-        if (game.menupage == 29) game.menupage = 32;
-        if (game.menupage == 33) game.menupage = 30;
+        if (game.menupage == 29) game.menupage = supermode::last_pause_page();
+        if (game.menupage == supermode::last_pause_page() + 1) game.menupage = 30;
     }
 }
 
@@ -3379,6 +3380,9 @@ static void mapmenuactionpress(const bool version2_2)
         // Go to quit prompt
         music.playef(Sound_VIRIDIAN);
         game.menupage = 10;
+        break;
+    case 33:
+        supermode::reset_run();
         break;
     }
 }

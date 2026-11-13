@@ -2,6 +2,7 @@
 
 #include <string>
 
+#include "Constants.h"
 #include "Entity.h"
 #include "Enums.h"
 #include "Font.h"
@@ -14,6 +15,7 @@
 #include "Script.h"
 #include "Supertext.h"
 #include "UtilityClass.h"
+#include "VFormat.h"
 
 namespace supermode
 {
@@ -41,6 +43,7 @@ namespace supermode
     static bool countdown_control = false;
     static int popup_timer = 0;
     static std::string popup_text;
+    static int popup_number = 0;
 
     static bool is_ndm_mode(const int mode)
     {
@@ -153,7 +156,7 @@ namespace supermode
             /* Either cutscene choice counts for both. */
             for (int mode = Start_FIRST_NODEATHMODE; mode <= Start_LAST_NODEATHMODE; mode++)
             {
-                if (savestate::exists(make_key(mode, false)))
+                if (savestate::exists_any(make_key(mode, false)))
                 {
                     return true;
                 }
@@ -161,7 +164,7 @@ namespace supermode
             return false;
         }
 
-        return savestate::exists(key());
+        return savestate::exists_any(key());
     }
 
     bool invalid_run(void)
@@ -275,7 +278,7 @@ namespace supermode
 
         if (what == Pending_LOAD)
         {
-            if (savestate::load(key()) && !super_setting)
+            if (savestate::load(key(), savestate::last(key())) && !super_setting)
             {
                 begin_countdown();
             }
@@ -348,7 +351,20 @@ namespace supermode
             && !map.custommode
             && current_mode != -1
             && allow_setting
-            && savestate::exists(key());
+            && savestate::last(key()) != -1;
+    }
+
+    void death_music(void)
+    {
+        if (loads_state_on_death())
+        {
+            return;
+        }
+
+        music.fadeout();
+
+        /* Fix a bug being able to play music on the Game Over screen */
+        music.nicefade = false;
     }
 
     bool death_exit(void)
@@ -393,9 +409,86 @@ namespace supermode
         return false;
     }
 
+    bool reset_run_available(void)
+    {
+        return super_setting
+            && in_context()
+            && is_main_mode(current_mode)
+            && !game.inspecial()
+            && game.unlock[UnlockTrophy_GAME_COMPLETE];
+    }
+
+    int last_pause_page(void)
+    {
+        return reset_run_available() ? 33 : 32;
+    }
+
+    const char* reset_run_text(void)
+    {
+        return supertext::get("reset run");
+    }
+
+    /* The same unlocks as the "unlock play modes" accessibility menu. */
+    static void unlock_play_modes(void)
+    {
+        static const int unlocks[] = {
+            Unlock_TIMETRIAL_SPACESTATION1,
+            Unlock_TIMETRIAL_LABORATORY,
+            Unlock_TIMETRIAL_TOWER,
+            Unlock_TIMETRIAL_SPACESTATION2,
+            Unlock_TIMETRIAL_WARPZONE,
+            Unlock_TIMETRIAL_FINALLEVEL,
+            Unlock_INTERMISSION_REPLAYS,
+            Unlock_NODEATHMODE,
+            Unlock_FLIPMODE,
+            Unlock_SECRETLAB
+        };
+
+        for (size_t i = 0; i < sizeof(unlocks) / sizeof(unlocks[0]); i++)
+        {
+            game.unlock[unlocks[i]] = true;
+            game.unlocknotify[unlocks[i]] = true;
+        }
+        game.unlock[Unlock_INTERMISSION1_COMPLETE] = true;
+        game.unlock[Unlock_INTERMISSION2_COMPLETE] = true;
+        game.stat_trinkets = 20;
+    }
+
+    void reset_run(void)
+    {
+        if (!reset_run_available())
+        {
+            return;
+        }
+
+        if (game.last_quicksave.exists)
+        {
+            game.deletequick();
+        }
+        if (game.last_telesave.exists)
+        {
+            game.deletetele();
+        }
+
+        unlock_play_modes();
+        game.savestatsandsettings_menu();
+
+        music.playef(Sound_VIRIDIAN);
+        game.quittomenu();
+        music.play(Music_PRESENTINGVVVVVV);
+    }
+
     void popup(const char* text)
     {
         popup_text = text;
+        popup_number = 0;
+        popup_timer = POPUP_FRAMES;
+    }
+
+    void popup_state(const char* text, const int number)
+    {
+        popup_text = text;
+        popup_number = number;
         popup_timer = POPUP_FRAMES;
     }
 
@@ -406,7 +499,15 @@ namespace supermode
             return false;
         }
 
-        graphics.render_roomname(PR_FONT_INTERFACE, supertext::get(popup_text.c_str()), 196, 196, 255);
+        char buffer[SCREEN_WIDTH_CHARS + 1];
+        const char* text = supertext::get(popup_text.c_str());
+        if (popup_number > 0)
+        {
+            vformat_buf(buffer, sizeof(buffer), text, "n:int", popup_number);
+            text = buffer;
+        }
+
+        graphics.render_roomname(PR_FONT_INTERFACE, text, 196, 196, 255);
         return true;
     }
 

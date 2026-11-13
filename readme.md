@@ -26,18 +26,18 @@ It uses the same save and settings folder as the original game.
 ## Savestates
 | Key | Action |
 | --- | --- |
-| `Shift` + `` ` `` (`~`) | Save state |
-| `` ` `` (`~`) | Load state |
+| `Shift` + `1` `2` `3` | Save state 1, 2 or 3 |
+| `1` `2` `3` | Load state 1, 2 or 3 |
 
-The key is the one left of `1`. Ctrl or Alt held does nothing.
+The keys are the number row. Ctrl or Alt held does nothing.
 
 - Off by default. Turn them on with `allow savestates` in the Super menu.
 - Saves the full in-game state: trinkets, room, position, checkpoint, gravity, entities, script progress and music. The timer is not saved or loaded, it keeps running.
 - Active in the main game, time trials, intermission replays and No Death Mode.
-- One slot per mode: the main game (new game, continue and quicksave share it), each time trial, each intermission replay, No Death Mode with cutscenes and without. Time trials and intermissions with Super mode on have their own slots.
+- Three slots per mode: the main game (new game, continue and quicksave share it), each time trial, each intermission replay, No Death Mode with cutscenes and without. Time trials and intermissions with Super mode on have their own slots.
 - Slots are kept while the game runs, also across leaving and entering levels. Nothing is saved to disk.
 - A state loads only in the mode it was saved in. Saving is ignored during the death animation and during the countdown after a load.
-- Save and load show a message in place of the room name.
+- Save and load show a message in place of the room name, for example `State 1 saved`, `State 2 loaded`, `State 3 empty`.
 
 ## Super menu
 The first entry of the options menu, in the main menu and in the game (`Esc` > `options`). Everything is off when the game starts.
@@ -49,7 +49,7 @@ The first entry of the options menu, in the main menu and in the game (`Esc` > `
 | `delete savestates` | Delete all states in all modes. |
 
 ## Dying with a state
-Applies where dying would end the run: No Death Mode, and time trials and intermission replays with Super mode on. Needs `allow savestates` and a state for the current mode. The main game and time trials without Super mode keep the original respawn.
+Applies where dying would end the run: No Death Mode, and time trials and intermission replays with Super mode on. Needs `allow savestates` and a state for the current mode. It loads the state that was saved or loaded last, of any slot. The main game and time trials without Super mode keep the original respawn.
 
 | Super mode | Delay | After the load |
 | --- | --- | --- |
@@ -61,9 +61,14 @@ With a state the music is not faded out on death. Loading a state restarts the m
 Without a state (or with savestates off), No Death Mode ends the run as in the original game, except with Super mode on: see below.
 
 ## Super mode
-- Main game: no effect, and it does not make a run invalid.
+- Main game: adds `reset run` to the pause menu (see below). It does not make a run invalid.
 - No Death Mode: dying with a state loads it (see above). Without a state, 0.5 s after dying the game leaves the run without the fade and the game over screen, and opens the cutscene choice screen of No Death Mode. Gameplay is not affected.
 - Time trials and intermission replays: No Death Mode rules (no checkpoints, no cutscenes). Without a state, dying restarts the level at its start 0.5 s later, without the fade. Time trials use a 1 s countdown. The timer restarts.
+
+## Reset run
+In the main game with Super mode on, the pause menu (`Esc`) has `reset run` below `quit to menu`. It is there only in a main game run and only if the game was completed once (the Game Complete trophy). It has no confirmation.
+
+It deletes the teleporter and quick save files, unlocks everything of `accessibility` > `unlock play modes` (all time trials, intermission replays, No Death Mode, flip mode, ship jukebox, secret lab) and goes to the menu without the fade out. That is the play menu, one step before a new run. Savestates are kept, so a new run with states is invalid as described below.
 
 ## Valid runs
 A run is invalid if any of these is true:
