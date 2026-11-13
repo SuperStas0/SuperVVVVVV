@@ -275,7 +275,7 @@ namespace supermode
 
         if (what == Pending_LOAD)
         {
-            if (savestate::load(key(), true) && !super_setting)
+            if (savestate::load(key()) && !super_setting)
             {
                 begin_countdown();
             }
@@ -342,6 +342,15 @@ namespace supermode
         game.mapheld = true;
     }
 
+    bool loads_state_on_death(void)
+    {
+        return game.nodeathmode
+            && !map.custommode
+            && current_mode != -1
+            && allow_setting
+            && savestate::exists(key());
+    }
+
     bool death_exit(void)
     {
         if (!game.nodeathmode
@@ -363,7 +372,7 @@ namespace supermode
             return true;
         }
 
-        if (allow_setting && savestate::exists(key()))
+        if (loads_state_on_death())
         {
             pending = Pending_LOAD;
             return true;

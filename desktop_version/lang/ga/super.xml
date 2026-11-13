@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Texts added by SuperVVVVVV. Same format as strings.xml. Leave translation empty to keep the English text. -->
+<strings>
+    <string english="super" translation="" explanation="in-game options menu item, opens the Super menu"/>
+    <string english="super mode" translation="" explanation="Super menu item, toggles Super mode"/>
+    <string english="allow savestates" translation="" explanation="Super menu item, toggles the save and load keys"/>
+    <string english="delete savestates" translation="" explanation="Super menu item, deletes all saved states"/>
+    <string english="load state: `" translation="" explanation="Super menu line, not selectable. ` is the key left of 1"/>
+    <string english="save state: shift + `" translation="" explanation="Super menu line, not selectable. ` is the key left of 1"/>
+    <string english="Super" translation="" explanation="title of the Super menu and of its entry in the options menu"/>
+    <string english="Super mode and savestates." translation="" explanation="description in the options menu when the Super item is selected"/>
+    <string english="Super mode:" translation="" explanation="Super menu status line, followed by ON or OFF"/>
+    <string english="Savestates:" translation="" explanation="Super menu status line, followed by ON or OFF and the number of saved states"/>
+    <string english="ON" translation="" explanation="Super menu status value"/>
+    <string english="OFF" translation="" explanation="Super menu status value"/>
+    <string english="NDM + super mode: valid" translation="" explanation="Super menu info line. NDM = No Death Mode"/>
+    <string english="Time trial + super mode: not valid" translation="" explanation="Super menu info line"/>
+    <string english="Any savestate: not valid" translation="" explanation="Super menu info line"/>
+    <string english="State saved" translation="" explanation="popup in place of the room name"/>
+    <string english="State loaded" translation="" explanation="popup in place of the room name"/>
+    <string english="No saved state" translation="" explanation="popup in place of the room name"/>
+    <string english="Super mode on" translation="" explanation="popup in place of the room name"/>
+    <string english="Super mode off" translation="" explanation="popup in place of the room name"/>
+    <string english="Savestates on" translation="" explanation="popup in place of the room name"/>
+    <string english="Savestates off" translation="" explanation="popup in place of the room name"/>
+    <string english="Savestates deleted" translation="" explanation="popup in place of the room name"/>
+</strings>

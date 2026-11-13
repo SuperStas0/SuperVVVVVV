@@ -273,17 +273,11 @@ namespace savestate
         return true;
     }
 
-    static void restore_music(const int song, const bool force)
+    static void restore_music(const int song)
     {
-        if (!force && music.currentsong == song)
+        if (music.currentsong == song)
         {
             return;
-        }
-
-        if (force)
-        {
-            /* Also stops a fade out that is still running. */
-            music.haltdasmusik();
         }
 
         if (song == -1)
@@ -307,7 +301,7 @@ namespace savestate
         music.play(track);
     }
 
-    bool load(const int key, const bool force_music)
+    bool load(const int key)
     {
         std::map<int, Slot>::iterator it = slots.find(key);
         if (it == slots.end())
@@ -334,7 +328,7 @@ namespace savestate
         game.jumpheld = true;
         game.jumppressed = 0;
 
-        restore_music(slot.song, force_music);
+        restore_music(slot.song);
 
         loaded_this_run = true;
         supermode::cancel_countdown();
@@ -370,7 +364,7 @@ namespace savestate
                 supermode::popup("State saved");
             }
         }
-        else if (load(supermode::key(), false))
+        else if (load(supermode::key()))
         {
             supermode::popup("State loaded");
         }

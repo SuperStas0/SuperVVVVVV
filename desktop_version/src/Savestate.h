@@ -24,9 +24,9 @@ namespace savestate
     /* Returns false if there is nothing to save right now. */
     bool save(int key);
 
-    /* Returns false if the slot is empty. force_music restarts the music
-     * even if the same song is already playing. */
-    bool load(int key, bool force_music);
+    /* Returns false if the slot is empty. The music restarts only if the
+     * saved song is not the one playing. */
+    bool load(int key);
 }
 
 #endif /* SAVESTATE_H */

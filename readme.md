@@ -56,6 +56,8 @@ Applies where dying would end the run: No Death Mode, and time trials and interm
 | off | original death delay (1 s) | 1 s countdown without control, then `Go!` |
 | on | 0.5 s | none |
 
+With a state the music is not faded out on death. Loading a state restarts the music only if its song differs from the one playing.
+
 Without a state (or with savestates off), No Death Mode ends the run as in the original game, except with Super mode on: see below.
 
 ## Super mode
@@ -76,10 +78,14 @@ Super mode in No Death Mode does not make a run invalid.
 # Translations
 Texts added by SuperVVVVVV are translated with `lang\<code>\super.xml`, in the same format as the game's `strings.xml`. Missing or empty translations stay English. Official texts stay in the game's own `strings.xml`.
 
-To add a language:
-1. Copy `desktop_version\lang\en\super.xml` to `desktop_version\lang\<code>\super.xml`. `<code>` is the folder name the game uses for that language. The language must already exist in the game.
+`desktop_version\lang` has one folder per game language, each with only `super.xml`. All of them are copies of the English file except `uk`.
+
+To translate a language:
+1. Open `desktop_version\lang\<code>\super.xml`.
 2. Fill the `translation` attributes. Keep the `english` attributes unchanged.
 3. Run `build.bat -r`, or copy the file into the game's `lang\<code>\` folder.
+
+For a language without a folder, create `desktop_version\lang\<code>\` and copy `super.xml` from `en`. `<code>` is the folder name the game uses for that language, and the language must already exist in the game.
 
 # Autosplitter
 `LiveSplit.VVVVVV.asl` is the VVVVVV autosplitter with SuperVVVVVV support. Game time and settings are unchanged. Start, split and reset work as in the original, except in invalid runs (see Invalid runs). Its source is `autosplitter\LiveSplit.VVVVVV.asl`; `build.bat` copies it to `build\` and `-r` adds it to the release archive.

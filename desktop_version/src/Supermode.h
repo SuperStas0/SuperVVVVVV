@@ -55,6 +55,10 @@ namespace supermode
      * it took over, so the original handling must be skipped. */
     bool death_exit(void);
 
+    /* Dying will load the saved state of the run. The death then leaves the
+     * music alone. */
+    bool loads_state_on_death(void);
+
     /* Message in place of the room name. text is a key of supertext. */
     void popup(const char* text);
     bool render_popup(void);

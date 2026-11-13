@@ -5342,11 +5342,15 @@ void Game::deathsequence(void)
     {
         if (nodeathmode)
         {
-            music.fadeout();
             gameoverdelay = 60;
 
-            /* Fix a bug being able to play music on the Game Over screen */
-            music.nicefade = false;
+            if (!supermode::loads_state_on_death())
+            {
+                music.fadeout();
+
+                /* Fix a bug being able to play music on the Game Over screen */
+                music.nicefade = false;
+            }
         }
         deathcounts++;
         music.playef(Sound_CRY);
