@@ -66,9 +66,11 @@ Without a state (or with savestates off), No Death Mode ends the run as in the o
 - Time trials and intermission replays: No Death Mode rules (no checkpoints, no cutscenes). Without a state, dying restarts the level at its start 0.5 s later, without the fade. Time trials use a 1 s countdown. The timer restarts.
 
 ## Reset run
-In the main game with Super mode on, the pause menu (`Esc`) has `reset run` below `quit to menu`. It is there only in a main game run and only if the game was completed once (the Game Complete trophy). It has no confirmation.
+In the main game with Super mode on, the pause menu (`Esc`) has `reset run` below `quit to menu`. It is there only in a main game run.
 
-It deletes the teleporter and quick save files, unlocks everything of `accessibility` > `unlock play modes` (all time trials, intermission replays, No Death Mode, flip mode, ship jukebox, secret lab) and goes to the menu without the fade out. That is the play menu, one step before a new run. Savestates are kept, so a new run with states is invalid as described below.
+It deletes the teleporter and quick save files, unlocks everything of `accessibility` > `unlock play modes` (all time trials, intermission replays, No Death Mode, flip mode, ship jukebox, secret lab) and goes to the main menu without a fade. Savestates are kept, so a new run with states is invalid as described below.
+
+If the game was never completed (no Game Complete trophy), a page asks for confirmation first (`This should not be used by vanilla players`), with `yes, reset run` selected. After `yes` it is not asked again until the game is closed.
 
 ## Valid runs
 A run is invalid if any of these is true:

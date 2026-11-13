@@ -64,13 +64,19 @@ namespace supermode
     void death_music(void);
 
     /* Pause menu entry of Super mode in the main game: deletes the save files,
-     * unlocks all play modes and goes to the menu right before a new run. */
+     * unlocks all play modes and goes to the main menu without a fade. Without
+     * the Game Complete trophy, a confirmation page comes first, until it was
+     * agreed to once. */
     bool reset_run_available(void);
     const char* reset_run_text(void);
-    void reset_run(void);
 
     /* Last page of the pause menu: 32, or 33 with the reset run entry. */
     int last_pause_page(void);
+
+    /* Action key on the reset run entry (page 33) and on its confirmation
+     * pages (36 and 37). */
+    void pause_page_action(void);
+    void render_reset_prompt(int selection_offset);
 
     /* Message in place of the room name. text is a key of supertext. */
     void popup(const char* text);

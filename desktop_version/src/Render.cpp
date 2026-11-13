@@ -3484,6 +3484,10 @@ void maprender(void)
             font::print(PR_RTL_XFLIP, 80+32-selection_offset, 142, loc::gettext("[ YES, QUIT TO MENU ]"), 196, 196, 255 - help.glow);
         }
         break;
+    case 36:
+    case 37:
+        supermode::render_reset_prompt(selection_offset);
+        break;
     case 20:
         font::print(PR_CEN | PR_CJK_LOW, -1, 220, loc::gettext("[ GRAVITRON ]"), 196, 196, 255 - help.glow);
 

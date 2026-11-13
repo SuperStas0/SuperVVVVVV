@@ -414,9 +414,16 @@ namespace supermode
         return super_setting
             && in_context()
             && is_main_mode(current_mode)
-            && !game.inspecial()
-            && game.unlock[UnlockTrophy_GAME_COMPLETE];
+            && !game.inspecial();
     }
+
+    /* The pages of the confirmation, shown before the first use in a save
+     * without the Game Complete trophy. */
+    static const int PAGE_RESET = 33;
+    static const int PAGE_CONFIRM_NO = 36;
+    static const int PAGE_CONFIRM_YES = 37;
+
+    static bool reset_confirmed = false;
 
     int last_pause_page(void)
     {
@@ -454,7 +461,7 @@ namespace supermode
         game.stat_trinkets = 20;
     }
 
-    void reset_run(void)
+    static void reset_run(void)
     {
         if (!reset_run_available())
         {
@@ -475,7 +482,69 @@ namespace supermode
 
         music.playef(Sound_VIRIDIAN);
         game.quittomenu();
+        game.createmenu(Menu::mainmenu);
+        graphics.fademode = FADE_NONE;
         music.play(Music_PRESENTINGVVVVVV);
+    }
+
+    void pause_page_action(void)
+    {
+        switch (game.menupage)
+        {
+        case PAGE_RESET:
+            if (game.unlock[UnlockTrophy_GAME_COMPLETE] || reset_confirmed)
+            {
+                reset_run();
+            }
+            else
+            {
+                music.playef(Sound_VIRIDIAN);
+                game.menupage = PAGE_CONFIRM_YES;
+            }
+            break;
+        case PAGE_CONFIRM_NO:
+            music.playef(Sound_VIRIDIAN);
+            game.menupage = PAGE_RESET;
+            break;
+        case PAGE_CONFIRM_YES:
+            reset_confirmed = true;
+            reset_run();
+            break;
+        }
+    }
+
+    static void selected_label(char* buffer, const size_t size, const char* text)
+    {
+        vformat_buf(buffer, size, loc::get_langmeta()->menu_select.c_str(), "label:str", loc::toupper(text).c_str());
+    }
+
+    void render_reset_prompt(const int selection_offset)
+    {
+        const bool yes_selected = game.menupage == PAGE_CONFIRM_YES;
+        const bool flip = graphics.flipmode;
+        const int glow = help.glow;
+        const char* no_text = supertext::get("no, go back");
+        const char* yes_text = supertext::get("yes, reset run");
+        char buffer[SCREEN_WIDTH_CHARS + 1];
+
+        selected_label(buffer, sizeof(buffer), supertext::get("reset run"));
+        font::print(PR_CEN | PR_CJK_LOW, -1, 220, buffer, 196, 196, 255 - glow);
+        font::print_wrap(PR_CEN, -1, flip ? 142 : 76, supertext::get("This should not be used by vanilla players"), 196, 196, 255 - glow, 12);
+
+        const int no_y = flip ? 88 : 130;
+        const int yes_y = flip ? 76 : 142;
+        if (yes_selected)
+        {
+            font::print(PR_RTL_XFLIP, 80, no_y, no_text, 96, 96, 96);
+            selected_label(buffer, sizeof(buffer), yes_text);
+            font::print(PR_RTL_XFLIP, 80 + 32 - selection_offset, yes_y, buffer, 196, 196, 255 - glow);
+        }
+        else
+        {
+            selected_label(buffer, sizeof(buffer), no_text);
+            font::print(PR_RTL_XFLIP, 80 - selection_offset, no_y, buffer, 196, 196, 255 - glow);
+            font::print(PR_RTL_XFLIP, 80 + 32, yes_y, yes_text, 96, 96, 96);
+        }
     }
 
     void popup(const char* text)

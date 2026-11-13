@@ -3175,7 +3175,7 @@ void mapinput(void)
         }
         if (game.menupage < 12
         || (game.menupage >= 20 && game.menupage <= 21)
-        || (game.menupage >= 30 && game.menupage <= 33))
+        || (game.menupage >= 30 && game.menupage <= 37))
         {
             if (key.isDown(KEYBOARD_ENTER) || key.isDown(game.controllerButton_map) ) game.press_map = true;
             if (key.isDown(27) && !game.mapheld)
@@ -3189,6 +3189,10 @@ void mapinput(void)
                 else if (game.menupage < 12)
                 {
                     game.menupage = 32;
+                }
+                else if (game.menupage >= 36)
+                {
+                    game.menupage = 33;
                 }
                 else
                 {
@@ -3263,6 +3267,8 @@ void mapinput(void)
 
         if (game.menupage == 29) game.menupage = supermode::last_pause_page();
         if (game.menupage == supermode::last_pause_page() + 1) game.menupage = 30;
+        if (game.menupage == 35) game.menupage = 37;
+        if (game.menupage == 38) game.menupage = 36;
     }
 }
 
@@ -3382,7 +3388,9 @@ static void mapmenuactionpress(const bool version2_2)
         game.menupage = 10;
         break;
     case 33:
-        supermode::reset_run();
+    case 36:
+    case 37:
+        supermode::pause_page_action();
         break;
     }
 }

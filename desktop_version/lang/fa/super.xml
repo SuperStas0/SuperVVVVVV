@@ -25,4 +25,7 @@
     <string english="Savestates off" translation="" explanation="popup in place of the room name"/>
     <string english="Savestates deleted" translation="" explanation="popup in place of the room name"/>
     <string english="reset run" translation="" explanation="pause menu item in Super mode, below quit to menu. Deletes the save files, unlocks all play modes and goes to the menu before a new run"/>
+    <string english="no, go back" translation="" explanation="reset run confirmation option, returns to the pause menu"/>
+    <string english="yes, reset run" translation="" explanation="reset run confirmation option"/>
+    <string english="This should not be used by vanilla players" translation="" explanation="reset run confirmation text. Vanilla players are those who play the original game without this mod"/>
 </strings>
