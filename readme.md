@@ -35,12 +35,12 @@ The keys are the number row. Ctrl or Alt held does nothing.
 - Saves the full in-game state: trinkets, room, position, checkpoint, gravity, entities, script progress and music. The timer is not saved or loaded, it keeps running.
 - Active in the main game, time trials, intermission replays and No Death Mode.
 - Three slots per mode: the main game (new game, continue and quicksave share it), each time trial, each intermission replay, No Death Mode with cutscenes and without. Time trials and intermissions with Super mode on have their own slots.
-- Slots are kept while the game runs, also across leaving and entering levels. Nothing is saved to disk.
+- Slots are kept also across leaving and entering levels, and between launches: all slots are in `saves\states.vvv` (about 85 KB per state) in the save folder, written at each save and removed by `delete savestates`. A file that is damaged or from a build with other game data is ignored and replaced on the next save.
 - A state loads only in the mode it was saved in. Saving is ignored during the death animation and during the countdown after a load.
 - Save and load show a message in place of the room name, for example `State 1 saved`, `State 2 loaded`, `State 3 empty`.
 
 ## Super menu
-The first entry of the options menu, in the main menu and in the game (`Esc` > `options`). Everything is off when the game starts.
+The first entry of the options menu, in the main menu and in the game (`Esc` > `options`). Both settings are off at first and are kept between launches in `saves\super.vvv`.
 
 | Item | Action |
 | --- | --- |
@@ -70,7 +70,7 @@ In the main game with Super mode on, the pause menu (`Esc`) has `reset run` belo
 
 It deletes the teleporter and quick save files, unlocks everything of `accessibility` > `unlock play modes` (all time trials, intermission replays, No Death Mode, flip mode, ship jukebox, secret lab) and goes to the main menu without a fade. Savestates are kept, so a new run with states is invalid as described below.
 
-If the game was never completed (no Game Complete trophy), a page asks for confirmation first (`This should not be used by vanilla players`), with `yes, reset run` selected. After `yes` it is not asked again until the game is closed.
+If the game was never completed (no Game Complete trophy), a page asks for confirmation first (`This should not be used by vanilla players`), with `yes, reset run` selected. After `yes` it is not asked again, the agreement is kept in `saves\super.vvv`.
 
 ## Valid runs
 A run is invalid if any of these is true:

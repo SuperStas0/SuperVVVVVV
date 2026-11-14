@@ -7,35 +7,22 @@
 
 #include "Entity.h"
 #include "Enums.h"
+#include "Alloc.h"
+#include "FileSystemUtils.h"
 #include "Game.h"
 #include "Graphics.h"
 #include "Map.h"
 #include "Music.h"
+#include "SavestateIO.h"
 #include "Script.h"
 #include "Supermode.h"
+#include "Vlogging.h"
 
 /* Whole-object snapshots of the gameplay globals. Anything that is a user
  * setting or persistent progress (not part of the run) is kept as-is on load. */
 
 namespace savestate
 {
-    struct GfxState
-    {
-        int rcol;
-        TowerBG towerbg;
-        enum FadeBars fademode;
-        int fadeamount, oldfadeamount;
-        int fadebars[15];
-        enum FadeBars ingame_fademode;
-        bool showcutscenebars;
-        int cutscenebarspos, oldcutscenebarspos;
-        bool trinketcolset;
-        int trinketr, trinketg, trinketb;
-        int linestate, linedelay;
-        int backoffset;
-        std::vector<textboxclass> textboxes;
-    };
-
     struct Persist
     {
         bool muted, musicmuted;
@@ -227,6 +214,204 @@ namespace savestate
         delete slot.script;
     }
 
+    using savestate_io::io;
+
+    static const char* const STATES_FILE = "saves/states.vvv";
+    static const unsigned int FILE_MAGIC = 0x54535653; /* "SVST" */
+    static const unsigned int FILE_VERSION = 1;
+    static bool file_loaded = false;
+
+    static unsigned int checksum(const unsigned char* data, const size_t length)
+    {
+        unsigned int hash = 2166136261u;
+        for (size_t i = 0; i < length; i++)
+        {
+            hash ^= data[i];
+            hash *= 16777619u;
+        }
+        return hash;
+    }
+
+    static void fill_header(unsigned int (&header)[5])
+    {
+        header[0] = FILE_MAGIC;
+        header[1] = FILE_VERSION;
+        header[2] = savestate_io::fields_hash();
+        header[3] = (unsigned int) sizeof(long);
+        header[4] = (unsigned int) sizeof(size_t);
+    }
+
+    static void io_slot(savestate_io::Stream& s, Slot& slot)
+    {
+        io(s, *slot.game);
+        io(s, *slot.map);
+        io(s, *slot.obj);
+        io(s, *slot.script);
+        io(s, slot.roomname);
+        io(s, slot.gfx);
+        io(s, slot.song);
+    }
+
+    static void write_file(void)
+    {
+        if (!FILESYSTEM_isInit())
+        {
+            return;
+        }
+
+        if (slots.empty())
+        {
+            if (FILESYSTEM_isFile(STATES_FILE) && !FILESYSTEM_delete(STATES_FILE))
+            {
+                vlog_error("Error deleting %s", STATES_FILE);
+            }
+            return;
+        }
+
+        savestate_io::Stream s;
+        unsigned int header[5];
+        fill_header(header);
+        io(s, header);
+
+        unsigned int count = (unsigned int) slots.size();
+        io(s, count);
+        for (std::map<int, Slot>::iterator it = slots.begin(); it != slots.end(); ++it)
+        {
+            int index = it->first;
+            io(s, index);
+            io_slot(s, it->second);
+        }
+
+        unsigned int last_count = (unsigned int) last_slots.size();
+        io(s, last_count);
+        for (std::map<int, int>::iterator it = last_slots.begin(); it != last_slots.end(); ++it)
+        {
+            int key = it->first;
+            int slot = it->second;
+            io(s, key);
+            io(s, slot);
+        }
+
+        unsigned int sum = checksum(s.data(), s.size());
+        io(s, sum);
+
+        if (!FILESYSTEM_saveFile(STATES_FILE, s.data(), s.size()))
+        {
+            vlog_error("Could not write %s", STATES_FILE);
+        }
+    }
+
+    static bool parse_file(
+        const unsigned char* mem,
+        const size_t length,
+        std::map<int, Slot>& loaded,
+        std::map<int, int>& loaded_last
+    ) {
+        unsigned int stored;
+        if (length < sizeof(stored))
+        {
+            return false;
+        }
+        SDL_memcpy(&stored, mem + length - sizeof(stored), sizeof(stored));
+        if (checksum(mem, length - sizeof(stored)) != stored)
+        {
+            return false;
+        }
+
+        savestate_io::Stream s(mem, length - sizeof(stored));
+        unsigned int header[5];
+        unsigned int expected[5];
+        io(s, header);
+        fill_header(expected);
+        if (!s.ok() || SDL_memcmp(header, expected, sizeof(header)) != 0)
+        {
+            return false;
+        }
+
+        unsigned int count = 0;
+        io(s, count);
+        if (!s.ok() || count > s.remaining())
+        {
+            return false;
+        }
+        for (unsigned int i = 0; i < count; i++)
+        {
+            int index = 0;
+            io(s, index);
+            if (!s.ok() || index < 0 || loaded.count(index) != 0)
+            {
+                return false;
+            }
+
+            Slot slot;
+            slot.game = new Game(game);
+            slot.map = new mapclass(map);
+            slot.obj = new entityclass(obj);
+            slot.script = new scriptclass(script);
+            slot.song = -1;
+            io_slot(s, slot);
+            if (!s.ok())
+            {
+                free_slot(slot);
+                return false;
+            }
+            loaded[index] = slot;
+        }
+
+        unsigned int last_count = 0;
+        io(s, last_count);
+        if (!s.ok() || last_count > s.remaining())
+        {
+            return false;
+        }
+        for (unsigned int i = 0; i < last_count; i++)
+        {
+            int key = 0;
+            int slot = 0;
+            io(s, key);
+            io(s, slot);
+            loaded_last[key] = slot;
+        }
+
+        return s.ok() && s.remaining() == 0;
+    }
+
+    /* Reads the states of the previous launches, once. A file that does not
+     * fit this build or is damaged is ignored, and replaced on the next save. */
+    static void read_file(void)
+    {
+        if (file_loaded || !FILESYSTEM_isInit())
+        {
+            return;
+        }
+        file_loaded = true;
+
+        unsigned char* mem = NULL;
+        size_t length = 0;
+        FILESYSTEM_loadFileToMemory(STATES_FILE, &mem, &length);
+        if (mem == NULL)
+        {
+            return;
+        }
+
+        std::map<int, Slot> loaded;
+        std::map<int, int> loaded_last;
+        if (parse_file(mem, length, loaded, loaded_last))
+        {
+            slots = loaded;
+            last_slots = loaded_last;
+        }
+        else
+        {
+            vlog_warn("Ignoring %s, it does not match this version", STATES_FILE);
+            for (std::map<int, Slot>::iterator it = loaded.begin(); it != loaded.end(); ++it)
+            {
+                free_slot(it->second);
+            }
+        }
+        VVV_free(mem);
+    }
+
     void note_mode(enum StartMode mode)
     {
         loaded_this_run = false;
@@ -240,6 +425,7 @@ namespace savestate
 
     bool exists(const int key, const int slot)
     {
+        read_file();
         return valid_slot(slot) && slots.count(slot_index(key, slot)) != 0;
     }
 
@@ -257,6 +443,7 @@ namespace savestate
 
     int last(const int key)
     {
+        read_file();
         const std::map<int, int>::const_iterator it = last_slots.find(key);
         if (it == last_slots.end() || !exists(key, it->second))
         {
@@ -267,17 +454,20 @@ namespace savestate
 
     int count(void)
     {
+        read_file();
         return (int) slots.size();
     }
 
     void remove_all(void)
     {
+        read_file();
         for (std::map<int, Slot>::iterator it = slots.begin(); it != slots.end(); ++it)
         {
             free_slot(it->second);
         }
         slots.clear();
         last_slots.clear();
+        write_file();
     }
 
     bool save(const int key, const int slot)
@@ -287,6 +477,8 @@ namespace savestate
         {
             return false;
         }
+
+        read_file();
 
         const int index = slot_index(key, slot);
         std::map<int, Slot>::iterator old = slots.find(index);
@@ -306,6 +498,7 @@ namespace savestate
         data.song = music.currentsong;
         slots[index] = data;
         last_slots[key] = slot;
+        write_file();
         return true;
     }
 
@@ -344,6 +537,7 @@ namespace savestate
             return false;
         }
 
+        read_file();
         std::map<int, Slot>::iterator it = slots.find(slot_index(key, slot));
         if (it == slots.end())
         {
@@ -371,7 +565,11 @@ namespace savestate
 
         restore_music(state.song);
 
-        last_slots[key] = slot;
+        if (last(key) != slot)
+        {
+            last_slots[key] = slot;
+            write_file();
+        }
         loaded_this_run = true;
         supermode::cancel_countdown();
         return true;

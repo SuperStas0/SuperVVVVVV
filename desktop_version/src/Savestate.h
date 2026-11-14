@@ -3,7 +3,8 @@
 
 #include "Script.h"
 
-/* In-memory savestates, SLOTS slots per key. Keys come from supermode::key().
+/* Savestates, SLOTS slots per key, kept in memory and in saves/states.vvv.
+ * Keys come from supermode::key().
  *   1 2 3            load slot 1 2 3
  *   Shift + 1 2 3    save slot 1 2 3 */
 namespace savestate

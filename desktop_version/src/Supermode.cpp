@@ -2,9 +2,12 @@
 
 #include <string>
 
+#include <tinyxml2.h>
+
 #include "Constants.h"
 #include "Entity.h"
 #include "Enums.h"
+#include "FileSystemUtils.h"
 #include "Font.h"
 #include "Game.h"
 #include "Graphics.h"
@@ -16,6 +19,8 @@
 #include "Supertext.h"
 #include "UtilityClass.h"
 #include "VFormat.h"
+#include "Vlogging.h"
+#include "XMLUtils.h"
 
 namespace supermode
 {
@@ -37,6 +42,7 @@ namespace supermode
     static bool trial_super = false;
     static bool super_setting = false;
     static bool allow_setting = false;
+    static bool reset_confirmed = false;
     static Pending pending = Pending_NONE;
     static bool restarting = false;
     static int countdown = 0;
@@ -44,6 +50,77 @@ namespace supermode
     static int popup_timer = 0;
     static std::string popup_text;
     static int popup_number = 0;
+
+    /* The settings and the agreement of the reset run confirmation stay
+     * between launches. They are read when first needed. */
+    static const char* const SETTINGS_FILE = "saves/super.vvv";
+    static bool settings_loaded = false;
+
+    static void store_settings(void)
+    {
+        tinyxml2::XMLDocument doc;
+        xml::update_declaration(doc);
+
+        tinyxml2::XMLElement* root = xml::update_element(doc, "Save");
+        xml::update_comment(root, " Save file ");
+
+        tinyxml2::XMLElement* data = xml::update_element(root, "Data");
+        xml::update_tag(data, "supermode", super_setting ? 1 : 0);
+        xml::update_tag(data, "allowstates", allow_setting ? 1 : 0);
+        xml::update_tag(data, "resetconfirmed", reset_confirmed ? 1 : 0);
+
+        if (!FILESYSTEM_saveTiXml2Document(SETTINGS_FILE, doc))
+        {
+            vlog_error("Could not write %s", SETTINGS_FILE);
+        }
+    }
+
+    static void load_settings(void)
+    {
+        if (settings_loaded || !FILESYSTEM_isInit())
+        {
+            return;
+        }
+        settings_loaded = true;
+
+        tinyxml2::XMLDocument doc;
+        if (!FILESYSTEM_loadTiXml2Document(SETTINGS_FILE, doc))
+        {
+            return;
+        }
+        if (doc.Error())
+        {
+            vlog_error("Error parsing %s: %s", SETTINGS_FILE, doc.ErrorStr());
+            return;
+        }
+
+        tinyxml2::XMLHandle hDoc(&doc);
+        tinyxml2::XMLElement* element = hDoc
+            .FirstChildElement()
+            .FirstChildElement("Data")
+            .FirstChildElement()
+            .ToElement();
+
+        for (; element != NULL; element = element->NextSiblingElement())
+        {
+            const char* name = element->Value();
+            const char* text = element->GetText();
+            const bool on = text != NULL && SDL_atoi(text) != 0;
+
+            if (SDL_strcmp(name, "supermode") == 0)
+            {
+                super_setting = on;
+            }
+            else if (SDL_strcmp(name, "allowstates") == 0)
+            {
+                allow_setting = on;
+            }
+            else if (SDL_strcmp(name, "resetconfirmed") == 0)
+            {
+                reset_confirmed = on;
+            }
+        }
+    }
 
     static bool is_ndm_mode(const int mode)
     {
@@ -86,6 +163,7 @@ namespace supermode
 
     void note_mode(enum StartMode mode)
     {
+        load_settings();
         current_mode = (int) mode;
         trial_super = super_setting && is_trial_mode(current_mode);
         pending = Pending_NONE;
@@ -103,6 +181,7 @@ namespace supermode
 
     bool states_allowed(void)
     {
+        load_settings();
         return allow_setting && in_run() && pending == Pending_NONE;
     }
 
@@ -118,23 +197,29 @@ namespace supermode
 
     bool super_mode(void)
     {
+        load_settings();
         return super_setting;
     }
 
     bool allow_states(void)
     {
+        load_settings();
         return allow_setting;
     }
 
     void toggle_super(void)
     {
+        load_settings();
         super_setting = !super_setting;
+        store_settings();
         popup(super_setting ? "Super mode on" : "Super mode off");
     }
 
     void toggle_allow(void)
     {
+        load_settings();
         allow_setting = !allow_setting;
+        store_settings();
         popup(allow_setting ? "Savestates on" : "Savestates off");
     }
 
@@ -411,6 +496,7 @@ namespace supermode
 
     bool reset_run_available(void)
     {
+        load_settings();
         return super_setting
             && in_context()
             && is_main_mode(current_mode)
@@ -422,8 +508,6 @@ namespace supermode
     static const int PAGE_RESET = 33;
     static const int PAGE_CONFIRM_NO = 36;
     static const int PAGE_CONFIRM_YES = 37;
-
-    static bool reset_confirmed = false;
 
     int last_pause_page(void)
     {
@@ -489,6 +573,7 @@ namespace supermode
 
     void pause_page_action(void)
     {
+        load_settings();
         switch (game.menupage)
         {
         case PAGE_RESET:
@@ -508,6 +593,7 @@ namespace supermode
             break;
         case PAGE_CONFIRM_YES:
             reset_confirmed = true;
+            store_settings();
             reset_run();
             break;
         }

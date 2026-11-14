@@ -104,6 +104,8 @@ set(VVV_CXX_SRC
     src/RenderFixed.cpp
     src/RoomnameTranslator.cpp
     src/Savestate.cpp
+    src/SavestateFields.cpp
+    src/SavestateIO.cpp
     src/Supermenu.cpp
     src/Supermode.cpp
     src/Supertext.cpp
