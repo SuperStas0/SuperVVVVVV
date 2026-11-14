@@ -963,10 +963,8 @@ reset {
 	var cur = version == "split" ? vars.cur : current;
 	var prev = version == "split" ? vars.old : old;
 
-	// Modded build: once the run was invalid, the timer is never reset automatically
-	if (version == "split" && vars.runInvalid) {
-		return false;
-	}
+	// Modded build: once the run was invalid, only exiting to the menu resets the timer
+	var invalid = version == "split" && vars.runInvalid;
 
 	if (version == "v2.4" || version == "v2.4.1" || version == "v2.4.2" || version == "v2.4.3" || version == "v2.4.4" || version == "split") {
 		// menustate values:
@@ -984,12 +982,12 @@ reset {
 			if (prev.menustate == 0 || prev.menustate == 2 || prev.menustate == 3 || (prev.menustate == 1 && prev.ingame_titlemode)) {
 				// Reset on exiting to menu
 				vars.isInTimeTrial = false;
-				return settings[vars.menuReset] || settings[vars.ils];
+				return settings[vars.menuReset] || settings[vars.ils] || invalid;
 			}
 		}
 
 		if (cur.timetrialcountdown > 30 && prev.timetrialcountdown <= 30) {
-			return settings[vars.ils];
+			return settings[vars.ils] && !invalid;
 		}
 
 		return false;

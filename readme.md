@@ -115,7 +115,7 @@ Based on [tzann/Autosplitters](https://github.com/tzann/Autosplitters).
 ## Invalid runs
 With a SuperVVVVVV build, an invalid run (see Valid runs) is handled like this:
 - Invalid from the start: the timer does not start.
-- Invalid after the start: the timer keeps running and is never split or reset automatically. Split and reset it manually. This lasts until the timer is started again.
+- Invalid after the start: the timer keeps running and is never split automatically, and the level restart of a time trial does not reset it. Leaving the run (quit to menu, `reset run`, credits) resets the timer, also when `Reset on exiting to menu` is off. Split it manually if needed. This lasts until the timer is started again.
 - Use `VVVVVV.exe` and `LiveSplit.VVVVVV.asl` from the same release.
 
 ## Changing the game
