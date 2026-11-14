@@ -579,6 +579,7 @@ namespace savestate
     {
         static const SDL_Scancode keys[SLOTS] = {SDL_SCANCODE_1, SDL_SCANCODE_2, SDL_SCANCODE_3};
         static bool was_down[SLOTS] = {false, false, false};
+        static bool last_was_down = false;
 
         supermode::update();
 
@@ -594,7 +595,12 @@ namespace savestate
             was_down[slot] = down;
         }
 
-        if (pressed_slot == -1 || !supermode::states_allowed())
+        /* The backtick key loads the state that dying would load. */
+        const bool last_down = keystate[SDL_SCANCODE_GRAVE] != 0;
+        const bool last_pressed = last_down && !last_was_down;
+        last_was_down = last_down;
+
+        if ((pressed_slot == -1 && !last_pressed) || !supermode::states_allowed())
         {
             return;
         }
@@ -602,6 +608,25 @@ namespace savestate
         const int mods = SDL_GetModState();
         if ((mods & (KMOD_CTRL | KMOD_ALT)) != 0)
         {
+            return;
+        }
+
+        if (pressed_slot == -1)
+        {
+            if ((mods & KMOD_SHIFT) != 0)
+            {
+                return;
+            }
+
+            const int last_slot = last(supermode::key());
+            if (last_slot != -1 && load(supermode::key(), last_slot))
+            {
+                supermode::popup_state("State {n} loaded", last_slot + 1);
+            }
+            else
+            {
+                supermode::popup("No state to load");
+            }
             return;
         }
 

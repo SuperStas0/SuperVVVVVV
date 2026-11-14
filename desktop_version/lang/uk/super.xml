@@ -19,6 +19,7 @@
     <string english="State {n} saved" translation="Стан {n} збережено" explanation="popup in place of the room name. {n} is the slot number, 1 to 3"/>
     <string english="State {n} loaded" translation="Стан {n} завантажено" explanation="popup in place of the room name. {n} is the slot number, 1 to 3"/>
     <string english="State {n} empty" translation="Стан {n} порожній" explanation="popup in place of the room name. {n} is the slot number, 1 to 3"/>
+    <string english="No state to load" translation="Немає збереженого стану" explanation="popup in place of the room name, when the backtick key finds no saved or loaded state"/>
     <string english="Super mode on" translation="Суперрежим увімкнено" explanation="popup in place of the room name"/>
     <string english="Super mode off" translation="Суперрежим вимкнено" explanation="popup in place of the room name"/>
     <string english="Savestates on" translation="Стани збереження увімкнені" explanation="popup in place of the room name"/>

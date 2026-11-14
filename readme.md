@@ -28,8 +28,9 @@ It uses the same save and settings folder as the original game.
 | --- | --- |
 | `Shift` + `1` `2` `3` | Save state 1, 2 or 3 |
 | `1` `2` `3` | Load state 1, 2 or 3 |
+| `` ` `` | Load the state that was saved or loaded last, as dying does. Shows `No state to load` if there is none |
 
-The keys are the number row. Ctrl or Alt held does nothing.
+The keys are the number row and the backtick key. Ctrl or Alt held does nothing, and Shift does nothing with the backtick key.
 
 - Off by default. Turn them on with `allow savestates` in the Super menu.
 - Saves the full in-game state: trinkets, room, position, checkpoint, gravity, entities, script progress and music. The timer is not saved or loaded, it keeps running.
@@ -68,7 +69,7 @@ Without a state (or with savestates off), No Death Mode ends the run as in the o
 ## Reset run
 In the main game with Super mode on, the pause menu (`Esc`) has `reset run` below `quit to menu`. It is there only in a main game run.
 
-It deletes the teleporter and quick save files, unlocks everything of `accessibility` > `unlock play modes` (all time trials, intermission replays, No Death Mode, flip mode, ship jukebox, secret lab) and goes to the main menu without a fade. Savestates are kept, so a new run with states is invalid as described below.
+It deletes the teleporter and quick save files, unlocks everything of `accessibility` > `unlock play modes` (all time trials, intermission replays, No Death Mode, flip mode, ship jukebox, secret lab) and goes to the play menu (`new game`, `secret lab`, `play modes`) without a fade. `Esc` there returns to the main menu. Savestates are kept, so a new run with states is invalid as described below.
 
 If the game was never completed (no Game Complete trophy), a page asks for confirmation first (`This should not be used by vanilla players`), with `yes, reset run` selected. After `yes` it is not asked again, the agreement is kept in `saves\super.vvv`.
 

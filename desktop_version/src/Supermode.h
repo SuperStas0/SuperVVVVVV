@@ -64,7 +64,7 @@ namespace supermode
     void death_music(void);
 
     /* Pause menu entry of Super mode in the main game: deletes the save files,
-     * unlocks all play modes and goes to the main menu without a fade. Without
+     * unlocks all play modes and goes to the play menu without a fade. Without
      * the Game Complete trophy, a confirmation page comes first, until it was
      * agreed to once. */
     bool reset_run_available(void);

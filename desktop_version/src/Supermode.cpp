@@ -567,6 +567,8 @@ namespace supermode
         music.playef(Sound_VIRIDIAN);
         game.quittomenu();
         game.createmenu(Menu::mainmenu);
+        game.createmenu(Menu::play);
+        map.nexttowercolour();
         graphics.fademode = FADE_NONE;
         music.play(Music_PRESENTINGVVVVVV);
     }

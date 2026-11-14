@@ -19,6 +19,7 @@
     <string english="State {n} saved" translation="" explanation="popup in place of the room name. {n} is the slot number, 1 to 3"/>
     <string english="State {n} loaded" translation="" explanation="popup in place of the room name. {n} is the slot number, 1 to 3"/>
     <string english="State {n} empty" translation="" explanation="popup in place of the room name. {n} is the slot number, 1 to 3"/>
+    <string english="No state to load" translation="" explanation="popup in place of the room name, when the backtick key finds no saved or loaded state"/>
     <string english="Super mode on" translation="" explanation="popup in place of the room name"/>
     <string english="Super mode off" translation="" explanation="popup in place of the room name"/>
     <string english="Savestates on" translation="" explanation="popup in place of the room name"/>
