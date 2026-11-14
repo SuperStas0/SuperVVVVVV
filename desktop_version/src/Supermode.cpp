@@ -482,8 +482,8 @@ namespace supermode
         load_settings();
         return super_setting
             && in_context()
-            && (is_main_mode(current_mode) || is_ndm_mode(current_mode))
-            && !game.inspecial();
+            && ((is_main_mode(current_mode) && !game.inspecial())
+                || (is_ndm_mode(current_mode) && game.nodeathmode));
     }
 
     /* The pages of the confirmation, shown before the first use in a save
