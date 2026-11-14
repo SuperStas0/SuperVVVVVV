@@ -5,9 +5,9 @@
 #include <string>
 #include <vector>
 
+#include "Alloc.h"
 #include "Entity.h"
 #include "Enums.h"
-#include "Alloc.h"
 #include "FileSystemUtils.h"
 #include "Game.h"
 #include "Graphics.h"
@@ -16,6 +16,7 @@
 #include "SavestateIO.h"
 #include "Script.h"
 #include "Supermode.h"
+#include "UtilityClass.h"
 #include "Vlogging.h"
 
 /* Whole-object snapshots of the gameplay globals. Anything that is a user
@@ -44,6 +45,7 @@ namespace savestate
         std::map<std::string, int> customlevelstats;
         bool invincibility;
         int frames, seconds, minutes, hours;
+        bool timetrialparlost;
     };
 
     static void persist_capture(Persist& p)
@@ -85,6 +87,7 @@ namespace savestate
         p.seconds = game.seconds;
         p.minutes = game.minutes;
         p.hours = game.hours;
+        p.timetrialparlost = game.timetrialparlost;
     }
 
     static void persist_apply(const Persist& p)
@@ -126,6 +129,23 @@ namespace savestate
         game.seconds = p.seconds;
         game.minutes = p.minutes;
         game.hours = p.hours;
+        game.timetrialparlost = p.timetrialparlost;
+    }
+
+    /* The timer is not part of a state, so losing the par time is not either.
+     * The sad sprite belongs to the entity, so it is set again. */
+    static void apply_par_lost(void)
+    {
+        if (!game.intimetrial || !game.timetrialparlost)
+        {
+            return;
+        }
+
+        const int player = obj.getplayer();
+        if (INBOUNDS_VEC(player, obj.entities))
+        {
+            obj.entities[player].tile = 144;
+        }
     }
 
     static void gfx_capture(GfxState& g)
@@ -218,7 +238,7 @@ namespace savestate
 
     static const char* const STATES_FILE = "saves/states.vvv";
     static const unsigned int FILE_MAGIC = 0x54535653; /* "SVST" */
-    static const unsigned int FILE_VERSION = 1;
+    static const unsigned int FILE_VERSION = 2;
     static bool file_loaded = false;
 
     static unsigned int checksum(const unsigned char* data, const size_t length)
@@ -554,6 +574,7 @@ namespace savestate
         script = *state.script;
 
         persist_apply(keep);
+        apply_par_lost();
         gfx_apply(state.gfx);
 
         /* map.roomname points into a shared buffer, so rebuild it. */
@@ -577,8 +598,7 @@ namespace savestate
 
     void input(void)
     {
-        static const SDL_Scancode keys[SLOTS] = {SDL_SCANCODE_1, SDL_SCANCODE_2, SDL_SCANCODE_3};
-        static bool was_down[SLOTS] = {false, false, false};
+        static bool was_down[SLOTS] = {false};
         static bool last_was_down = false;
 
         supermode::update();
@@ -587,7 +607,7 @@ namespace savestate
         int pressed_slot = -1;
         for (int slot = 0; slot < SLOTS; slot++)
         {
-            const bool down = keystate[keys[slot]] != 0;
+            const bool down = keystate[SDL_SCANCODE_1 + slot] != 0;
             if (down && !was_down[slot])
             {
                 pressed_slot = slot;

@@ -5,12 +5,12 @@
 
 /* Savestates, SLOTS slots per key, kept in memory and in saves/states.vvv.
  * Keys come from supermode::key().
- *   1 2 3            load slot 1 2 3
- *   Shift + 1 2 3    save slot 1 2 3
+ *   1 to 9           load slot 1 to 9
+ *   Shift + 1 to 9   save slot 1 to 9
  *   `                load the state that was saved or loaded last */
 namespace savestate
 {
-    enum { SLOTS = 3 };
+    enum { SLOTS = 9 };
 
     /* Called whenever a game mode starts. */
     void note_mode(enum StartMode mode);

@@ -64,11 +64,13 @@ namespace supermode
      * the music. */
     void death_music(void);
 
-    /* Pause menu entry of Super mode in the main game and in No Death Mode.
+    /* Pause menu entry of Super mode in the main game, No Death Mode, time
+     * trials and intermission replays.
      * Main game: deletes the save files, unlocks all play modes and goes to the
      * play menu without a fade. No Death Mode: leaves like a death without a
-     * state, to the cutscene choice screen. Without the Game Complete trophy, a
-     * confirmation page comes first, until it was agreed to once. */
+     * state, to the cutscene choice screen. Time trials and intermission
+     * replays: go to their menu without a fade. Without the Game Complete
+     * trophy, a confirmation page comes first, until it was agreed to once. */
     bool reset_run_available(void);
     const char* reset_run_text(void);
 

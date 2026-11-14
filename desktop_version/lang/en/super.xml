@@ -5,8 +5,8 @@
     <string english="super mode" translation="" explanation="Super menu item, toggles Super mode"/>
     <string english="allow savestates" translation="" explanation="Super menu item, toggles the save and load keys"/>
     <string english="delete savestates" translation="" explanation="Super menu item, deletes all saved states"/>
-    <string english="load state: 1 2 3" translation="" explanation="Super menu line, not selectable"/>
-    <string english="save state: shift + 1 2 3" translation="" explanation="Super menu line, not selectable"/>
+    <string english="load state: 1-9" translation="" explanation="Super menu line, not selectable"/>
+    <string english="save state: shift + 1-9" translation="" explanation="Super menu line, not selectable"/>
     <string english="Super" translation="" explanation="title of the Super menu and of its entry in the options menu"/>
     <string english="Super mode and savestates." translation="" explanation="description in the options menu when the Super item is selected"/>
     <string english="Super mode:" translation="" explanation="Super menu status line, followed by ON or OFF"/>
@@ -16,16 +16,16 @@
     <string english="NDM + super mode: valid" translation="" explanation="Super menu info line. NDM = No Death Mode"/>
     <string english="Time trial + super mode: not valid" translation="" explanation="Super menu info line"/>
     <string english="Savestates on in a run: not valid" translation="" explanation="Super menu info line"/>
-    <string english="State {n} saved" translation="" explanation="popup in place of the room name. {n} is the slot number, 1 to 3"/>
-    <string english="State {n} loaded" translation="" explanation="popup in place of the room name. {n} is the slot number, 1 to 3"/>
-    <string english="State {n} empty" translation="" explanation="popup in place of the room name. {n} is the slot number, 1 to 3"/>
+    <string english="State {n} saved" translation="" explanation="popup in place of the room name. {n} is the slot number, 1 to 9"/>
+    <string english="State {n} loaded" translation="" explanation="popup in place of the room name. {n} is the slot number, 1 to 9"/>
+    <string english="State {n} empty" translation="" explanation="popup in place of the room name. {n} is the slot number, 1 to 9"/>
     <string english="No state to load" translation="" explanation="popup in place of the room name, when the backtick key finds no saved or loaded state"/>
     <string english="Super mode on" translation="" explanation="popup in place of the room name"/>
     <string english="Super mode off" translation="" explanation="popup in place of the room name"/>
     <string english="Savestates on" translation="" explanation="popup in place of the room name"/>
     <string english="Savestates off" translation="" explanation="popup in place of the room name"/>
     <string english="Savestates deleted" translation="" explanation="popup in place of the room name"/>
-    <string english="reset run" translation="" explanation="pause menu item in Super mode, below quit to menu. In the main game it deletes the save files, unlocks all play modes and goes to the play menu. In No Death Mode it goes to the cutscene choice screen without changing any save file"/>
+    <string english="reset run" translation="" explanation="pause menu item in Super mode, below quit to menu. In the main game it deletes the save files, unlocks all play modes and goes to the play menu. In No Death Mode it goes to the cutscene choice screen. In time trials and intermission replays it goes to their menu. Except in the main game it changes no save file"/>
     <string english="no, go back" translation="" explanation="reset run confirmation option, returns to the pause menu"/>
     <string english="yes, reset run" translation="" explanation="reset run confirmation option"/>
     <string english="This should not be used by vanilla players" translation="" explanation="reset run confirmation text. Vanilla players are those who play the original game without this mod"/>

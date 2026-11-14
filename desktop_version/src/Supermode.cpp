@@ -413,6 +413,18 @@ namespace supermode
         game.mapheld = true;
     }
 
+    /* Back to the time trial or intermission replay menu, with the entry of
+     * the run selected, without a fade. */
+    static void leave_to_select_screen(void)
+    {
+        game.quittomenu();
+        graphics.fademode = FADE_NONE;
+        music.play(Music_PRESENTINGVVVVVV);
+
+        game.jumpheld = true;
+        game.mapheld = true;
+    }
+
     bool loads_state_on_death(void)
     {
         return game.nodeathmode
@@ -483,7 +495,8 @@ namespace supermode
         return super_setting
             && in_context()
             && ((is_main_mode(current_mode) && !game.inspecial())
-                || (is_ndm_mode(current_mode) && game.nodeathmode));
+                || (is_ndm_mode(current_mode) && game.nodeathmode)
+                || (is_trial_mode(current_mode) && (game.intimetrial || game.inintermission)));
     }
 
     /* The pages of the confirmation, shown before the first use in a save
@@ -538,6 +551,12 @@ namespace supermode
         if (is_ndm_mode(current_mode))
         {
             leave_to_cutscene_screen();
+            return;
+        }
+
+        if (is_trial_mode(current_mode))
+        {
+            leave_to_select_screen();
             return;
         }
 
