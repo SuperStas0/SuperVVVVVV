@@ -13,8 +13,9 @@
  * death when there is no state.
  *
  * A run is invalid (GG!, no records, no unlocks) when a state was loaded in it,
- * a state exists for its mode, or Super mode is on in a time trial or
- * intermission replay. */
+ * Savestates were on at its start or were turned on during it (even if never
+ * used), or Super mode is on in a time trial or intermission replay. States
+ * that only exist in the files do not matter. */
 namespace supermode
 {
     /* Called from savestate::note_mode(). */
@@ -63,10 +64,11 @@ namespace supermode
      * the music. */
     void death_music(void);
 
-    /* Pause menu entry of Super mode in the main game: deletes the save files,
-     * unlocks all play modes and goes to the play menu without a fade. Without
-     * the Game Complete trophy, a confirmation page comes first, until it was
-     * agreed to once. */
+    /* Pause menu entry of Super mode in the main game and in No Death Mode.
+     * Main game: deletes the save files, unlocks all play modes and goes to the
+     * play menu without a fade. No Death Mode: leaves like a death without a
+     * state, to the cutscene choice screen. Without the Game Complete trophy, a
+     * confirmation page comes first, until it was agreed to once. */
     bool reset_run_available(void);
     const char* reset_run_text(void);
 

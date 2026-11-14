@@ -97,6 +97,6 @@ namespace supermenu
         y = font::print_wrap(PR_CEN, -1, y, buffer, r, g, b) + 6;
         y = font::print_wrap(PR_CEN, -1, y, supertext::get("NDM + super mode: valid"), r, g, b) + 2;
         y = font::print_wrap(PR_CEN, -1, y, supertext::get("Time trial + super mode: not valid"), r, g, b) + 2;
-        font::print_wrap(PR_CEN, -1, y, supertext::get("Any savestate: not valid"), r, g, b);
+        font::print_wrap(PR_CEN, -1, y, supertext::get("Savestates on in a run: not valid"), r, g, b);
     }
 }

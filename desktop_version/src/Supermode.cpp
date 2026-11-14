@@ -43,6 +43,7 @@ namespace supermode
     static bool super_setting = false;
     static bool allow_setting = false;
     static bool reset_confirmed = false;
+    static bool states_enabled = false;
     static Pending pending = Pending_NONE;
     static bool restarting = false;
     static int countdown = 0;
@@ -166,6 +167,7 @@ namespace supermode
         load_settings();
         current_mode = (int) mode;
         trial_super = super_setting && is_trial_mode(current_mode);
+        states_enabled = allow_setting;
         pending = Pending_NONE;
         countdown = 0;
         if (!restarting)
@@ -219,6 +221,10 @@ namespace supermode
     {
         load_settings();
         allow_setting = !allow_setting;
+        if (allow_setting)
+        {
+            states_enabled = true;
+        }
         store_settings();
         popup(allow_setting ? "Savestates on" : "Savestates off");
     }
@@ -229,32 +235,9 @@ namespace supermode
         popup("Savestates deleted");
     }
 
-    static bool run_has_state(void)
-    {
-        if (current_mode == -1)
-        {
-            return false;
-        }
-
-        if (is_ndm_mode(current_mode))
-        {
-            /* Either cutscene choice counts for both. */
-            for (int mode = Start_FIRST_NODEATHMODE; mode <= Start_LAST_NODEATHMODE; mode++)
-            {
-                if (savestate::exists_any(make_key(mode, false)))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        return savestate::exists_any(key());
-    }
-
     bool invalid_run(void)
     {
-        return savestate::used() || trial_super || run_has_state();
+        return savestate::used() || trial_super || states_enabled;
     }
 
     void apply_trial_rules(void)
@@ -499,7 +482,7 @@ namespace supermode
         load_settings();
         return super_setting
             && in_context()
-            && is_main_mode(current_mode)
+            && (is_main_mode(current_mode) || is_ndm_mode(current_mode))
             && !game.inspecial();
     }
 
@@ -549,6 +532,12 @@ namespace supermode
     {
         if (!reset_run_available())
         {
+            return;
+        }
+
+        if (is_ndm_mode(current_mode))
+        {
+            leave_to_cutscene_screen();
             return;
         }
 

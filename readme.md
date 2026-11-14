@@ -63,23 +63,24 @@ Without a state (or with savestates off), No Death Mode ends the run as in the o
 
 ## Super mode
 - Main game: adds `reset run` to the pause menu (see below). It does not make a run invalid.
-- No Death Mode: dying with a state loads it (see above). Without a state, 0.5 s after dying the game leaves the run without the fade and the game over screen, and opens the cutscene choice screen of No Death Mode. Gameplay is not affected.
+- No Death Mode: dying with a state loads it (see above). Without a state, 0.5 s after dying the game leaves the run without the fade and the game over screen, and opens the cutscene choice screen of No Death Mode. Gameplay is not affected. The pause menu has `reset run` (see below).
 - Time trials and intermission replays: No Death Mode rules (no checkpoints, no cutscenes). Without a state, dying restarts the level at its start 0.5 s later, without the fade. Time trials use a 1 s countdown. The timer restarts.
 
 ## Reset run
-In the main game with Super mode on, the pause menu (`Esc`) has `reset run` below `quit to menu`. It is there only in a main game run.
+With Super mode on, the pause menu (`Esc`) has `reset run` below `quit to menu`, in a main game run and in No Death Mode.
 
-It deletes the teleporter and quick save files, unlocks everything of `accessibility` > `unlock play modes` (all time trials, intermission replays, No Death Mode, flip mode, ship jukebox, secret lab) and goes to the play menu (`new game`, `secret lab`, `play modes`) without a fade. `Esc` there returns to the main menu. Savestates are kept, so a new run with states is invalid as described below.
+- Main game: deletes the teleporter and quick save files, unlocks everything of `accessibility` > `unlock play modes` (all time trials, intermission replays, No Death Mode, flip mode, ship jukebox, secret lab) and goes to the play menu (`new game`, `secret lab`, `play modes`) without a fade. `Esc` there returns to the main menu.
+- No Death Mode: changes no save file. It acts like dying with Super mode on and no state: the run ends without a fade and the cutscene choice screen opens.
 
-If the game was never completed (no Game Complete trophy), a page asks for confirmation first (`This should not be used by vanilla players`), with `yes, reset run` selected. After `yes` it is not asked again, the agreement is kept in `saves\super.vvv`.
+If the game was never completed (no Game Complete trophy), a page asks for confirmation first (`This should not be used by vanilla players`), with `yes, reset run` selected. After `yes` it is not asked again, in either mode. The agreement is kept in `saves\super.vvv`.
 
 ## Valid runs
 A run is invalid if any of these is true:
 - a state was loaded in it
-- a state exists for its mode (main game: any state of the main game; No Death Mode: for either cutscene choice)
+- `allow savestates` was on when the run started, or was turned on during it, even if no state was saved or loaded
 - it is a time trial or intermission replay with Super mode on
 
-Invalid runs show `GG!` in place of `Level Complete!` and `Game Complete!` (main game and No Death Mode), `Results` (time trials) and `WOW` (No Death Mode). From the moment a run is invalid it earns no achievements, trophies, unlocks, trinket stats, Super Gravitron records, best death count or time trial records. What was earned before the first state was saved stays. Use `delete savestates` before a real run.
+Invalid runs show `GG!` in place of `Level Complete!` and `Game Complete!` (main game and No Death Mode), `Results` (time trials) and `WOW` (No Death Mode). From the moment a run is invalid it earns no achievements, trophies, unlocks, trinket stats, Super Gravitron records, best death count or time trial records. What was earned before the run became invalid stays. Saved states in the files do not matter, only the setting at the start and during the run. To make a valid run, turn `allow savestates` off before starting it and leave it off.
 
 Super mode in No Death Mode does not make a run invalid.
 
