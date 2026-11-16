@@ -5,8 +5,10 @@
 
 /* Super mode and the rules around savestates.
  *
- * Super mode off: death in No Death Mode loads the saved state after the
- * normal delay and starts a short countdown.
+ * Super mode off: death in No Death Mode loads the state that was saved or
+ * loaded last in the run after the normal delay and starts a short countdown.
+ * Without a state used in the run, nothing is loaded, even when slots hold
+ * states from earlier runs.
  * Super mode on: the delay is 0.5 s and there is no countdown. Without a state,
  * No Death Mode leaves to the cutscene choice screen. Time trials and
  * intermission replays also get No Death Mode rules, and restart the level on

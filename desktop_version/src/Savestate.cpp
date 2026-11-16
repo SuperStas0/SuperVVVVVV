@@ -302,15 +302,10 @@ namespace savestate
             io_slot(s, it->second);
         }
 
-        unsigned int last_count = (unsigned int) last_slots.size();
+        /* The last used slots only count within a run, so none are stored. The
+         * section stays in the file for the format. */
+        unsigned int last_count = 0;
         io(s, last_count);
-        for (std::map<int, int>::iterator it = last_slots.begin(); it != last_slots.end(); ++it)
-        {
-            int key = it->first;
-            int slot = it->second;
-            io(s, key);
-            io(s, slot);
-        }
 
         unsigned int sum = checksum(s.data(), s.size());
         io(s, sum);
@@ -419,7 +414,6 @@ namespace savestate
         if (parse_file(mem, length, loaded, loaded_last))
         {
             slots = loaded;
-            last_slots = loaded_last;
         }
         else
         {
@@ -435,6 +429,7 @@ namespace savestate
     void note_mode(enum StartMode mode)
     {
         loaded_this_run = false;
+        last_slots.clear();
         supermode::note_mode(mode);
     }
 

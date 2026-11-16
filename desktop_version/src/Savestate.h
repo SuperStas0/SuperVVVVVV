@@ -9,7 +9,7 @@
  * Keys come from supermode::key().
  *   1 to 9           load slot 1 to 9
  *   Shift + 1 to 9   save slot 1 to 9
- *   `                load the state that was saved or loaded last */
+ *   `                load the state that was saved or loaded last in the run */
 namespace savestate
 {
     enum { SLOTS = 9 };
@@ -26,7 +26,8 @@ namespace savestate
     bool exists(int key, int slot);
     bool exists_any(int key);
 
-    /* The slot of key that was saved or loaded last, -1 if none. */
+    /* The slot of key that was saved or loaded last in the current run, -1 if
+     * none. Starting a game, level, time trial or intermission clears it. */
     int last(int key);
 
     /* Number of saved states in all slots of all keys. */

@@ -28,7 +28,7 @@ It uses the same save and settings folder as the original game.
 | --- | --- |
 | `Shift` + `1` to `9` | Save state 1 to 9 |
 | `1` to `9` | Load state 1 to 9 |
-| `` ` `` | Load the state that was saved or loaded last, as dying does. Shows `No state to load` if there is none |
+| `` ` `` | Load the state that was saved or loaded last in the current run, as dying does. Shows `No state to load` if there is none |
 
 The keys are the number row and the backtick key. Ctrl or Alt held does nothing, and Shift does nothing with the backtick key.
 
@@ -62,7 +62,7 @@ Delete page, each entry shows the number of states it holds and does nothing whe
 | `return` | Back to the Super menu. |
 
 ## Dying with a state
-Applies where dying would end the run: No Death Mode, and time trials and intermission replays with Super mode on. Needs `allow savestates` and a state for the current mode. It loads the state that was saved or loaded last, of any slot. The main game and time trials without Super mode keep the original respawn.
+Applies where dying would end the run: No Death Mode, and time trials and intermission replays with Super mode on. Needs `allow savestates` and a state that was saved or loaded in the current run. It loads the state that was saved or loaded last, of any slot. Starting a game, level, time trial or intermission forgets it: until a state is saved or loaded, dying behaves as without a state, even if the slots hold states from earlier runs. The main game and time trials without Super mode keep the original respawn.
 
 | Super mode | Delay | After the load |
 | --- | --- | --- |
@@ -71,12 +71,12 @@ Applies where dying would end the run: No Death Mode, and time trials and interm
 
 With a state the music is not faded out on death. Loading a state restarts the music only if its song differs from the one playing.
 
-Without a state (or with savestates off), No Death Mode ends the run as in the original game, except with Super mode on: see below.
+Without a state used in the run (or with savestates off), No Death Mode ends the run as in the original game, except with Super mode on: see below.
 
 ## Super mode
 - Main game: adds `reset run` to the pause menu (see below). It does not make a run invalid.
-- No Death Mode: dying with a state loads it (see above). Without a state, 0.5 s after dying the game leaves the run without the fade and the game over screen, and opens the cutscene choice screen of No Death Mode. Gameplay is not affected. The pause menu has `reset run` (see below).
-- Time trials and intermission replays: No Death Mode rules (no checkpoints, no cutscenes). Without a state, dying restarts the level at its start 0.5 s later, without the fade. Time trials use a 1 s countdown. The timer restarts.
+- No Death Mode: dying with a state loads it (see above). Without a state used in the run, 0.5 s after dying the game leaves the run without the fade and the game over screen, and opens the cutscene choice screen of No Death Mode. Gameplay is not affected. The pause menu has `reset run` (see below).
+- Time trials and intermission replays: No Death Mode rules (no checkpoints, no cutscenes). Without a state used in the run, dying restarts the level at its start 0.5 s later, without the fade. Time trials use a 1 s countdown. The timer restarts.
 
 ## Reset run
 With Super mode on, the pause menu (`Esc`) has `reset run` below `quit to menu`, in a main game run, in No Death Mode, in time trials and in intermission replays.
