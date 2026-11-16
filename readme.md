@@ -48,7 +48,18 @@ The first entry of the options menu, in the main menu and in the game (`Esc` > `
 | --- | --- |
 | `super mode` | Toggle Super mode. In a time trial or intermission it restarts the level. |
 | `allow savestates` | Toggle the save and load keys and loading a state on death. |
-| `delete savestates` | Delete all states in all modes. |
+| `delete savestates` | Open the delete page. |
+
+Delete page, each entry shows the number of states it holds and does nothing when it is 0:
+
+| Item | Action |
+| --- | --- |
+| `delete: main game` | Delete the states of the main game. |
+| `delete: time trials` | Delete the states of all time trials, with and without Super mode. |
+| `delete: intermissions` | Delete the states of all intermission replays, with and without Super mode. |
+| `delete: No Death Mode` | Delete the states of No Death Mode, with and without cutscenes. |
+| `delete all savestates` | Delete all states in all modes. |
+| `return` | Back to the Super menu. |
 
 ## Dying with a state
 Applies where dying would end the run: No Death Mode, and time trials and intermission replays with Super mode on. Needs `allow savestates` and a state for the current mode. It loads the state that was saved or loaded last, of any slot. The main game and time trials without Super mode keep the original respawn.

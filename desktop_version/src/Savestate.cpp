@@ -478,6 +478,41 @@ namespace savestate
         return (int) slots.size();
     }
 
+    int count_keys(const std::vector<int>& keys)
+    {
+        int total = 0;
+        for (size_t i = 0; i < keys.size(); i++)
+        {
+            for (int slot = 0; slot < SLOTS; slot++)
+            {
+                if (exists(keys[i], slot))
+                {
+                    total++;
+                }
+            }
+        }
+        return total;
+    }
+
+    void remove_keys(const std::vector<int>& keys)
+    {
+        read_file();
+        for (size_t i = 0; i < keys.size(); i++)
+        {
+            for (int slot = 0; slot < SLOTS; slot++)
+            {
+                std::map<int, Slot>::iterator it = slots.find(slot_index(keys[i], slot));
+                if (it != slots.end())
+                {
+                    free_slot(it->second);
+                    slots.erase(it);
+                }
+            }
+            last_slots.erase(keys[i]);
+        }
+        write_file();
+    }
+
     void remove_all(void)
     {
         read_file();

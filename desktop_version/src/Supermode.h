@@ -37,6 +37,18 @@ namespace supermode
     void toggle_allow(void);
     void delete_states(void);
 
+    /* Groups of the Super menu delete page. */
+    enum
+    {
+        CATEGORY_MAIN_GAME,
+        CATEGORY_TIME_TRIALS,
+        CATEGORY_INTERMISSIONS,
+        CATEGORY_NO_DEATH_MODE,
+        CATEGORIES
+    };
+    int category_states(int category);
+    void delete_category(int category);
+
     bool invalid_run(void);
 
     /* Called from startgamemode() right after hardreset(), before the level is

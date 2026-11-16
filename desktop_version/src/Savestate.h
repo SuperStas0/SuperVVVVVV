@@ -1,6 +1,8 @@
 #ifndef SAVESTATE_H
 #define SAVESTATE_H
 
+#include <vector>
+
 #include "Script.h"
 
 /* Savestates, SLOTS slots per key, kept in memory and in saves/states.vvv.
@@ -30,6 +32,10 @@ namespace savestate
     /* Number of saved states in all slots of all keys. */
     int count(void);
     void remove_all(void);
+
+    /* The same for the states of the given keys only. */
+    int count_keys(const std::vector<int>& keys);
+    void remove_keys(const std::vector<int>& keys);
 
     /* Returns false if there is nothing to save right now. */
     bool save(int key, int slot);

@@ -4,7 +4,13 @@
     <string english="super" translation="" explanation="in-game options menu item, opens the Super menu"/>
     <string english="super mode" translation="" explanation="Super menu item, toggles Super mode"/>
     <string english="allow savestates" translation="" explanation="Super menu item, toggles the save and load keys"/>
-    <string english="delete savestates" translation="" explanation="Super menu item, deletes all saved states"/>
+    <string english="delete savestates" translation="" explanation="Super menu item, opens the page to delete saved states"/>
+    <string english="Delete savestates" translation="" explanation="title of the Super menu delete page"/>
+    <string english="delete: main game" translation="" explanation="Super menu delete page item, deletes the states of the main game. The number of states follows in brackets"/>
+    <string english="delete: time trials" translation="" explanation="Super menu delete page item, deletes the states of all time trials. The number of states follows in brackets"/>
+    <string english="delete: intermissions" translation="" explanation="Super menu delete page item, deletes the states of all intermission replays. The number of states follows in brackets"/>
+    <string english="delete: No Death Mode" translation="" explanation="Super menu delete page item, deletes the states of No Death Mode, with and without cutscenes. The number of states follows in brackets"/>
+    <string english="delete all savestates" translation="" explanation="Super menu delete page item, deletes all saved states of all modes"/>
     <string english="load state: 1-9" translation="" explanation="Super menu line, not selectable"/>
     <string english="save state: shift + 1-9" translation="" explanation="Super menu line, not selectable"/>
     <string english="Super" translation="" explanation="title of the Super menu and of its entry in the options menu"/>

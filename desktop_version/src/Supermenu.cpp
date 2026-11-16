@@ -15,6 +15,32 @@
 
 namespace supermenu
 {
+    /* The delete page is the same menu as the Super menu, created again. */
+    enum Page
+    {
+        PAGE_MAIN,
+        PAGE_DELETE
+    };
+
+    static Page page = PAGE_MAIN;
+
+    static const int DELETE_ALL = supermode::CATEGORIES;
+    static const int DELETE_RETURN = supermode::CATEGORIES + 1;
+
+    static const char* const DELETE_LABELS[supermode::CATEGORIES] = {
+        "delete: main game",
+        "delete: time trials",
+        "delete: intermissions",
+        "delete: No Death Mode"
+    };
+
+    static void show(const Page next, const int option)
+    {
+        page = next;
+        game.createmenu(Menu::supermode, true);
+        game.currentmenuoption = option;
+    }
+
     int options_selected(void)
     {
         /* The Super entry is the first one. */
@@ -29,12 +55,31 @@ namespace supermenu
     void open(void)
     {
         music.playef(Sound_VIRIDIAN);
+        page = PAGE_MAIN;
         game.createmenu(Menu::supermode);
         map.nexttowercolour();
     }
 
     void create(void)
     {
+        if (page == PAGE_DELETE)
+        {
+            for (int category = 0; category < supermode::CATEGORIES; category++)
+            {
+                char label[SCREEN_WIDTH_CHARS + 1];
+                SDL_snprintf(
+                    label, sizeof(label), "%s (%d)",
+                    supertext::get(DELETE_LABELS[category]),
+                    supermode::category_states(category)
+                );
+                game.option(label);
+            }
+            game.option(supertext::get("delete all savestates"));
+            game.option(loc::gettext("return"));
+            game.menuyoff = 0;
+            return;
+        }
+
         game.option(supertext::get("super mode"));
         game.option(supertext::get("allow savestates"));
         game.option(supertext::get("delete savestates"));
@@ -44,8 +89,46 @@ namespace supermenu
         game.menuyoff = 0;
     }
 
+    static void input_delete(void)
+    {
+        const int option = game.currentmenuoption;
+
+        if (option == DELETE_RETURN)
+        {
+            music.playef(Sound_VIRIDIAN);
+            show(PAGE_MAIN, 2);
+            return;
+        }
+
+        const int states = option == DELETE_ALL
+            ? savestate::count()
+            : supermode::category_states(option);
+        if (states == 0)
+        {
+            music.playef(Sound_CRY);
+            return;
+        }
+
+        music.playef(Sound_VIRIDIAN);
+        if (option == DELETE_ALL)
+        {
+            supermode::delete_states();
+        }
+        else
+        {
+            supermode::delete_category(option);
+        }
+        show(PAGE_DELETE, option);
+    }
+
     void input(void)
     {
+        if (page == PAGE_DELETE)
+        {
+            input_delete();
+            return;
+        }
+
         switch (game.currentmenuoption)
         {
         case 0:
@@ -58,7 +141,7 @@ namespace supermenu
             break;
         case 2:
             music.playef(Sound_VIRIDIAN);
-            supermode::delete_states();
+            show(PAGE_DELETE, 0);
             break;
         case 3:
         case 4:
@@ -80,9 +163,18 @@ namespace supermenu
 
     void render(const int r, const int g, const int b)
     {
+        char buffer[SCREEN_WIDTH_CHARS + 1];
+
+        if (page == PAGE_DELETE)
+        {
+            font::print(PR_2X | PR_CEN, -1, 30, supertext::get("Delete savestates"), r, g, b);
+            SDL_snprintf(buffer, sizeof(buffer), "%s (%d)", supertext::get("Savestates:"), savestate::count());
+            font::print_wrap(PR_CEN, -1, 56, buffer, r, g, b);
+            return;
+        }
+
         font::print(PR_2X | PR_CEN, -1, 30, supertext::get("Super"), r, g, b);
 
-        char buffer[SCREEN_WIDTH_CHARS + 1];
         SDL_snprintf(
             buffer, sizeof(buffer), "%s %s   %s %s (%d)",
             supertext::get("Super mode:"),

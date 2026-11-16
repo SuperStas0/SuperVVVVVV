@@ -1,6 +1,7 @@
 #include "Supermode.h"
 
 #include <string>
+#include <vector>
 
 #include <tinyxml2.h>
 
@@ -233,6 +234,51 @@ namespace supermode
     {
         savestate::remove_all();
         popup("Savestates deleted");
+    }
+
+    static void category_keys(const int category, std::vector<int>& keys)
+    {
+        keys.clear();
+        switch (category)
+        {
+        case CATEGORY_MAIN_GAME:
+            keys.push_back(make_key(Start_MAINGAME, false));
+            break;
+        case CATEGORY_TIME_TRIALS:
+            for (int mode = Start_FIRST_TIMETRIAL; mode <= Start_TIMETRIAL_FINALLEVEL; mode++)
+            {
+                keys.push_back(make_key(mode, false));
+                keys.push_back(make_key(mode, true));
+            }
+            break;
+        case CATEGORY_INTERMISSIONS:
+            for (int mode = Start_FIRST_INTERMISSION1; mode <= Start_LAST_INTERMISSION2; mode++)
+            {
+                keys.push_back(make_key(mode, false));
+                keys.push_back(make_key(mode, true));
+            }
+            break;
+        case CATEGORY_NO_DEATH_MODE:
+            for (int mode = Start_FIRST_NODEATHMODE; mode <= Start_LAST_NODEATHMODE; mode++)
+            {
+                keys.push_back(make_key(mode, false));
+            }
+            break;
+        }
+    }
+
+    int category_states(const int category)
+    {
+        std::vector<int> keys;
+        category_keys(category, keys);
+        return savestate::count_keys(keys);
+    }
+
+    void delete_category(const int category)
+    {
+        std::vector<int> keys;
+        category_keys(category, keys);
+        savestate::remove_keys(keys);
     }
 
     bool invalid_run(void)
