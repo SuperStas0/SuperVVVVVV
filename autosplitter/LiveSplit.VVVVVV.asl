@@ -345,7 +345,6 @@ init {
 	vars.splitAddr = IntPtr.Zero;
 	vars.cur = null;
 	vars.old = null;
-	vars.runInvalid = false;
 
 	if (modules.First().ModuleMemorySize == 0x6D9000) {
 		version = "v2.0";
@@ -489,11 +488,6 @@ start {
 	var cur = version == "split" ? vars.cur : current;
 	var prev = version == "split" ? vars.old : old;
 
-	// Modded build: an invalid run never starts the timer
-	if (version == "split" && cur.invalidRun) {
-		return false;
-	}
-
 	if (version == "v2.3.4" || version == "v2.3.6" || version == "v2.4" || version == "v2.4.1" || version == "v2.4.2" || version == "v2.4.3" || version == "v2.4.4" || version == "split") {
 		// Triggers when fade to new mode completes
 		if (!cur.fadetomode && prev.fadetomode) {
@@ -575,11 +569,6 @@ start {
 split {
 	var cur = version == "split" ? vars.cur : current;
 	var prev = version == "split" ? vars.old : old;
-
-	// Modded build: once the run was invalid, the timer is never split automatically
-	if (version == "split" && vars.runInvalid) {
-		return false;
-	}
 
 	if (version == "v2.4.1" || version == "v2.4.2" || version == "v2.4.3" || version == "v2.4.4" || version == "split") {
 		// In order to fix the bug where the timer often stopped a frame late, I forced the autosplitter to wait an extra cycle before actually stopping
@@ -963,9 +952,6 @@ reset {
 	var cur = version == "split" ? vars.cur : current;
 	var prev = version == "split" ? vars.old : old;
 
-	// Modded build: once the run was invalid, only exiting to the menu resets the timer
-	var invalid = version == "split" && vars.runInvalid;
-
 	if (version == "v2.4" || version == "v2.4.1" || version == "v2.4.2" || version == "v2.4.3" || version == "v2.4.4" || version == "split") {
 		// menustate values:
 		// 0: in-game
@@ -982,12 +968,12 @@ reset {
 			if (prev.menustate == 0 || prev.menustate == 2 || prev.menustate == 3 || (prev.menustate == 1 && prev.ingame_titlemode)) {
 				// Reset on exiting to menu
 				vars.isInTimeTrial = false;
-				return settings[vars.menuReset] || settings[vars.ils] || invalid;
+				return settings[vars.menuReset] || settings[vars.ils];
 			}
 		}
 
 		if (cur.timetrialcountdown > 30 && prev.timetrialcountdown <= 30) {
-			return settings[vars.ils] && !invalid;
+			return settings[vars.ils];
 		}
 
 		return false;
@@ -1033,10 +1019,6 @@ reset {
 		// reset if in main menu (shouldn't ever really happen, but you never know)
 		return vars.menuID == 1 && settings[vars.menuReset];
 	}
-}
-
-onStart {
-	vars.runInvalid = false;
 }
 
 gameTime {
@@ -1109,11 +1091,6 @@ update {
 		string text = System.Text.Encoding.UTF8.GetString(buf, 200, textLength);
 		data["firstTextLineSmall"] = text;
 		data["firstTextLineLarge"] = text;
-		data["invalidRun"] = buf[264] != 0;
-
-		if (buf[264] != 0) {
-			vars.runInvalid = true;
-		}
 
 		if (vars.cur == null) {
 			vars.old = snapshot;

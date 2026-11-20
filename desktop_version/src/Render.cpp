@@ -1518,7 +1518,7 @@ static void menurender(void)
     case Menu::nodeathmodecomplete:
     case Menu::nodeathmodecomplete2:
     {
-        supermode::print_title(4, PR_4X | PR_CEN | PR_CJK_LOW, 8, loc::gettext("WOW"), tr, tg, tb);
+        supermode::print_gg(4, 8, tr, tg, tb);
 
         for (size_t i = 0; i < SDL_arraysize(game.ndmresultcrewstats); i++)
         {
@@ -1536,14 +1536,14 @@ static void menurender(void)
         );
         font::print_wrap(PR_CEN | PR_CJK_LOW, -1, 110, buffer, tr, tg, tb);
 
-        supermode::print_wrap_valid(PR_CEN, -1, 160, loc::gettext("A new trophy has been awarded and placed in the secret lab to acknowledge your achievement!"), tr, tg, tb);
+        font::print_wrap(PR_CEN, -1, 160, loc::gettext("A new trophy has been awarded and placed in the secret lab to acknowledge your achievement!"), tr, tg, tb);
         break;
     }
     case Menu::timetrialcomplete:
     case Menu::timetrialcomplete2:
     case Menu::timetrialcomplete3:
     {
-        supermode::print_title(3, PR_3X | PR_CEN, 20, loc::gettext("Results"), tr, tg, tb);
+        supermode::print_gg(3, 20, tr, tg, tb);
 
         std::string tempstring = game.resulttimestring() + loc::gettext(" / ") + game.timetstring(game.timetrialresultpar) + loc::gettext(".99");
 

@@ -44,7 +44,6 @@ namespace supermode
     static bool super_setting = false;
     static bool allow_setting = false;
     static bool reset_confirmed = false;
-    static bool states_enabled = false;
     static Pending pending = Pending_NONE;
     static bool restarting = false;
     static int countdown = 0;
@@ -168,7 +167,6 @@ namespace supermode
         load_settings();
         current_mode = (int) mode;
         trial_super = super_setting && is_trial_mode(current_mode);
-        states_enabled = allow_setting;
         pending = Pending_NONE;
         countdown = 0;
         if (!restarting)
@@ -222,10 +220,6 @@ namespace supermode
     {
         load_settings();
         allow_setting = !allow_setting;
-        if (allow_setting)
-        {
-            states_enabled = true;
-        }
         store_settings();
         popup(allow_setting ? "Savestates on" : "Savestates off");
     }
@@ -281,60 +275,12 @@ namespace supermode
         savestate::remove_keys(keys);
     }
 
-    bool invalid_run(void)
-    {
-        return savestate::used() || trial_super || states_enabled;
-    }
-
     void apply_trial_rules(void)
     {
         if (trial_super)
         {
             game.nodeathmode = true;
             game.nocutscenes = true;
-        }
-    }
-
-    static int records_times[Game::numtrials];
-    static int records_frames[Game::numtrials];
-    static int records_trinkets[Game::numtrials];
-    static int records_lives[Game::numtrials];
-    static int records_rank[Game::numtrials];
-    static bool records_kept = false;
-
-    void protect_records(void)
-    {
-        records_kept = invalid_run();
-        if (!records_kept)
-        {
-            return;
-        }
-
-        for (int i = 0; i < Game::numtrials; i++)
-        {
-            records_times[i] = game.besttimes[i];
-            records_frames[i] = game.bestframes[i];
-            records_trinkets[i] = game.besttrinkets[i];
-            records_lives[i] = game.bestlives[i];
-            records_rank[i] = game.bestrank[i];
-        }
-    }
-
-    void restore_records(void)
-    {
-        if (!records_kept)
-        {
-            return;
-        }
-        records_kept = false;
-
-        for (int i = 0; i < Game::numtrials; i++)
-        {
-            game.besttimes[i] = records_times[i];
-            game.bestframes[i] = records_frames[i];
-            game.besttrinkets[i] = records_trinkets[i];
-            game.bestlives[i] = records_lives[i];
-            game.bestrank[i] = records_rank[i];
         }
     }
 
@@ -752,33 +698,9 @@ namespace supermode
         font::print(size | PR_FONT_8X8 | PR_CEN, 160 + shift, y, "GG!", r, g, b);
     }
 
-    void print_wrap_valid(const uint32_t flags, const int x, const int y, const char* text, const int r, const int g, const int b)
-    {
-        if (!invalid_run())
-        {
-            font::print_wrap(flags, x, y, text, r, g, b);
-        }
-    }
-
-    void print_title(const int scale, const uint32_t flags, const int y, const char* text, const int r, const int g, const int b)
-    {
-        if (invalid_run())
-        {
-            print_gg(scale, y, r, g, b);
-        }
-        else
-        {
-            font::print(flags, -1, y, text, r, g, b);
-        }
-    }
-
     bool draw_gg(const int image, const bool flipmode)
     {
         if (image != TEXTIMAGE_LEVELCOMPLETE && image != TEXTIMAGE_GAMECOMPLETE)
-        {
-            return false;
-        }
-        if (!invalid_run())
         {
             return false;
         }

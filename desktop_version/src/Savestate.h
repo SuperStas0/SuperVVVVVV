@@ -20,9 +20,6 @@ namespace savestate
     /* Called once per frame from gameinput(). */
     void input(void);
 
-    /* True if a state was loaded during the current run. */
-    bool used(void);
-
     bool exists(int key, int slot);
     bool exists_any(int key);
 

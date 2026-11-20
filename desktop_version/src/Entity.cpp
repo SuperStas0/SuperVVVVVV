@@ -13,7 +13,6 @@
 #include "Maths.h"
 #include "Music.h"
 #include "Script.h"
-#include "Supermode.h"
 #include "UtilityClass.h"
 #include "Vlogging.h"
 #include "Xoshiro.h"
@@ -2701,7 +2700,7 @@ bool entityclass::updateentities( int i )
                     game.setstate(1000);
                     if(music.currentsong!=-1) music.silencedasmusik();
                     music.playef(Sound_TRINKET);
-                    if (game.trinkets() > game.stat_trinkets && !map.custommode && !supermode::invalid_run())
+                    if (game.trinkets() > game.stat_trinkets && !map.custommode)
                     {
                         game.stat_trinkets = game.trinkets();
                         game.savestatsandsettings();

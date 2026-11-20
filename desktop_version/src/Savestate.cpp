@@ -214,7 +214,6 @@ namespace savestate
 
     static std::map<int, Slot> slots;
     static std::map<int, int> last_slots;
-    static bool loaded_this_run = false;
 
     static int slot_index(const int key, const int slot)
     {
@@ -428,14 +427,8 @@ namespace savestate
 
     void note_mode(enum StartMode mode)
     {
-        loaded_this_run = false;
         last_slots.clear();
         supermode::note_mode(mode);
-    }
-
-    bool used(void)
-    {
-        return loaded_this_run;
     }
 
     bool exists(const int key, const int slot)
@@ -621,7 +614,6 @@ namespace savestate
             last_slots[key] = slot;
             write_file();
         }
-        loaded_this_run = true;
         supermode::cancel_countdown();
         return true;
     }

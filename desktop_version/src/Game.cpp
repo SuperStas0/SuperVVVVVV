@@ -1926,7 +1926,6 @@ void Game::updatestate(void)
             if (trinkets() >= timetrialshinytarget) timetrialrank++;
             if (deathcounts == 0) timetrialrank++;
 
-            supermode::protect_records();
             if (timetrialresulttime < besttimes[timetriallevel]
             || (timetrialresulttime == besttimes[timetriallevel] && timetrialresultframes < bestframes[timetriallevel])
             || besttimes[timetriallevel]==-1)
@@ -1970,7 +1969,6 @@ void Game::updatestate(void)
                 }
             }
 
-            supermode::restore_records();
             savestatsandsettings();
 
             graphics.fademode = FADE_START_FADEOUT;
@@ -3289,7 +3287,7 @@ void Game::updatestate(void)
             }
 
 #ifndef MAKEANDPLAY
-            if (!map.custommode && !supermode::invalid_run())
+            if (!map.custommode)
             {
                 if (bestgamedeaths == -1)
                 {
@@ -4614,9 +4612,9 @@ void Game::unlocknum( int t )
 #ifdef MAKEANDPLAY
     UNUSED(t);
 #else
-    if (map.custommode || supermode::invalid_run())
+    if (map.custommode)
     {
-        //Don't let custom levels or invalid runs unlock things!
+        //Don't let custom levels unlock things!
         return;
     }
 
@@ -7786,7 +7784,7 @@ void Game::unlockAchievement(const char* name)
 #ifdef MAKEANDPLAY
     UNUSED(name);
 #else
-    if (map.custommode || supermode::invalid_run())
+    if (map.custommode)
     {
         return;
     }

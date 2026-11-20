@@ -20,7 +20,7 @@ It uses the same save and settings folder as the original game.
 - Steam must be running and the game must be launched from the Steam library with `VVVVVV.exe` replaced as above. A Non-Steam Game shortcut has another app ID and gets no achievements.
 - Without the DLL or Steam the game runs normally, without achievements.
 - Check: each launch writes `steam_status.txt` to the game folder. It says `Steam API on`, or `Steam API off: <reason>`. If the file is missing, the exe is an older build or its folder is not writable.
-- An invalid run (see Valid runs) never unlocks achievements, same as its record. At startup the game re-sends the achievements your save data already implies, as the original does.
+- At startup the game re-sends the achievements your save data already implies, as the original does.
 
 # Usage
 ## Savestates
@@ -74,7 +74,7 @@ With a state the music is not faded out on death. Loading a state restarts the m
 Without a state used in the run (or with savestates off), No Death Mode ends the run as in the original game, except with Super mode on: see below.
 
 ## Super mode
-- Main game: adds `reset run` to the pause menu (see below). It does not make a run invalid.
+- Main game: adds `reset run` to the pause menu (see below).
 - No Death Mode: dying with a state loads it (see above). Without a state used in the run, 0.5 s after dying the game leaves the run without the fade and the game over screen, and opens the cutscene choice screen of No Death Mode. Gameplay is not affected. The pause menu has `reset run` (see below).
 - Time trials and intermission replays: No Death Mode rules (no checkpoints, no cutscenes). Without a state used in the run, dying restarts the level at its start 0.5 s later, without the fade. Time trials use a 1 s countdown. The timer restarts.
 
@@ -87,15 +87,10 @@ With Super mode on, the pause menu (`Esc`) has `reset run` below `quit to menu`,
 
 If the game was never completed (no Game Complete trophy), a page asks for confirmation first (`This should not be used by vanilla players`), with `yes, reset run` selected. After `yes` it is not asked again, in any mode. The agreement is kept in `saves\super.vvv`.
 
-## Valid runs
-A run is invalid if any of these is true:
-- a state was loaded in it
-- `allow savestates` was on when the run started, or was turned on during it, even if no state was saved or loaded
-- it is a time trial or intermission replay with Super mode on
+## GG!
+`GG!` is shown in place of `Level Complete!` and `Game Complete!` (main game and No Death Mode), `Results` (time trials) and `WOW` (No Death Mode), in every run, so footage always shows it.
 
-Invalid runs show `GG!` in place of `Level Complete!` and `Game Complete!` (main game and No Death Mode), `Results` (time trials) and `WOW` (No Death Mode). From the moment a run is invalid it earns no achievements, trophies, unlocks, trinket stats, Super Gravitron records, best death count or time trial records. What was earned before the run became invalid stays. Saved states in the files do not matter, only the setting at the start and during the run. To make a valid run, turn `allow savestates` off before starting it and leave it off.
-
-Super mode in No Death Mode does not make a run invalid.
+Nothing is blocked: achievements, trophies, unlocks, trinket stats, Super Gravitron records, best death count and time trial records are saved in every run, with savestates and Super mode in any state.
 
 ## Switch to vanilla
 `switch to vanilla` in the main menu, between `credits` and `quit`, closes the game and starts the original game from `vanilla.exe` in the same folder as `VVVVVV.exe` (see Installation).
@@ -117,7 +112,7 @@ To translate a language:
 For a language without a folder, create `desktop_version\lang\<code>\` and copy `super.xml` from `en`. `<code>` is the folder name the game uses for that language, and the language must already exist in the game.
 
 # Autosplitter
-`LiveSplit.VVVVVV.asl` is the VVVVVV autosplitter with SuperVVVVVV support. Game time and settings are unchanged. Start, split and reset work as in the original, except in invalid runs (see Invalid runs). Its source is `autosplitter\LiveSplit.VVVVVV.asl`; `build.bat` copies it to `build\` and `-r` adds it to the release archive.
+`LiveSplit.VVVVVV.asl` is the VVVVVV autosplitter with SuperVVVVVV support. Game time and settings are unchanged. Start, split and reset work as in the original. Its source is `autosplitter\LiveSplit.VVVVVV.asl`; `build.bat` copies it to `build\` and `-r` adds it to the release archive.
 
 Based on [tzann/Autosplitters](https://github.com/tzann/Autosplitters).
 
@@ -133,11 +128,8 @@ Based on [tzann/Autosplitters](https://github.com/tzann/Autosplitters).
 | Modded build (any other `VVVVVV.exe`) | Scans the exe for the `SUPERVVVVVV_SPLIT` marker and reads the `SplitData` struct. Works for any exe size. |
 | Anything else | Inactive |
 
-## Invalid runs
-With a SuperVVVVVV build, an invalid run (see Valid runs) is handled like this:
-- Invalid from the start: the timer does not start.
-- Invalid after the start: the timer keeps running and is never split automatically, and the level restart of a time trial does not reset it. Leaving the run (quit to menu, `reset run`, credits) resets the timer, also when `Reset on exiting to menu` is off. Split it manually if needed. This lasts until the timer is started again.
-- Use `VVVVVV.exe` and `LiveSplit.VVVVVV.asl` from the same release.
+## Versions
+Use `VVVVVV.exe` and `LiveSplit.VVVVVV.asl` from the same release.
 
 ## Changing the game
 - `SplitData.cpp` mirrors the game variables each frame in `loop_end()`. The struct is append-only: never move, resize or remove fields.
