@@ -6580,6 +6580,7 @@ void Game::createmenu( enum Menu::MenuName t, bool samemenu/*= false*/ )
             option(loc::gettext("translator"));
         }
         option(loc::gettext("credits"));
+        supermenu::main_item();
         option(loc::gettext("quit"));
         menuyoff = -10;
         maxspacing = 15;

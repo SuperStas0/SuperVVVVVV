@@ -457,6 +457,7 @@ static void menuactionpress(void)
             OPTION_ID(3) /* translator */
         }
         OPTION_ID(4) /* credits */
+        OPTION_ID(6) /* switch to vanilla */
         OPTION_ID(5) /* quit */
 
 #undef OPTION_ID
@@ -511,6 +512,14 @@ static void menuactionpress(void)
             music.playef(Sound_VIRIDIAN);
             game.createmenu(Menu::youwannaquit);
             map.nexttowercolour();
+            break;
+        case 6:
+            //Switch to vanilla
+            if (supermenu::switch_to_vanilla())
+            {
+                music.playef(Sound_CRY);
+                startmode(Start_QUIT);
+            }
             break;
         }
         break;

@@ -1,6 +1,10 @@
 #include "Supermenu.h"
 
 #include <SDL.h>
+#include <algorithm>
+#include <stdlib.h>
+#include <string>
+#include <vector>
 
 #include "Constants.h"
 #include "Enums.h"
@@ -13,16 +17,39 @@
 #include "Supermode.h"
 #include "Supertext.h"
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#endif
+
 namespace supermenu
 {
     /* The delete page is the same menu as the Super menu, created again. */
     enum Page
     {
         PAGE_MAIN,
-        PAGE_DELETE
+        PAGE_DELETE,
+        PAGE_VANILLA
+    };
+
+    enum VanillaStatus
+    {
+        VANILLA_OK,
+        VANILLA_MISSING,
+        VANILLA_MODDED
     };
 
     static Page page = PAGE_MAIN;
+    static VanillaStatus vanilla_status = VANILLA_MISSING;
+
+    /* The original exe, next to the running exe. */
+    static const char VANILLA_EXE[] = "VVVVVV-vanilla.exe";
+    static const char SPLIT_MARKER[] = "SUPERVVVVVV_SPLIT";
+
+    static std::string vanilla_path;
 
     static const int DELETE_ALL = supermode::CATEGORIES;
     static const int DELETE_RETURN = supermode::CATEGORIES + 1;
@@ -39,6 +66,117 @@ namespace supermenu
         page = next;
         game.createmenu(Menu::supermode, true);
         game.currentmenuoption = option;
+    }
+
+    static VanillaStatus check_vanilla(std::string& path)
+    {
+        char* base = SDL_GetBasePath();
+        if (base == NULL)
+        {
+            return VANILLA_MISSING;
+        }
+        path = base;
+        path += VANILLA_EXE;
+        SDL_free(base);
+
+        SDL_RWops* file = SDL_RWFromFile(path.c_str(), "rb");
+        if (file == NULL)
+        {
+            return VANILLA_MISSING;
+        }
+
+        const Sint64 size = SDL_RWsize(file);
+        if (size <= 0)
+        {
+            SDL_RWclose(file);
+            return VANILLA_MISSING;
+        }
+
+        std::vector<char> content(static_cast<size_t>(size));
+        const size_t got = SDL_RWread(file, &content[0], 1, content.size());
+        SDL_RWclose(file);
+        if (got != content.size())
+        {
+            return VANILLA_MISSING;
+        }
+
+        const char* marker_end = SPLIT_MARKER + sizeof(SPLIT_MARKER) - 1;
+        if (std::search(content.begin(), content.end(), SPLIT_MARKER, marker_end) != content.end())
+        {
+            return VANILLA_MODDED;
+        }
+        return VANILLA_OK;
+    }
+
+#ifdef _WIN32
+    static std::wstring widen(const std::string& text)
+    {
+        const int length = MultiByteToWideChar(CP_UTF8, 0, text.c_str(), -1, NULL, 0);
+        if (length <= 0)
+        {
+            return std::wstring();
+        }
+        std::vector<wchar_t> buffer(length);
+        MultiByteToWideChar(CP_UTF8, 0, text.c_str(), -1, &buffer[0], length);
+        return std::wstring(&buffer[0]);
+    }
+#endif
+
+    /* Runs at exit, after the game saved and released its files and Steam. The
+     * new process keeps the environment, so Steam still sees the same game. */
+    static void start_vanilla(void)
+    {
+#ifdef _WIN32
+        const std::wstring exe = widen(vanilla_path);
+        const std::string::size_type slash = vanilla_path.find_last_of("\\/");
+        if (exe.empty() || slash == std::string::npos)
+        {
+            return;
+        }
+        const std::wstring folder = widen(vanilla_path.substr(0, slash));
+
+        std::wstring command = L"\"" + exe + L"\"";
+        std::vector<wchar_t> buffer(command.begin(), command.end());
+        buffer.push_back(L'\0');
+
+        STARTUPINFOW startup;
+        PROCESS_INFORMATION info;
+        ZeroMemory(&startup, sizeof(startup));
+        ZeroMemory(&info, sizeof(info));
+        startup.cb = sizeof(startup);
+
+        if (CreateProcessW(exe.c_str(), &buffer[0], NULL, NULL, FALSE, 0, NULL, folder.c_str(), &startup, &info))
+        {
+            CloseHandle(info.hThread);
+            CloseHandle(info.hProcess);
+        }
+#endif
+    }
+
+    void main_item(void)
+    {
+        game.option(supertext::get("switch to vanilla"));
+    }
+
+    bool switch_to_vanilla(void)
+    {
+#ifdef _WIN32
+        vanilla_status = check_vanilla(vanilla_path);
+#else
+        vanilla_status = VANILLA_MISSING;
+#endif
+
+        if (vanilla_status != VANILLA_OK)
+        {
+            music.playef(Sound_VIRIDIAN);
+            page = PAGE_VANILLA;
+            game.createmenu(Menu::supermode);
+            map.nexttowercolour();
+            return false;
+        }
+
+        atexit(start_vanilla);
+        return true;
     }
 
     int options_selected(void)
@@ -62,6 +200,13 @@ namespace supermenu
 
     void create(void)
     {
+        if (page == PAGE_VANILLA)
+        {
+            game.option(loc::gettext("return"));
+            game.menuyoff = 0;
+            return;
+        }
+
         if (page == PAGE_DELETE)
         {
             for (int category = 0; category < supermode::CATEGORIES; category++)
@@ -123,6 +268,14 @@ namespace supermenu
 
     void input(void)
     {
+        if (page == PAGE_VANILLA)
+        {
+            music.playef(Sound_VIRIDIAN);
+            game.returnmenu();
+            map.nexttowercolour();
+            return;
+        }
+
         if (page == PAGE_DELETE)
         {
             input_delete();
@@ -164,6 +317,19 @@ namespace supermenu
     void render(const int r, const int g, const int b)
     {
         char buffer[SCREEN_WIDTH_CHARS + 1];
+
+        if (page == PAGE_VANILLA)
+        {
+            font::print(PR_2X | PR_CEN, -1, 30, supertext::get("Switch to vanilla"), r, g, b);
+            font::print_wrap(
+                PR_CEN, -1, 65,
+                supertext::get(vanilla_status == VANILLA_MODDED
+                    ? "VVVVVV-vanilla.exe is not the original game. Copy the original VVVVVV.exe there under that name."
+                    : "VVVVVV-vanilla.exe was not found next to VVVVVV.exe. Copy the original VVVVVV.exe there under that name."),
+                r, g, b
+            );
+            return;
+        }
 
         if (page == PAGE_DELETE)
         {

@@ -1,17 +1,17 @@
 # SuperVVVVVV
 
-Altered version of [VVVVVV](https://github.com/TerryCavanagh/VVVVVV) (copyright Terry Cavanagh, based on the 2.4.4 source code), not the original game: practice patch for Windows (Steam version) with savestates for time trials, intermission replays and No Death Mode, and a Super mode with fast restarts.
+Altered version of [VVVVVV](https://github.com/TerryCavanagh/VVVVVV) (copyright Terry Cavanagh, based on the 2.4.4 source code), not the original game: practice patch for Windows (Steam version) with savestates for time trials, intermission replays and No Death Mode, and a Super mode with fast restarts. Any run made with it is not allowed on speedrun.com: use the original game for runs, see Switch to vanilla.
 
 # Installation
 Requires your own copy of VVVVVV on Steam.
 
-1. In the game folder (`...\steamapps\common\VVVVVV`), copy the original `VVVVVV.exe` to a backup, e.g. `VVVVVV-vanilla.exe`.
+1. In the game folder (`...\steamapps\common\VVVVVV`), copy the original `VVVVVV.exe` to a backup named `VVVVVV-vanilla.exe`.
 2. Extract the release archive into the game folder, overwriting `VVVVVV.exe`.
 3. Launch the game from Steam.
 
 If you use LiveSplit, use `LiveSplit.VVVVVV.asl` from the release archive as the autosplitter, see Autosplitter.
 
-To go back to vanilla, put the backup back as `VVVVVV.exe`, or use Steam > Properties > Installed Files > Verify integrity of game files. A Steam update also restores it.
+To go back to vanilla, use `switch to vanilla` in the main menu (see Switch to vanilla), put the backup back as `VVVVVV.exe`, or use Steam > Properties > Installed Files > Verify integrity of game files. A Steam update also restores it.
 
 It uses the same save and settings folder as the original game.
 
@@ -96,6 +96,13 @@ A run is invalid if any of these is true:
 Invalid runs show `GG!` in place of `Level Complete!` and `Game Complete!` (main game and No Death Mode), `Results` (time trials) and `WOW` (No Death Mode). From the moment a run is invalid it earns no achievements, trophies, unlocks, trinket stats, Super Gravitron records, best death count or time trial records. What was earned before the run became invalid stays. Saved states in the files do not matter, only the setting at the start and during the run. To make a valid run, turn `allow savestates` off before starting it and leave it off.
 
 Super mode in No Death Mode does not make a run invalid.
+
+## Switch to vanilla
+`switch to vanilla` in the main menu, between `credits` and `quit`, closes the game and starts the original game from `VVVVVV-vanilla.exe` in the same folder as `VVVVVV.exe` (see Installation).
+
+- The original starts after SuperVVVVVV has saved and closed, with the same working folder and environment.
+- The original shares the save and settings folder. The original has no way back: start `VVVVVV.exe` again, e.g. from Steam.
+- If `VVVVVV-vanilla.exe` is missing, or is a SuperVVVVVV build, a page says so and the game stays open.
 
 # Translations
 Texts added by SuperVVVVVV are translated with `lang\<code>\super.xml`, in the same format as the game's `strings.xml`. Missing or empty translations stay English. Official texts stay in the game's own `strings.xml`.

@@ -12,6 +12,14 @@ namespace supermenu
     /* Adds the Super entry to the options menu. */
     void options_item(void);
 
+    /* Adds the switch to vanilla entry to the main menu. */
+    void main_item(void);
+
+    /* The switch to vanilla entry was chosen. Returns true when the game must
+     * quit now: the vanilla exe starts after the game has saved and closed.
+     * Returns false after opening a page that says what is missing. */
+    bool switch_to_vanilla(void);
+
     void open(void);
     void create(void);
     void input(void);

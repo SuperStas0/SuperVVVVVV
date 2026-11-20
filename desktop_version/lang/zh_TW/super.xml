@@ -35,4 +35,8 @@
     <string english="no, go back" translation="" explanation="reset run confirmation option, returns to the pause menu"/>
     <string english="yes, reset run" translation="" explanation="reset run confirmation option"/>
     <string english="This should not be used by vanilla players" translation="" explanation="reset run confirmation text. Vanilla players are those who play the original game without this mod"/>
+    <string english="switch to vanilla" translation="" explanation="main menu item, closes the game and starts the original game from VVVVVV-vanilla.exe"/>
+    <string english="Switch to vanilla" translation="" explanation="title of the page shown when the original game cannot be started"/>
+    <string english="VVVVVV-vanilla.exe was not found next to VVVVVV.exe. Copy the original VVVVVV.exe there under that name." translation="" explanation="text of the switch to vanilla page. Vanilla is the original game without this mod. Keep the file names"/>
+    <string english="VVVVVV-vanilla.exe is not the original game. Copy the original VVVVVV.exe there under that name." translation="" explanation="text of the switch to vanilla page. Keep the file names"/>
 </strings>
