@@ -46,7 +46,7 @@ namespace supermenu
     static VanillaStatus vanilla_status = VANILLA_MISSING;
 
     /* The original exe, next to the running exe. */
-    static const char VANILLA_EXE[] = "VVVVVV-vanilla.exe";
+    static const char VANILLA_EXE[] = "vanilla.exe";
     static const char SPLIT_MARKER[] = "SUPERVVVVVV_SPLIT";
 
     static std::string vanilla_path;
@@ -324,8 +324,8 @@ namespace supermenu
             font::print_wrap(
                 PR_CEN, -1, 65,
                 supertext::get(vanilla_status == VANILLA_MODDED
-                    ? "VVVVVV-vanilla.exe is not the original game. Copy the original VVVVVV.exe there under that name."
-                    : "VVVVVV-vanilla.exe was not found next to VVVVVV.exe. Copy the original VVVVVV.exe there under that name."),
+                    ? "vanilla.exe is not the original game. Copy the original VVVVVV.exe there under that name."
+                    : "vanilla.exe was not found next to VVVVVV.exe. Copy the original VVVVVV.exe there under that name."),
                 r, g, b
             );
             return;
@@ -350,11 +350,6 @@ namespace supermenu
             savestate::count()
         );
 
-        /* Long translations wrap, so each line starts where the last one ended. */
-        int y = 56;
-        y = font::print_wrap(PR_CEN, -1, y, buffer, r, g, b) + 6;
-        y = font::print_wrap(PR_CEN, -1, y, supertext::get("NDM + super mode: valid"), r, g, b) + 2;
-        y = font::print_wrap(PR_CEN, -1, y, supertext::get("Time trial + super mode: not valid"), r, g, b) + 2;
-        font::print_wrap(PR_CEN, -1, y, supertext::get("Savestates on in a run: not valid"), r, g, b);
+        font::print_wrap(PR_CEN, -1, 56, buffer, r, g, b);
     }
 }

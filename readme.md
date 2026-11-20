@@ -5,7 +5,7 @@ Altered version of [VVVVVV](https://github.com/TerryCavanagh/VVVVVV) (copyright 
 # Installation
 Requires your own copy of VVVVVV on Steam.
 
-1. In the game folder (`...\steamapps\common\VVVVVV`), copy the original `VVVVVV.exe` to a backup named `VVVVVV-vanilla.exe`.
+1. In the game folder (`...\steamapps\common\VVVVVV`), copy the original `VVVVVV.exe` to a backup named `vanilla.exe`.
 2. Extract the release archive into the game folder, overwriting `VVVVVV.exe`.
 3. Launch the game from Steam.
 
@@ -98,11 +98,11 @@ Invalid runs show `GG!` in place of `Level Complete!` and `Game Complete!` (main
 Super mode in No Death Mode does not make a run invalid.
 
 ## Switch to vanilla
-`switch to vanilla` in the main menu, between `credits` and `quit`, closes the game and starts the original game from `VVVVVV-vanilla.exe` in the same folder as `VVVVVV.exe` (see Installation).
+`switch to vanilla` in the main menu, between `credits` and `quit`, closes the game and starts the original game from `vanilla.exe` in the same folder as `VVVVVV.exe` (see Installation).
 
 - The original starts after SuperVVVVVV has saved and closed, with the same working folder and environment.
 - The original shares the save and settings folder. The original has no way back: start `VVVVVV.exe` again, e.g. from Steam.
-- If `VVVVVV-vanilla.exe` is missing, or is a SuperVVVVVV build, a page says so and the game stays open.
+- If `vanilla.exe` is missing, or is a SuperVVVVVV build, a page says so and the game stays open.
 
 # Translations
 Texts added by SuperVVVVVV are translated with `lang\<code>\super.xml`, in the same format as the game's `strings.xml`. Missing or empty translations stay English. Official texts stay in the game's own `strings.xml`.
