@@ -52,6 +52,7 @@ namespace supermode
     static int popup_timer = 0;
     static std::string popup_text;
     static int popup_number = 0;
+    static int popup_number_other = 0;
 
     /* The settings and the agreement of the reset run confirmation stay
      * between launches. They are read when first needed. */
@@ -544,7 +545,7 @@ namespace supermode
         return false;
     }
 
-    bool reset_run_available(void)
+    static bool reset_run_available(void)
     {
         load_settings();
         return super_setting
@@ -556,13 +557,19 @@ namespace supermode
 
     /* The pages of the confirmation, shown before the first use in a save
      * without the Game Complete trophy. */
+    static const int PAGE_QUIT = 32;
     static const int PAGE_RESET = 33;
     static const int PAGE_CONFIRM_NO = 36;
     static const int PAGE_CONFIRM_YES = 37;
 
+    bool reset_run_item(void)
+    {
+        return reset_run_available() && is_main_mode(current_mode);
+    }
+
     int last_pause_page(void)
     {
-        return reset_run_available() ? 33 : 32;
+        return reset_run_item() ? 33 : 32;
     }
 
     const char* reset_run_text(void)
@@ -654,7 +661,7 @@ namespace supermode
             break;
         case PAGE_CONFIRM_NO:
             music.playef(Sound_VIRIDIAN);
-            game.menupage = PAGE_RESET;
+            game.menupage = reset_run_item() ? PAGE_RESET : PAGE_QUIT;
             break;
         case PAGE_CONFIRM_YES:
             reset_confirmed = true;
@@ -662,6 +669,19 @@ namespace supermode
             reset_run();
             break;
         }
+    }
+
+    bool quit_to_menu(void)
+    {
+        load_settings();
+        if (!reset_run_available() || is_main_mode(current_mode))
+        {
+            return false;
+        }
+
+        game.menupage = PAGE_RESET;
+        pause_page_action();
+        return true;
     }
 
     static void selected_label(char* buffer, const size_t size, const char* text)
@@ -702,6 +722,7 @@ namespace supermode
     {
         popup_text = text;
         popup_number = 0;
+        popup_number_other = 0;
         popup_timer = POPUP_FRAMES;
     }
 
@@ -709,6 +730,15 @@ namespace supermode
     {
         popup_text = text;
         popup_number = number;
+        popup_number_other = 0;
+        popup_timer = POPUP_FRAMES;
+    }
+
+    void popup_states(const char* text, const int number, const int other)
+    {
+        popup_text = text;
+        popup_number = number;
+        popup_number_other = other;
         popup_timer = POPUP_FRAMES;
     }
 
@@ -723,7 +753,7 @@ namespace supermode
         const char* text = supertext::get(popup_text.c_str());
         if (popup_number > 0)
         {
-            vformat_buf(buffer, sizeof(buffer), text, "n:int", popup_number);
+            vformat_buf(buffer, sizeof(buffer), text, "n:int, m:int", popup_number, popup_number_other);
             text = buffer;
         }
 

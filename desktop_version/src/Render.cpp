@@ -3063,7 +3063,7 @@ void maprender(void)
         OPTION(0, loc::gettext("return to game"));
         OPTION(1, loc::gettext("options"));
         OPTION(2, loc::gettext("quit to menu"));
-        if (supermode::reset_run_available())
+        if (supermode::reset_run_item())
         {
             OPTION(3, supermode::reset_run_text());
         }

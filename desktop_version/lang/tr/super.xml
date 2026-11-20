@@ -19,16 +19,16 @@
     <string english="Savestates:" translation="" explanation="Super menu status line, followed by ON or OFF and the number of saved states"/>
     <string english="ON" translation="" explanation="Super menu status value"/>
     <string english="OFF" translation="" explanation="Super menu status value"/>
-    <string english="State {n} saved" translation="" explanation="popup in place of the room name. {n} is the slot number, 1 to 9"/>
-    <string english="State {n} loaded" translation="" explanation="popup in place of the room name. {n} is the slot number, 1 to 9"/>
-    <string english="State {n} empty" translation="" explanation="popup in place of the room name. {n} is the slot number, 1 to 9"/>
+    <string english="State {n} saved" translation="" explanation="popup in place of the room name. {n} is the slot number, 1 to 10"/>
+    <string english="State {n} loaded" translation="" explanation="popup in place of the room name. {n} is the slot number, 1 to 10"/>
+    <string english="State {n} empty" translation="" explanation="popup in place of the room name. {n} is the slot number, 1 to 10"/>
     <string english="No state to load" translation="" explanation="popup in place of the room name, when the backtick key finds no saved or loaded state"/>
     <string english="Super mode on" translation="" explanation="popup in place of the room name"/>
     <string english="Super mode off" translation="" explanation="popup in place of the room name"/>
     <string english="Savestates on" translation="" explanation="popup in place of the room name"/>
     <string english="Savestates off" translation="" explanation="popup in place of the room name"/>
     <string english="Savestates deleted" translation="" explanation="popup in place of the room name"/>
-    <string english="reset run" translation="" explanation="pause menu item in Super mode, below quit to menu. In the main game it deletes the save files, unlocks all play modes and goes to the play menu. In No Death Mode it goes to the cutscene choice screen. In time trials and intermission replays it goes to their menu. Except in the main game it changes no save file"/>
+    <string english="reset run" translation="" explanation="pause menu item in the main game with Super mode, below quit to menu. It deletes the save files, unlocks all play modes and goes to the play menu. Also the title of the confirmation page, which quit to menu opens in No Death Mode, time trials and intermission replays with Super mode"/>
     <string english="no, go back" translation="" explanation="reset run confirmation option, returns to the pause menu"/>
     <string english="yes, reset run" translation="" explanation="reset run confirmation option"/>
     <string english="This should not be used by vanilla players" translation="" explanation="reset run confirmation text. Vanilla players are those who play the original game without this mod"/>
@@ -40,4 +40,8 @@
     <string english="Unlocks:" translation="" explanation="Super menu status line, followed by ON or OFF"/>
     <string english="Unlocks on" translation="" explanation="popup in place of the room name"/>
     <string english="Unlocks off" translation="" explanation="popup in place of the room name"/>
+    <string english="Swap state {n} with: ctrl + 1-0" translation="" explanation="popup in place of the room name after the first ctrl + number. {n} is the slot number, 1 to 10"/>
+    <string english="States {n} and {m} swapped" translation="" explanation="popup in place of the room name. {n} and {m} are the slot numbers, 1 to 10"/>
+    <string english="Swap cancelled" translation="" explanation="popup in place of the room name, when ctrl + the same number was pressed twice"/>
+    <string english="Nothing to swap" translation="" explanation="popup in place of the room name, when both slots are empty"/>
 </strings>

@@ -346,17 +346,25 @@ namespace supermenu
 
         font::print(PR_2X | PR_CEN, -1, 30, supertext::get("Super"), r, g, b);
 
+        int y = 56;
         SDL_snprintf(
-            buffer, sizeof(buffer), "%s %s   %s %s (%d)   %s %s",
+            buffer, sizeof(buffer), "%s %s",
             supertext::get("Super mode:"),
-            supertext::get(supermode::super_mode() ? "ON" : "OFF"),
+            supertext::get(supermode::super_mode() ? "ON" : "OFF")
+        );
+        y = font::print_wrap(PR_CEN, -1, y, buffer, r, g, b);
+        SDL_snprintf(
+            buffer, sizeof(buffer), "%s %s (%d)",
             supertext::get("Savestates:"),
             supertext::get(supermode::allow_states() ? "ON" : "OFF"),
-            savestate::count(),
+            savestate::count()
+        );
+        y = font::print_wrap(PR_CEN, -1, y, buffer, r, g, b);
+        SDL_snprintf(
+            buffer, sizeof(buffer), "%s %s",
             supertext::get("Unlocks:"),
             supertext::get(supermode::unlocks_enabled() ? "ON" : "OFF")
         );
-
-        font::print_wrap(PR_CEN, -1, 56, buffer, r, g, b);
+        font::print_wrap(PR_CEN, -1, y, buffer, r, g, b);
     }
 }

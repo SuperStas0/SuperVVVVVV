@@ -207,6 +207,9 @@ namespace savestate
     static std::map<int, Slot> slots;
     static std::map<int, int> last_slots;
 
+    /* The first slot of a swap, -1 if none was chosen. */
+    static int swap_first = -1;
+
     static int slot_index(const int key, const int slot)
     {
         return key * SLOTS + slot;
@@ -435,6 +438,7 @@ namespace savestate
 
     void note_mode(enum StartMode mode)
     {
+        swap_first = -1;
         last_slots.clear();
         supermode::note_mode(mode);
     }
@@ -630,12 +634,100 @@ namespace savestate
         return true;
     }
 
+    /* Moves the state of a to b and the state of b to a. An empty slot takes
+     * the other one's state. Returns false if both are empty. */
+    static bool swap_slots(const int key, const int a, const int b)
+    {
+        read_file();
+
+        const int index_a = slot_index(key, a);
+        const int index_b = slot_index(key, b);
+        const std::map<int, Slot>::iterator it_a = slots.find(index_a);
+        const std::map<int, Slot>::iterator it_b = slots.find(index_b);
+        const bool has_a = it_a != slots.end();
+        const bool has_b = it_b != slots.end();
+
+        if (!has_a && !has_b)
+        {
+            return false;
+        }
+
+        if (has_a && has_b)
+        {
+            const Slot kept = it_a->second;
+            it_a->second = it_b->second;
+            it_b->second = kept;
+        }
+        else if (has_a)
+        {
+            const Slot moved = it_a->second;
+            slots.erase(index_a);
+            slots[index_b] = moved;
+        }
+        else
+        {
+            const Slot moved = it_b->second;
+            slots.erase(index_b);
+            slots[index_a] = moved;
+        }
+
+        /* The last used slot follows its state. */
+        const std::map<int, int>::iterator last_it = last_slots.find(key);
+        if (last_it != last_slots.end())
+        {
+            if (last_it->second == a)
+            {
+                last_it->second = b;
+            }
+            else if (last_it->second == b)
+            {
+                last_it->second = a;
+            }
+        }
+
+        write_file();
+        return true;
+    }
+
+    /* Ctrl + slot key, twice: the first chooses a slot, the second swaps it
+     * with the pressed one. The same slot twice cancels. */
+    static void swap_input(const int slot)
+    {
+        if (swap_first == -1)
+        {
+            swap_first = slot;
+            supermode::popup_state("Swap state {n} with: ctrl + 1-0", slot + 1);
+            return;
+        }
+
+        const int first = swap_first;
+        swap_first = -1;
+        if (first == slot)
+        {
+            supermode::popup("Swap cancelled");
+        }
+        else if (swap_slots(supermode::key(), first, slot))
+        {
+            supermode::popup_states("States {n} and {m} swapped", first + 1, slot + 1);
+        }
+        else
+        {
+            supermode::popup("Nothing to swap");
+        }
+    }
+
     void input(void)
     {
         static bool was_down[SLOTS] = {false};
         static bool last_was_down = false;
 
         supermode::update();
+
+        const bool allowed = supermode::states_allowed();
+        if (!allowed)
+        {
+            swap_first = -1;
+        }
 
         const Uint8* keystate = SDL_GetKeyboardState(NULL);
         int pressed_slot = -1;
@@ -654,16 +746,26 @@ namespace savestate
         const bool last_pressed = last_down && !last_was_down;
         last_was_down = last_down;
 
-        if ((pressed_slot == -1 && !last_pressed) || !supermode::states_allowed())
+        if ((pressed_slot == -1 && !last_pressed) || !allowed)
         {
             return;
         }
 
         const int mods = SDL_GetModState();
-        if ((mods & (KMOD_CTRL | KMOD_ALT)) != 0)
+        if ((mods & KMOD_ALT) != 0)
         {
             return;
         }
+
+        if ((mods & KMOD_CTRL) != 0)
+        {
+            if (pressed_slot != -1 && (mods & KMOD_SHIFT) == 0)
+            {
+                swap_input(pressed_slot);
+            }
+            return;
+        }
+        swap_first = -1;
 
         if (pressed_slot == -1)
         {

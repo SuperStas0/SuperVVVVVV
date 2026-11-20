@@ -7,8 +7,9 @@
 
 /* Savestates, SLOTS slots per key, kept in memory and in saves/states.vvv.
  * Keys come from supermode::key().
- *   1 to 9, 0        load slot 1 to 10
+ *   1 to 9, 0          load slot 1 to 10
  *   Shift + 1 to 9, 0  save slot 1 to 10
+ *   Ctrl + 1 to 9, 0   twice: swap two slots
  *   `                load the state that was saved or loaded last in the run */
 namespace savestate
 {

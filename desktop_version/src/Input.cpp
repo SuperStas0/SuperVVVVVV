@@ -3393,6 +3393,10 @@ static void mapmenuactionpress(const bool version2_2)
         break;
     case 32:
         // Go to quit prompt
+        if (supermode::quit_to_menu())
+        {
+            break;
+        }
         music.playef(Sound_VIRIDIAN);
         game.menupage = 10;
         break;

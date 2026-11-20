@@ -28,9 +28,10 @@ It uses the same save and settings folder as the original game.
 | --- | --- |
 | `Shift` + `1` to `0` | Save state 1 to 10 (`0` is state 10) |
 | `1` to `0` | Load state 1 to 10 (`0` is state 10) |
+| `Ctrl` + `1` to `0`, twice | Swap two states: the first key chooses a slot, the second swaps it with its slot |
 | `` ` `` | Load the state that was saved or loaded last in the current run, as dying does. Shows `No state to load` if there is none |
 
-The keys are the number row and the backtick key. Ctrl or Alt held does nothing, and Shift does nothing with the backtick key.
+The keys are the number row and the backtick key. Alt held does nothing, and Ctrl and Shift do nothing with the backtick key.
 
 - Off by default. Turn them on with `allow savestates` in the Super menu.
 - Saves the full in-game state: trinkets, room, position, checkpoint, gravity, entities, script progress and music. The timer is not saved: loading a state sets it to `00:00`.
@@ -39,6 +40,7 @@ The keys are the number row and the backtick key. Ctrl or Alt held does nothing,
 - Slots are kept also across leaving and entering levels, and between launches: all slots are in `saves\states.vvv` (about 85 KB per state) in the save folder, written at each save and removed by `delete savestates`. A file from the nine-slot version is converted. A file that is damaged or from a build with other game data is ignored and replaced on the next save.
 - A state loads only in the mode it was saved in. Saving is ignored during the death animation and during the countdown after a load.
 - The par time of a time trial is not part of a state: once it was passed, loading a state does not play the sad sound again, and the character stays sad.
+- Swapping works with `Ctrl` held or released between the two keys. An empty slot receives the other state, and the same key twice cancels. Any other state key, a new run or turning savestates off also cancels. The last used slot follows its state.
 - Save and load show a message in place of the room name, for example `State 1 saved`, `State 2 loaded`, `State 10 empty`.
 
 ## Super menu
@@ -75,12 +77,12 @@ With a state the music is not faded out on death. Loading a state restarts the m
 Without a state used in the run (or with savestates off), No Death Mode ends the run as in the original game, except with Super mode on: see below.
 
 ## Super mode
-- Main game: adds `reset run` to the pause menu (see below).
-- No Death Mode: dying with a state loads it (see above). Without a state used in the run, 0.5 s after dying the game leaves the run without the fade and the game over screen, and opens the cutscene choice screen of No Death Mode. Gameplay is not affected. The pause menu has `reset run` (see below).
+- Main game: adds `reset run` to the pause menu below `quit to menu` (see below).
+- No Death Mode: dying with a state loads it (see above). Without a state used in the run, 0.5 s after dying the game leaves the run without the fade and the game over screen, and opens the cutscene choice screen of No Death Mode. Gameplay is not affected. `quit to menu` in the pause menu does a reset run (see below).
 - Time trials and intermission replays: No Death Mode rules (no checkpoints, no cutscenes). Without a state used in the run, dying restarts the level at its start 0.5 s later, without the fade. Time trials use a 1 s countdown. The timer restarts.
 
 ## Reset run
-With Super mode on, the pause menu (`Esc`) has `reset run` below `quit to menu`, in a main game run, in No Death Mode, in time trials and in intermission replays.
+With Super mode on, in a main game run the pause menu (`Esc`) has `reset run` below `quit to menu`. In No Death Mode, time trials and intermission replays there is no separate entry: `quit to menu` does the reset run instead.
 
 - Main game: deletes the teleporter and quick save files, unlocks everything of `accessibility` > `unlock play modes` (all time trials, intermission replays, No Death Mode, flip mode, ship jukebox, secret lab) and goes to the play menu (`new game`, `secret lab`, `play modes`) without a fade. `Esc` there returns to the main menu.
 - Time trials and intermission replays: changes no save file. It opens the time trial or intermission replay menu without a fade, with the run that was started selected.
