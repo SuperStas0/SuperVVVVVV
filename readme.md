@@ -26,28 +26,29 @@ It uses the same save and settings folder as the original game.
 ## Savestates
 | Key | Action |
 | --- | --- |
-| `Shift` + `1` to `9` | Save state 1 to 9 |
-| `1` to `9` | Load state 1 to 9 |
+| `Shift` + `1` to `0` | Save state 1 to 10 (`0` is state 10) |
+| `1` to `0` | Load state 1 to 10 (`0` is state 10) |
 | `` ` `` | Load the state that was saved or loaded last in the current run, as dying does. Shows `No state to load` if there is none |
 
 The keys are the number row and the backtick key. Ctrl or Alt held does nothing, and Shift does nothing with the backtick key.
 
 - Off by default. Turn them on with `allow savestates` in the Super menu.
-- Saves the full in-game state: trinkets, room, position, checkpoint, gravity, entities, script progress and music. The timer is not saved or loaded, it keeps running.
+- Saves the full in-game state: trinkets, room, position, checkpoint, gravity, entities, script progress and music. The timer is not saved: loading a state sets it to `00:00`.
 - Active in the main game, time trials, intermission replays and No Death Mode.
-- Nine slots per mode: the main game (new game, continue and quicksave share it), each time trial, each intermission replay, No Death Mode with cutscenes and without. Time trials and intermissions with Super mode on have their own slots.
-- Slots are kept also across leaving and entering levels, and between launches: all slots are in `saves\states.vvv` (about 85 KB per state) in the save folder, written at each save and removed by `delete savestates`. A file that is damaged or from a build with other game data is ignored and replaced on the next save.
+- Ten slots per mode: the main game (new game, continue and quicksave share it), each time trial, each intermission replay, No Death Mode with cutscenes and without. Time trials and intermissions with Super mode on have their own slots.
+- Slots are kept also across leaving and entering levels, and between launches: all slots are in `saves\states.vvv` (about 85 KB per state) in the save folder, written at each save and removed by `delete savestates`. A file from the nine-slot version is converted. A file that is damaged or from a build with other game data is ignored and replaced on the next save.
 - A state loads only in the mode it was saved in. Saving is ignored during the death animation and during the countdown after a load.
-- The par time of a time trial is not part of a state, like the timer: once it was passed, loading a state does not play the sad sound again, and the character stays sad.
-- Save and load show a message in place of the room name, for example `State 1 saved`, `State 2 loaded`, `State 9 empty`.
+- The par time of a time trial is not part of a state: once it was passed, loading a state does not play the sad sound again, and the character stays sad.
+- Save and load show a message in place of the room name, for example `State 1 saved`, `State 2 loaded`, `State 10 empty`.
 
 ## Super menu
-The first entry of the options menu, in the main menu and in the game (`Esc` > `options`). Both settings are off at first and are kept between launches in `saves\super.vvv`.
+The first entry of the options menu, in the main menu and in the game (`Esc` > `options`). `super mode` and `allow savestates` are off at first, `enable unlocks` is on. All three are kept between launches in `saves\super.vvv`.
 
 | Item | Action |
 | --- | --- |
 | `super mode` | Toggle Super mode. In a time trial or intermission it restarts the level. |
 | `allow savestates` | Toggle the save and load keys and loading a state on death. |
+| `enable unlocks` | Toggle saving of achievements, trophies, unlocks and records (see GG!). |
 | `delete savestates` | Open the delete page. |
 
 Delete page, each entry shows the number of states it holds and does nothing when it is 0:
@@ -90,7 +91,7 @@ If the game was never completed (no Game Complete trophy), a page asks for confi
 ## GG!
 `GG!` is shown in place of `Level Complete!` and `Game Complete!` (main game and No Death Mode), `Results` (time trials) and `WOW` (No Death Mode), in every run, so footage always shows it.
 
-Nothing is blocked: achievements, trophies, unlocks, trinket stats, Super Gravitron records, best death count and time trial records are saved in every run, with savestates and Super mode in any state.
+With `enable unlocks` on (default), nothing is blocked: achievements, trophies, unlocks, trinket stats, Super Gravitron records, best death count and time trial records are saved in every run, with savestates and Super mode in any state. With it off, none of these are saved, as in a custom level.
 
 ## Switch to vanilla
 `switch to vanilla` in the main menu, between `credits` and `quit`, closes the game and starts the original game from `vanilla.exe` in the same folder as `VVVVVV.exe` (see Installation).

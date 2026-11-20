@@ -44,7 +44,6 @@ namespace savestate
         int stat_trinkets, bestgamedeaths, swnbestrank, swnrecord;
         std::map<std::string, int> customlevelstats;
         bool invincibility;
-        int frames, seconds, minutes, hours;
         bool timetrialparlost;
     };
 
@@ -83,10 +82,6 @@ namespace savestate
         p.swnrecord = game.swnrecord;
         p.customlevelstats = game.customlevelstats;
         p.invincibility = map.invincibility;
-        p.frames = game.frames;
-        p.seconds = game.seconds;
-        p.minutes = game.minutes;
-        p.hours = game.hours;
         p.timetrialparlost = game.timetrialparlost;
     }
 
@@ -125,14 +120,11 @@ namespace savestate
         game.swnrecord = p.swnrecord;
         game.customlevelstats = p.customlevelstats;
         map.invincibility = p.invincibility;
-        game.frames = p.frames;
-        game.seconds = p.seconds;
-        game.minutes = p.minutes;
-        game.hours = p.hours;
         game.timetrialparlost = p.timetrialparlost;
     }
 
-    /* The timer is not part of a state, so losing the par time is not either.
+    /* The timer is not part of a state, it restarts at 00:00 on every load, so
+     * losing the par time is not part of a state either.
      * The sad sprite belongs to the entity, so it is set again. */
     static void apply_par_lost(void)
     {
@@ -237,7 +229,10 @@ namespace savestate
 
     static const char* const STATES_FILE = "saves/states.vvv";
     static const unsigned int FILE_MAGIC = 0x54535653; /* "SVST" */
-    static const unsigned int FILE_VERSION = 2;
+    static const unsigned int FILE_VERSION = 3;
+    /* Version 2 had nine slots per key. */
+    static const unsigned int OLD_FILE_VERSION = 2;
+    static const int OLD_SLOTS = 9;
     static bool file_loaded = false;
 
     static unsigned int checksum(const unsigned char* data, const size_t length)
@@ -337,6 +332,11 @@ namespace savestate
         unsigned int expected[5];
         io(s, header);
         fill_header(expected);
+        const bool old_layout = header[1] == OLD_FILE_VERSION;
+        if (old_layout)
+        {
+            header[1] = expected[1];
+        }
         if (!s.ok() || SDL_memcmp(header, expected, sizeof(header)) != 0)
         {
             return false;
@@ -352,7 +352,15 @@ namespace savestate
         {
             int index = 0;
             io(s, index);
-            if (!s.ok() || index < 0 || loaded.count(index) != 0)
+            if (!s.ok() || index < 0)
+            {
+                return false;
+            }
+            if (old_layout)
+            {
+                index = (index / OLD_SLOTS) * SLOTS + index % OLD_SLOTS;
+            }
+            if (loaded.count(index) != 0)
             {
                 return false;
             }
@@ -597,6 +605,10 @@ namespace savestate
         script = *state.script;
 
         persist_apply(keep);
+        game.frames = 0;
+        game.seconds = 0;
+        game.minutes = 0;
+        game.hours = 0;
         apply_par_lost();
         gfx_apply(state.gfx);
 

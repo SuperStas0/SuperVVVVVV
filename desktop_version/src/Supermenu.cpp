@@ -227,9 +227,10 @@ namespace supermenu
 
         game.option(supertext::get("super mode"));
         game.option(supertext::get("allow savestates"));
+        game.option(supertext::get("enable unlocks"));
         game.option(supertext::get("delete savestates"));
-        game.option(supertext::get("load state: 1-9"), false);
-        game.option(supertext::get("save state: shift + 1-9"), false);
+        game.option(supertext::get("load state: 1-0"), false);
+        game.option(supertext::get("save state: shift + 1-0"), false);
         game.option(loc::gettext("return"));
         game.menuyoff = 0;
     }
@@ -241,7 +242,7 @@ namespace supermenu
         if (option == DELETE_RETURN)
         {
             music.playef(Sound_VIRIDIAN);
-            show(PAGE_MAIN, 2);
+            show(PAGE_MAIN, 3);
             return;
         }
 
@@ -294,10 +295,14 @@ namespace supermenu
             break;
         case 2:
             music.playef(Sound_VIRIDIAN);
-            show(PAGE_DELETE, 0);
+            supermode::toggle_unlocks();
             break;
         case 3:
+            music.playef(Sound_VIRIDIAN);
+            show(PAGE_DELETE, 0);
+            break;
         case 4:
+        case 5:
             music.playef(Sound_CRY);
             break;
         default:
@@ -342,12 +347,14 @@ namespace supermenu
         font::print(PR_2X | PR_CEN, -1, 30, supertext::get("Super"), r, g, b);
 
         SDL_snprintf(
-            buffer, sizeof(buffer), "%s %s   %s %s (%d)",
+            buffer, sizeof(buffer), "%s %s   %s %s (%d)   %s %s",
             supertext::get("Super mode:"),
             supertext::get(supermode::super_mode() ? "ON" : "OFF"),
             supertext::get("Savestates:"),
             supertext::get(supermode::allow_states() ? "ON" : "OFF"),
-            savestate::count()
+            savestate::count(),
+            supertext::get("Unlocks:"),
+            supertext::get(supermode::unlocks_enabled() ? "ON" : "OFF")
         );
 
         font::print_wrap(PR_CEN, -1, 56, buffer, r, g, b);

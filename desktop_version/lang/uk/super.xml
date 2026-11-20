@@ -11,8 +11,8 @@
     <string english="delete: intermissions" translation="видалити: інтермісії" explanation="Super menu delete page item, deletes the states of all intermission replays. The number of states follows in brackets"/>
     <string english="delete: No Death Mode" translation="видалити: безсмертний режим" explanation="Super menu delete page item, deletes the states of No Death Mode, with and without cutscenes. The number of states follows in brackets"/>
     <string english="delete all savestates" translation="видалити всі стани збереження" explanation="Super menu delete page item, deletes all saved states of all modes"/>
-    <string english="load state: 1-9" translation="завантажити стан: 1-9" explanation="Super menu line, not selectable"/>
-    <string english="save state: shift + 1-9" translation="зберегти стан: шифт+1-9" explanation="Super menu line, not selectable"/>
+    <string english="load state: 1-0" translation="завантажити стан: 1-0" explanation="Super menu line, not selectable"/>
+    <string english="save state: shift + 1-0" translation="зберегти стан: шифт+1-0" explanation="Super menu line, not selectable"/>
     <string english="Super" translation="Супер" explanation="title of the Super menu and of its entry in the options menu"/>
     <string english="Super mode and savestates." translation="Суперрежим та стани збереження" explanation="description in the options menu when the Super item is selected"/>
     <string english="Super mode:" translation="Суперрежим:" explanation="Super menu status line, followed by ON or OFF"/>
@@ -36,4 +36,8 @@
     <string english="Switch to vanilla" translation="Перейти на ванілу" explanation="title of the page shown when the original game cannot be started"/>
     <string english="vanilla.exe was not found next to VVVVVV.exe. Copy the original VVVVVV.exe there under that name." translation="vanilla.exe не знайдено поруч із VVVVVV.exe. Скопіюйте туди оригінальний VVVVVV.exe під цією назвою." explanation="text of the switch to vanilla page. Vanilla is the original game without this mod. Keep the file names"/>
     <string english="vanilla.exe is not the original game. Copy the original VVVVVV.exe there under that name." translation="vanilla.exe не є оригінальною грою. Скопіюйте туди оригінальний VVVVVV.exe під цією назвою." explanation="text of the switch to vanilla page. Keep the file names"/>
+    <string english="enable unlocks" translation="увімкнути розблокування" explanation="Super menu item, toggles saving of achievements, unlocks, trophies and records"/>
+    <string english="Unlocks:" translation="Розблокування:" explanation="Super menu status line, followed by ON or OFF"/>
+    <string english="Unlocks on" translation="Розблокування увімкнені" explanation="popup in place of the room name"/>
+    <string english="Unlocks off" translation="Розблокування вимкнені" explanation="popup in place of the room name"/>
 </strings>

@@ -30,8 +30,10 @@ namespace supermode
 
     bool super_mode(void);
     bool allow_states(void);
+    bool unlocks_enabled(void);
     void toggle_super(void);
     void toggle_allow(void);
+    void toggle_unlocks(void);
     void delete_states(void);
 
     /* Groups of the Super menu delete page. */
@@ -50,6 +52,11 @@ namespace supermode
      * created. Sets No Death Mode rules in time trials and intermission replays
      * with Super mode on. */
     void apply_trial_rules(void);
+
+    /* Called around the time trial record code. With unlocks off the records
+     * are put back, so nothing is written. */
+    void protect_records(void);
+    void restore_records(void);
 
     /* Called once per frame from savestate::input(). */
     void update(void);

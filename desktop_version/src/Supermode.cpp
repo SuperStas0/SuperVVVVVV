@@ -43,6 +43,7 @@ namespace supermode
     static bool trial_super = false;
     static bool super_setting = false;
     static bool allow_setting = false;
+    static bool unlocks_setting = true;
     static bool reset_confirmed = false;
     static Pending pending = Pending_NONE;
     static bool restarting = false;
@@ -68,6 +69,7 @@ namespace supermode
         tinyxml2::XMLElement* data = xml::update_element(root, "Data");
         xml::update_tag(data, "supermode", super_setting ? 1 : 0);
         xml::update_tag(data, "allowstates", allow_setting ? 1 : 0);
+        xml::update_tag(data, "unlocks", unlocks_setting ? 1 : 0);
         xml::update_tag(data, "resetconfirmed", reset_confirmed ? 1 : 0);
 
         if (!FILESYSTEM_saveTiXml2Document(SETTINGS_FILE, doc))
@@ -115,6 +117,10 @@ namespace supermode
             else if (SDL_strcmp(name, "allowstates") == 0)
             {
                 allow_setting = on;
+            }
+            else if (SDL_strcmp(name, "unlocks") == 0)
+            {
+                unlocks_setting = on;
             }
             else if (SDL_strcmp(name, "resetconfirmed") == 0)
             {
@@ -208,6 +214,12 @@ namespace supermode
         return allow_setting;
     }
 
+    bool unlocks_enabled(void)
+    {
+        load_settings();
+        return unlocks_setting;
+    }
+
     void toggle_super(void)
     {
         load_settings();
@@ -222,6 +234,14 @@ namespace supermode
         allow_setting = !allow_setting;
         store_settings();
         popup(allow_setting ? "Savestates on" : "Savestates off");
+    }
+
+    void toggle_unlocks(void)
+    {
+        load_settings();
+        unlocks_setting = !unlocks_setting;
+        store_settings();
+        popup(unlocks_setting ? "Unlocks on" : "Unlocks off");
     }
 
     void delete_states(void)
@@ -281,6 +301,49 @@ namespace supermode
         {
             game.nodeathmode = true;
             game.nocutscenes = true;
+        }
+    }
+
+    static int records_times[Game::numtrials];
+    static int records_frames[Game::numtrials];
+    static int records_trinkets[Game::numtrials];
+    static int records_lives[Game::numtrials];
+    static int records_rank[Game::numtrials];
+    static bool records_kept = false;
+
+    void protect_records(void)
+    {
+        records_kept = !unlocks_enabled();
+        if (!records_kept)
+        {
+            return;
+        }
+
+        for (int i = 0; i < Game::numtrials; i++)
+        {
+            records_times[i] = game.besttimes[i];
+            records_frames[i] = game.bestframes[i];
+            records_trinkets[i] = game.besttrinkets[i];
+            records_lives[i] = game.bestlives[i];
+            records_rank[i] = game.bestrank[i];
+        }
+    }
+
+    void restore_records(void)
+    {
+        if (!records_kept)
+        {
+            return;
+        }
+        records_kept = false;
+
+        for (int i = 0; i < Game::numtrials; i++)
+        {
+            game.besttimes[i] = records_times[i];
+            game.bestframes[i] = records_frames[i];
+            game.besttrinkets[i] = records_trinkets[i];
+            game.bestlives[i] = records_lives[i];
+            game.bestrank[i] = records_rank[i];
         }
     }
 
