@@ -45,10 +45,12 @@ namespace supermenu
     static Page page = PAGE_MAIN;
     static VanillaStatus vanilla_status = VANILLA_MISSING;
 
-    /* The original exe, next to the running exe. */
-    static const char VANILLA_EXE[] = "vanilla.exe";
+    /* The original exe, in a subfolder of the game folder. It keeps its name,
+     * so tools that find the game by process name also find it. */
+    static const char VANILLA_EXE[] = "vanilla\\VVVVVV.exe";
     static const char SPLIT_MARKER[] = "SUPERVVVVVV_SPLIT";
 
+    static std::string game_folder;
     static std::string vanilla_path;
 
     static const int DELETE_ALL = supermode::CATEGORIES;
@@ -75,8 +77,8 @@ namespace supermenu
         {
             return VANILLA_MISSING;
         }
-        path = base;
-        path += VANILLA_EXE;
+        game_folder = base;
+        path = game_folder + VANILLA_EXE;
         SDL_free(base);
 
         SDL_RWops* file = SDL_RWFromFile(path.c_str(), "rb");
@@ -123,19 +125,24 @@ namespace supermenu
 #endif
 
     /* Runs at exit, after the game saved and released its files and Steam. The
-     * new process keeps the environment, so Steam still sees the same game. */
+     * new process keeps the environment, so Steam still sees the same game.
+     * It starts in the game folder with the game's own data.zip, lang and
+     * fonts, because the exe itself is in a subfolder. The folder paths have no
+     * trailing backslash, which would escape the closing quote. */
     static void start_vanilla(void)
     {
 #ifdef _WIN32
         const std::wstring exe = widen(vanilla_path);
-        const std::string::size_type slash = vanilla_path.find_last_of("\\/");
-        if (exe.empty() || slash == std::string::npos)
+        const std::wstring folder = widen(game_folder);
+        if (exe.empty() || folder.empty())
         {
             return;
         }
-        const std::wstring folder = widen(vanilla_path.substr(0, slash));
 
         std::wstring command = L"\"" + exe + L"\"";
+        command += L" -assets \"" + widen(game_folder + "data.zip") + L"\"";
+        command += L" -langdir \"" + widen(game_folder + "lang") + L"\"";
+        command += L" -fontsdir \"" + widen(game_folder + "fonts") + L"\"";
         std::vector<wchar_t> buffer(command.begin(), command.end());
         buffer.push_back(L'\0');
 
@@ -329,8 +336,8 @@ namespace supermenu
             font::print_wrap(
                 PR_CEN, -1, 65,
                 supertext::get(vanilla_status == VANILLA_MODDED
-                    ? "vanilla.exe is not the original game. Copy the original VVVVVV.exe there under that name."
-                    : "vanilla.exe was not found next to VVVVVV.exe. Copy the original VVVVVV.exe there under that name."),
+                    ? "vanilla\\VVVVVV.exe is not the original game. Copy the original VVVVVV.exe there."
+                    : "vanilla\\VVVVVV.exe was not found in the game folder. Copy the original VVVVVV.exe there."),
                 r, g, b
             );
             return;

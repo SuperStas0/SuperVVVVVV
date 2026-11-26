@@ -32,10 +32,10 @@
     <string english="no, go back" translation="ні, назад" explanation="reset run confirmation option, returns to the pause menu"/>
     <string english="yes, reset run" translation="так, скинути забіг" explanation="reset run confirmation option"/>
     <string english="This should not be used by vanilla players" translation="Цей пункт не для гравців на ванілі" explanation="reset run confirmation text. Vanilla players are those who play the original game without this mod"/>
-    <string english="switch to vanilla" translation="перейти на ванілу" explanation="main menu item, closes the game and starts the original game from vanilla.exe"/>
+    <string english="switch to vanilla" translation="перейти на ванілу" explanation="main menu item, closes the game and starts the original game from vanilla\VVVVVV.exe"/>
     <string english="Switch to vanilla" translation="Перейти на ванілу" explanation="title of the page shown when the original game cannot be started"/>
-    <string english="vanilla.exe was not found next to VVVVVV.exe. Copy the original VVVVVV.exe there under that name." translation="vanilla.exe не знайдено поруч із VVVVVV.exe. Скопіюйте туди оригінальний VVVVVV.exe під цією назвою." explanation="text of the switch to vanilla page. Vanilla is the original game without this mod. Keep the file names"/>
-    <string english="vanilla.exe is not the original game. Copy the original VVVVVV.exe there under that name." translation="vanilla.exe не є оригінальною грою. Скопіюйте туди оригінальний VVVVVV.exe під цією назвою." explanation="text of the switch to vanilla page. Keep the file names"/>
+    <string english="vanilla\VVVVVV.exe was not found in the game folder. Copy the original VVVVVV.exe there." translation="vanilla\VVVVVV.exe не знайдено в папці гри. Скопіюйте туди оригінальний VVVVVV.exe." explanation="text of the switch to vanilla page. Vanilla is the original game without this mod. Keep the file name"/>
+    <string english="vanilla\VVVVVV.exe is not the original game. Copy the original VVVVVV.exe there." translation="vanilla\VVVVVV.exe не є оригінальною грою. Скопіюйте туди оригінальний VVVVVV.exe." explanation="text of the switch to vanilla page. Keep the file name"/>
     <string english="enable unlocks" translation="увімкнути розблокування" explanation="Super menu item, toggles saving of achievements, unlocks, trophies and records"/>
     <string english="Unlocks:" translation="Розблокування:" explanation="Super menu status line, followed by ON or OFF"/>
     <string english="Unlocks on" translation="Розблокування увімкнені" explanation="popup in place of the room name"/>
