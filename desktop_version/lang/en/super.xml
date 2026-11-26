@@ -32,10 +32,10 @@
     <string english="no, go back" translation="" explanation="reset run confirmation option, returns to the pause menu"/>
     <string english="yes, reset run" translation="" explanation="reset run confirmation option"/>
     <string english="This should not be used by vanilla players" translation="" explanation="reset run confirmation text. Vanilla players are those who play the original game without this mod"/>
-    <string english="switch to vanilla" translation="" explanation="main menu item, closes the game and starts the original game from vanilla\VVVVVV.exe"/>
+    <string english="switch to vanilla" translation="" explanation="main menu item, closes the game and starts the original game from vanilla.exe in the game folder"/>
     <string english="Switch to vanilla" translation="" explanation="title of the page shown when the original game cannot be started"/>
-    <string english="vanilla\VVVVVV.exe was not found in the game folder. Copy the original VVVVVV.exe there." translation="" explanation="text of the switch to vanilla page. Vanilla is the original game without this mod. Keep the file name"/>
-    <string english="vanilla\VVVVVV.exe is not the original game. Copy the original VVVVVV.exe there." translation="" explanation="text of the switch to vanilla page. Keep the file name"/>
+    <string english="vanilla.exe was not found in the game folder. Copy the original VVVVVV.exe there under that name." translation="" explanation="text of the switch to vanilla page. Vanilla is the original game without this mod. Keep the file names"/>
+    <string english="vanilla.exe is not the original game. Copy the original VVVVVV.exe there under that name." translation="" explanation="text of the switch to vanilla page. Keep the file names"/>
     <string english="enable unlocks" translation="" explanation="Super menu item, toggles saving of achievements, unlocks, trophies and records"/>
     <string english="Unlocks:" translation="" explanation="Super menu status line, followed by ON or OFF"/>
     <string english="Unlocks on" translation="" explanation="popup in place of the room name"/>
@@ -44,4 +44,5 @@
     <string english="States {n} and {m} swapped" translation="" explanation="popup in place of the room name. {n} and {m} are the slot numbers, 1 to 10"/>
     <string english="Swap cancelled" translation="" explanation="popup in place of the room name, when ctrl + the same number was pressed twice"/>
     <string english="Nothing to swap" translation="" explanation="popup in place of the room name, when both slots are empty"/>
+    <string english="vanilla.exe could not be moved to the vanilla folder. Close programs using it and try again." translation="" explanation="text of the switch to vanilla page. Keep the file names"/>
 </strings>

@@ -39,14 +39,18 @@ namespace supermenu
     {
         VANILLA_OK,
         VANILLA_MISSING,
-        VANILLA_MODDED
+        VANILLA_MODDED,
+        VANILLA_NOT_MOVED
     };
 
     static Page page = PAGE_MAIN;
     static VanillaStatus vanilla_status = VANILLA_MISSING;
 
-    /* The original exe, in a subfolder of the game folder. It keeps its name,
-     * so tools that find the game by process name also find it. */
+    /* The original exe runs from a subfolder of the game folder, under its own
+     * name, so tools that find the game by process name also find it. It is
+     * put in the game folder as vanilla.exe and moved there. */
+    static const char LOOSE_EXE[] = "vanilla.exe";
+    static const char VANILLA_DIR[] = "vanilla";
     static const char VANILLA_EXE[] = "vanilla\\VVVVVV.exe";
     static const char SPLIT_MARKER[] = "SUPERVVVVVV_SPLIT";
 
@@ -70,17 +74,22 @@ namespace supermenu
         game.currentmenuoption = option;
     }
 
-    static VanillaStatus check_vanilla(std::string& path)
+#ifdef _WIN32
+    static std::wstring widen(const std::string& text)
     {
-        char* base = SDL_GetBasePath();
-        if (base == NULL)
+        const int length = MultiByteToWideChar(CP_UTF8, 0, text.c_str(), -1, NULL, 0);
+        if (length <= 0)
         {
-            return VANILLA_MISSING;
+            return std::wstring();
         }
-        game_folder = base;
-        path = game_folder + VANILLA_EXE;
-        SDL_free(base);
+        std::vector<wchar_t> buffer(length);
+        MultiByteToWideChar(CP_UTF8, 0, text.c_str(), -1, &buffer[0], length);
+        return std::wstring(&buffer[0]);
+    }
+#endif
 
+    static VanillaStatus scan_exe(const std::string& path)
+    {
         SDL_RWops* file = SDL_RWFromFile(path.c_str(), "rb");
         if (file == NULL)
         {
@@ -110,19 +119,50 @@ namespace supermenu
         return VANILLA_OK;
     }
 
-#ifdef _WIN32
-    static std::wstring widen(const std::string& text)
+    /* Moves vanilla.exe into the vanilla folder as VVVVVV.exe, replacing an
+     * older one there. */
+    static bool move_loose_exe(const std::string& from, const std::string& to)
     {
-        const int length = MultiByteToWideChar(CP_UTF8, 0, text.c_str(), -1, NULL, 0);
-        if (length <= 0)
+#ifdef _WIN32
+        const std::wstring folder = widen(game_folder + VANILLA_DIR);
+        if (!CreateDirectoryW(folder.c_str(), NULL) && GetLastError() != ERROR_ALREADY_EXISTS)
         {
-            return std::wstring();
+            return false;
         }
-        std::vector<wchar_t> buffer(length);
-        MultiByteToWideChar(CP_UTF8, 0, text.c_str(), -1, &buffer[0], length);
-        return std::wstring(&buffer[0]);
-    }
+        return MoveFileExW(widen(from).c_str(), widen(to).c_str(), MOVEFILE_REPLACE_EXISTING) != 0;
+#else
+        (void) from;
+        (void) to;
+        return false;
 #endif
+    }
+
+    /* vanilla.exe in the game folder is moved to vanilla\VVVVVV.exe first, so
+     * the original is only ever put there as vanilla.exe. */
+    static VanillaStatus check_vanilla(std::string& path)
+    {
+        char* base = SDL_GetBasePath();
+        if (base == NULL)
+        {
+            return VANILLA_MISSING;
+        }
+        game_folder = base;
+        path = game_folder + VANILLA_EXE;
+        SDL_free(base);
+
+        const std::string loose = game_folder + LOOSE_EXE;
+        const VanillaStatus loose_status = scan_exe(loose);
+        if (loose_status == VANILLA_MODDED)
+        {
+            return VANILLA_MODDED;
+        }
+        if (loose_status == VANILLA_OK && !move_loose_exe(loose, path))
+        {
+            return VANILLA_NOT_MOVED;
+        }
+
+        return scan_exe(path);
+    }
 
     /* Runs at exit, after the game saved and released its files and Steam. The
      * new process keeps the environment, so Steam still sees the same game.
@@ -335,9 +375,13 @@ namespace supermenu
             font::print(PR_2X | PR_CEN, -1, 30, supertext::get("Switch to vanilla"), r, g, b);
             font::print_wrap(
                 PR_CEN, -1, 65,
-                supertext::get(vanilla_status == VANILLA_MODDED
-                    ? "vanilla\\VVVVVV.exe is not the original game. Copy the original VVVVVV.exe there."
-                    : "vanilla\\VVVVVV.exe was not found in the game folder. Copy the original VVVVVV.exe there."),
+                supertext::get(
+                    vanilla_status == VANILLA_MODDED
+                        ? "vanilla.exe is not the original game. Copy the original VVVVVV.exe there under that name."
+                        : vanilla_status == VANILLA_NOT_MOVED
+                            ? "vanilla.exe could not be moved to the vanilla folder. Close programs using it and try again."
+                            : "vanilla.exe was not found in the game folder. Copy the original VVVVVV.exe there under that name."
+                ),
                 r, g, b
             );
             return;

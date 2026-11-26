@@ -5,13 +5,13 @@ Altered version of [VVVVVV](https://github.com/TerryCavanagh/VVVVVV) (copyright 
 # Installation
 Requires your own copy of VVVVVV on Steam.
 
-1. In the game folder (`...\steamapps\common\VVVVVV`), create the folder `vanilla` and copy the original `VVVVVV.exe` into it, so it is `vanilla\VVVVVV.exe`.
+1. In the game folder (`...\steamapps\common\VVVVVV`), copy the original `VVVVVV.exe` to a backup named `vanilla.exe`.
 2. Extract the release archive into the game folder, overwriting `VVVVVV.exe`.
 3. Launch the game from Steam.
 
 If you use LiveSplit, use `LiveSplit.VVVVVV.asl` from the release archive as the autosplitter, see Autosplitter.
 
-To go back to vanilla, use `switch to vanilla` in the main menu (see Switch to vanilla), put `vanilla\VVVVVV.exe` back as `VVVVVV.exe`, or use Steam > Properties > Installed Files > Verify integrity of game files. A Steam update also restores it.
+To go back to vanilla, use `switch to vanilla` in the main menu (see Switch to vanilla), put the backup (`vanilla.exe`, or `vanilla\VVVVVV.exe` after the first switch) back as `VVVVVV.exe`, or use Steam > Properties > Installed Files > Verify integrity of game files. A Steam update also restores it.
 
 It uses the same save and settings folder as the original game.
 
@@ -96,12 +96,12 @@ If the game was never completed (no Game Complete trophy), a page asks for confi
 With `enable unlocks` on (default), nothing is blocked: achievements, trophies, unlocks, trinket stats, Super Gravitron records, best death count and time trial records are saved in every run, with savestates and Super mode in any state. With it off, none of these are saved, as in a custom level.
 
 ## Switch to vanilla
-`switch to vanilla` in the main menu, between `credits` and `quit`, closes the game and starts the original game from `vanilla\VVVVVV.exe` (see Installation).
+`switch to vanilla` in the main menu, between `credits` and `quit`, closes the game and starts the original game from `vanilla.exe` in the game folder (see Installation).
 
-- The original keeps the name `VVVVVV.exe`, so OBS, LiveSplit and other tools that find the game by process name find it too.
+- The first time, it moves `vanilla.exe` to `vanilla\VVVVVV.exe`, creating the `vanilla` folder, and replaces an older file there. The original keeps the name `VVVVVV.exe`, so OBS, LiveSplit and other tools that find the game by process name find it too.
 - It starts after SuperVVVVVV has saved and closed, with the game folder as working folder and the same environment. Because its exe is in a subfolder, it is started with `-assets`, `-langdir` and `-fontsdir` pointing to the game's `data.zip`, `lang` and `fonts`. The original must support these options (VVVVVV 2.4.4 does).
 - The original shares the save and settings folder. The original has no way back: start `VVVVVV.exe` again, e.g. from Steam.
-- If `vanilla\VVVVVV.exe` is missing, or is a SuperVVVVVV build, a page says so and the game stays open.
+- If neither `vanilla.exe` nor `vanilla\VVVVVV.exe` exists, if the file is a SuperVVVVVV build, or if the move fails, a page says so and the game stays open.
 
 # Translations
 Texts added by SuperVVVVVV are translated with `lang\<code>\super.xml`, in the same format as the game's `strings.xml`. Missing or empty translations stay English. Official texts stay in the game's own `strings.xml`.
