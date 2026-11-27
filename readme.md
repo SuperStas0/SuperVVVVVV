@@ -1,3 +1,5 @@
+<p align="center"><img src="showcase.png" alt="SuperVVVVVV"/></p>
+
 # SuperVVVVVV
 
 Altered version of [VVVVVV](https://github.com/TerryCavanagh/VVVVVV) (copyright Terry Cavanagh, based on the 2.4.4 source code), not the original game: practice patch for Windows (Steam version) with savestates for time trials, intermission replays and No Death Mode, and a Super mode with fast restarts. Any run made with it is not allowed on speedrun.com: use the original game for runs, see Switch to vanilla.
